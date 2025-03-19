@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReizenApi", "ReizenApi\ReizenApi.csproj", "{313ADD03-E101-418F-AE76-81A70DAC5C31}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reizen.Domain", "Reizen.Domain\Reizen.Domain.csproj", "{F05E955B-D92B-4FB1-83E7-8CA97E99F371}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reizen.Data", "Reizen.Data\Reizen.Data.csproj", "{FB08C08E-FECF-41B7-A3CE-6AD563CB9337}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{313ADD03-E101-418F-AE76-81A70DAC5C31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{313ADD03-E101-418F-AE76-81A70DAC5C31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{313ADD03-E101-418F-AE76-81A70DAC5C31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{313ADD03-E101-418F-AE76-81A70DAC5C31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F05E955B-D92B-4FB1-83E7-8CA97E99F371}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F05E955B-D92B-4FB1-83E7-8CA97E99F371}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F05E955B-D92B-4FB1-83E7-8CA97E99F371}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F05E955B-D92B-4FB1-83E7-8CA97E99F371}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB08C08E-FECF-41B7-A3CE-6AD563CB9337}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB08C08E-FECF-41B7-A3CE-6AD563CB9337}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB08C08E-FECF-41B7-A3CE-6AD563CB9337}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB08C08E-FECF-41B7-A3CE-6AD563CB9337}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

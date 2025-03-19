@@ -1,0 +1,6 @@
+@ReizenApi_HostAddress = http://localhost:5170
+
+GET {{ReizenApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
