@@ -17,5 +17,5 @@ public partial class Woonplaats
 
     public string Naam { get; set; } = null!;
 
-    public virtual ICollection<Klant> Klantens { get; set; } = new List<Klant> ();
+    public virtual ICollection<Klant> Klanten { get; set; } = new List<Klant> ();
 }
