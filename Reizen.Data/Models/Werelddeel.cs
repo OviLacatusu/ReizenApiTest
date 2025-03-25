@@ -12,5 +12,5 @@ public partial class Werelddeel
 
     public string Naam { get; set; } = null!;
 
-    public virtual ICollection<Land> Landens { get; set; } = new List<Land> ();
+    public virtual ICollection<Land> Landen { get; set; } = new List<Land> ();
 }
