@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Reizen.Data.Models.CQRS
 {
-    internal interface IMediator
+    public interface IMediator
     {
         public void Register<TCommand, TResult> (ICommandHandler<TCommand, TResult> handler) where TCommand : ICommand<TResult>;  
         public void Register<TQuery, TResult>(IQueryHandler<TQuery, TResult> handler) where TQuery : IQuery<TResult>;

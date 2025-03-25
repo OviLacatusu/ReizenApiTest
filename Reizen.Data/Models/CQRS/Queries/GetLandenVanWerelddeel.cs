@@ -10,11 +10,11 @@ namespace Reizen.Data.Models.CQRS.Queries
 {
     public class GetLandenVanWerelddeel
     {
-        public record GetLandenVanWerelddeelCommand(string werelddeel, ReizenContext context):IQuery<IList<Land>>;
+        public record GetLandenVanWerelddeelQuery(string werelddeel, ReizenContext context):IQuery<IList<Land>>;
 
-        public class GetLandenVanWerelddeelCommandHandler : IQueryHandler<GetLandenVanWerelddeelCommand, IList<Land>>
+        public class GetLandenVanWerelddeelQueryHandler : IQueryHandler<GetLandenVanWerelddeelQuery, IList<Land>>
         {
-            public async Task<IList<Land>?> Execute (GetLandenVanWerelddeelCommand query)
+            public async Task<IList<Land>?> Execute (GetLandenVanWerelddeelQuery query)
             {
                 var werelddeel = await query.context.Werelddelen.Where (w => w.Naam.Contains (query.werelddeel, StringComparison.OrdinalIgnoreCase)).FirstOrDefaultAsync();
                 return werelddeel == null ? null : werelddeel.Landen.ToList();

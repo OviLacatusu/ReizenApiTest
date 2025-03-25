@@ -10,11 +10,11 @@ namespace Reizen.Data.Models.CQRS.Queries
 {
     public class GetWerelddelen
     {
-        public record GetWerelddelenCommand(ReizenContext context): IQuery<IList<Werelddeel>>;
+        public record GetWerelddelenQuery(ReizenContext context): IQuery<IList<Werelddeel>>;
 
-        public class GetWerelddelenCommandHandler : IQueryHandler<GetWerelddelenCommand, IList<Werelddeel>>
+        public class GetWerelddelenQueryHandler : IQueryHandler<GetWerelddelenQuery, IList<Werelddeel>>
         {
-            public async Task<IList<Werelddeel>?> Execute (GetWerelddelenCommand query)
+            public async Task<IList<Werelddeel>?> Execute (GetWerelddelenQuery query)
             {
                 return await query.context.Werelddelen.ToListAsync();
             }

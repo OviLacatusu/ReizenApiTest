@@ -1,26 +1,31 @@
 ﻿using Reizen.Data.Models;
+using Reizen.Data.Models.CQRS;
+using Reizen.Data.Models.CQRS.Queries;
 using Reizen.Data.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Reizen.Data.Models.CQRS.Queries.GetKlanten;
+using static Reizen.Data.Models.CQRS.Queries.GetKlantMetID;
+using static Reizen.Data.Models.CQRS.Queries.GetKlantMetNaam;
 
 namespace Reizen.Domain.Services
 {
-    public sealed class KlantenService (IKlantenRepository klantenRepository) : IKlantenRepository
+    public sealed class KlantenService (IMediator mediator, ReizenContext context) : IKlantenRepository
     {
         public async Task<ICollection<Klant>?> GetKlantenAsync ()
         {
-            return await klantenRepository.GetKlantenAsync ();
+            return await mediator.ExecuteQuery<GetKlantenQuery, IList<Klant>>(new GetKlantenQuery(context));
         }
         public async Task<Klant?> GetKlantMetIdAsync (int id)
         {
-            return await klantenRepository.GetKlantMetIdAsync (id);
+            return await mediator.ExecuteQuery<GetKlantMetIDQuery, Klant> (new GetKlantMetIDQuery (context, id));
         }
         public async Task<Klant?> GetKlantMetNaamAsync (string naam)
         {
-            return await klantenRepository.GetKlantMetNaamAsync(naam);
+            return await mediator.ExecuteQuery<GetKlantMetNaamQuery, Klant> (new GetKlantMetNaamQuery(context, naam));
         }
     }
 }

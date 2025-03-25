@@ -1,10 +1,12 @@
+
 using Microsoft.EntityFrameworkCore;
+using Reizen.Data.Models.CQRS;
 using Reizen.Data.Repositories;
 using Reizen.Domain.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ReizenContext> (options => options.UseSqlServer( builder.Configuration.GetConnectionString("ReizenDB")));
-builder.Services.AddScoped<IKlantenRepository, SQLKlantenRepository>();
+builder.Services.AddScoped<IMediator>( _ => Mediator.MediatorFactory());
 builder.Services.AddScoped<KlantenService> ();
 // Add services to the container.
 

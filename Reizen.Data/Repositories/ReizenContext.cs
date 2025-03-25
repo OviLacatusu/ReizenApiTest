@@ -126,7 +126,7 @@ public partial class ReizenContext : DbContext
                 .HasColumnName ("voornaam");
             entity.Property (e => e.Woonplaatsid).HasColumnName ("woonplaatsid");
 
-            entity.HasOne (d => d.Woonplaats).WithMany (p => p.Klantens)
+            entity.HasOne (d => d.Woonplaats).WithMany (p => p.Klanten)
                 .HasForeignKey (d => d.Woonplaatsid)
                 .OnDelete (DeleteBehavior.ClientSetNull)
                 .HasConstraintName ("klanten_woonplaatsen");
@@ -147,7 +147,7 @@ public partial class ReizenContext : DbContext
                 .HasColumnName ("naam");
             entity.Property (e => e.Werelddeelid).HasColumnName ("werelddeelid");
 
-            entity.HasOne (d => d.Werelddeel).WithMany (p => p.Landens)
+            entity.HasOne (d => d.Werelddeel).WithMany (p => p.Landen)
                 .HasForeignKey (d => d.Werelddeelid)
                 .OnDelete (DeleteBehavior.ClientSetNull)
                 .HasConstraintName ("landen_werelddelen");
