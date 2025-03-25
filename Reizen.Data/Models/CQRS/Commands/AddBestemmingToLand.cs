@@ -16,7 +16,7 @@ namespace Reizen.Data.Models.CQRS.Commands
             public async Task<int> Execute (AddBestemmingToLandCommand command)
             {
                 var land = await command.context.Landen.FindAsync(command.land);
-                if (land.Bestemmingen.Where (el => el.Plaats == command.bestemming.Plaats).Count() == 0)
+                if (land?.Bestemmingen.Where (el => el.Plaats == command.bestemming.Plaats).Count() == 0)
                 {
                     land.Bestemmingen.Add (command.bestemming);
                 }
