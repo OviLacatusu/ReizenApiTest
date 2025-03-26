@@ -23,9 +23,9 @@ namespace Reizen.Domain.Services
         {
             return await mediator.ExecuteQuery<GetKlantMetIDQuery, Klant> (new GetKlantMetIDQuery (context, id));
         }
-        public async Task<Klant?> GetKlantMetNaamAsync (string naam)
+        public async Task<ICollection<Klant>?> GetKlantenMetNaamAsync (string naam)
         {
-            return await mediator.ExecuteQuery<GetKlantMetNaamQuery, Klant> (new GetKlantMetNaamQuery(context, naam));
+            return await mediator.ExecuteQuery<GetKlantMetNaamQuery, IList<Klant>> (new GetKlantMetNaamQuery(context, naam));
         }
     }
 }

@@ -11,6 +11,6 @@ namespace Reizen.Data.Repositories
     {
         Task<ICollection<Klant>?> GetKlantenAsync ();
         Task<Klant?> GetKlantMetIdAsync (int id);
-        Task<Klant?> GetKlantMetNaamAsync (string naam);
+        Task<ICollection<Klant>?> GetKlantenMetNaamAsync (string naam);
     }
 }

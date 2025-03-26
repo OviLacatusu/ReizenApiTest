@@ -25,6 +25,7 @@ namespace Reizen.Data.Models.CQRS
     {
         private List<Object> _queryHandlers = new List<Object> ();
         private List<Object> _commandHandlers = new List<Object> ();
+
         private static Mediator _mediator = null;
         public async Task<TResult?> ExecuteCommand<TCommand, TResult> (TCommand command) where TCommand : ICommand<TResult>
                                                                                           where TResult : class
@@ -76,7 +77,7 @@ namespace Reizen.Data.Models.CQRS
                 mediator.Register<GetBestemmingenVanLandQuery, IList<Bestemming>> (new GetBestemmingenVanLandQueryHandler());
                 mediator.Register<GetKlantenQuery, IList<Klant>> (new GetKlantenQueryHandler ());
                 mediator.Register<GetKlantMetIDQuery, Klant> (new GetKlantMetIDQueryHandler());
-                mediator.Register<GetKlantMetNaamQuery, Klant> (new GetKlantMetNaamQueryHandler ());
+                mediator.Register<GetKlantMetNaamQuery, IList<Klant>> (new GetKlantMetNaamQueryHandler ());
                 mediator.Register<GetLandenVanWerelddeelQuery, IList<Land>> (new GetLandenVanWerelddeelQueryHandler());
                 mediator.Register<GetWerelddelenQuery, IList<Werelddeel>> (new GetWerelddelenQueryHandler());
                 mediator.Register<AddBestemmingToLandCommand, int> (new AddBestemmingToLandCommandHandler ());

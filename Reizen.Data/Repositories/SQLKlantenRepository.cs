@@ -26,10 +26,10 @@ namespace Reizen.Data.Repositories
             return await _klantenContext.Klanten.FirstOrDefaultAsync ( k => k.Id == id);
         }
 
-        public async Task<Klant?> GetKlantMetNaamAsync (string naam)
+        public async Task<ICollection<Klant>?> GetKlantenMetNaamAsync (string naam)
         {
-            return await _klantenContext.Klanten.FirstOrDefaultAsync (k => k.Voornaam.Contains (naam, StringComparison.OrdinalIgnoreCase) || 
-                                                                           k.Familienaam.Contains (naam, StringComparison.OrdinalIgnoreCase));
+            return await _klantenContext.Klanten.Where (k => k.Voornaam.Contains (naam, StringComparison.OrdinalIgnoreCase) || 
+                                                                           k.Familienaam.Contains (naam, StringComparison.OrdinalIgnoreCase)).ToListAsync();
         }
     }
 }

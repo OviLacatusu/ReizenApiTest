@@ -18,11 +18,16 @@ namespace ReizenApi.Controllers
             return await service.GetKlantenAsync ();
         }
 
-        // GET api/<ValuesController>/5
-        [HttpGet ("{id}")]
-        public string Get (int id)
+        [HttpGet ("{naam}")]
+        public async Task<ICollection<Klant>?> GetMetNaam (string naam)
         {
-            return "value";
+            return await service.GetKlantenMetNaamAsync (naam);
+        }
+        // GET api/<ValuesController>/5
+        [HttpGet ("{id:int}")]
+        public async Task<Klant?> Get (int id)
+        {
+            return await service.GetKlantMetIdAsync(id);
         }
 
         // POST api/<ValuesController>
