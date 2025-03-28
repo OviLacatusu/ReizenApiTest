@@ -1,0 +1,29 @@
+﻿@page "/"
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+@if(klanten != null)
+{
+    @foreach (var klant in klanten)   
+      {  
+          <p>@klant.Familienaam @klant.Voornaam @klant.Id</p>  
+      } 
+} 
+else 
+{
+    <p>Waiting for data...</p>
+}
+
+@code 
+{
+    private IEnumerable<Klant>? klanten;
+
+    [Inject]
+    public KlantenService KlantenService { get; set; }
+
+    protected override async Task OnInitializedAsync() 
+    {
+        klanten = await KlantenService.GetKlantenAsync();
+    }
+}
