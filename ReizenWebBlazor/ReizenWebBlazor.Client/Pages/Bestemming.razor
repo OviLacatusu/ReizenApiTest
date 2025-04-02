@@ -1,0 +1,31 @@
+﻿@page "/bestemmingen/{Bestemmingscode}"
+@inject HttpClient httpClient
+
+<h3>Bestemmingen</h3>
+@if (reizen != null)
+{
+    <ul>
+        @foreach (var reis in reizen)
+        {
+            <li><a href="/reizen">@reis.Id @reis.PrijsPerPersoon @reis.AantalDagen </a></li>
+        }
+    </ul>
+}
+else
+{
+    <p>Waiting for data...</p>
+}
+@code {
+    [Parameter]
+    public string Bestemmingscode { get; set; }
+
+    private IEnumerable<Reis> reizen;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Bestemmingscode != null)
+        {
+            reizen = await httpClient.GetFromJsonAsync<IEnumerable<Reis>>($"/reizen/{Bestemmingscode}");
+        }
+    }
+}

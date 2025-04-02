@@ -10,8 +10,8 @@ namespace Reizen.Data.Repositories
     public interface ILandenWerelddelenRepository
     {
         Task<ICollection<Werelddeel>?> GetWerelddelenAsync ();
-        Task<ICollection<Land>?> GetLandenVanWerelddeelAsync (string werelddeelNaam);
-        Task<ICollection<Bestemming>?> GetBestemmingenVanLandAsync (string landnaam);
+        Task<ICollection<Land>?> GetLandenVanWerelddeelAsync (string? werelddeelNaam);
+        Task<ICollection<Bestemming>?> GetBestemmingenVanLandAsync (string? landnaam);
 
     }
 }

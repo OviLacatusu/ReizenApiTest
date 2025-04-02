@@ -16,8 +16,9 @@ namespace Reizen.Data.Models.CQRS.Queries
         {
             public async Task<IList<Bestemming>?> Execute (GetBestemmingenVanLandQuery query)
             {
-                var land = await query.context.Landen.Where (l => l.Naam.Contains(query.land, StringComparison.OrdinalIgnoreCase)).FirstOrDefaultAsync();
-                return land == null ? null : land.Bestemmingen.ToList ();
+                var land = (await query.context.Landen.ToListAsync()).Where (l => l.Naam.Contains(query.land, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+                var result = (await query.context.Bestemmingen.ToListAsync()).Where(b => b.Landid == land.Id);
+                return result == null ? null : result.ToList ();
             }
         }
     }

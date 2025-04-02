@@ -16,8 +16,9 @@ namespace Reizen.Data.Models.CQRS.Queries
         {
             public async Task<IList<Land>?> Execute (GetLandenVanWerelddeelQuery query)
             {
-                var werelddeel = await query.context.Werelddelen.Where (w => w.Naam.Contains (query.werelddeel, StringComparison.OrdinalIgnoreCase)).FirstOrDefaultAsync();
-                return werelddeel == null ? null : werelddeel.Landen.ToList();
+                var werelddeel = (await query.context.Werelddelen.ToListAsync()).Where (w => w.Naam.Contains (query.werelddeel, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+                var result = (await query.context.Landen.ToListAsync ()).Where (l => l.Werelddeelid == werelddeel?.Id ).ToList();
+                return (IList<Land>?)result;
             }
         }
     }

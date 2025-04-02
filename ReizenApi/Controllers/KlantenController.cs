@@ -9,7 +9,7 @@ namespace ReizenApi.Controllers
 {
     [Route ("[controller]")]
     [ApiController]
-    public class KlantenController(KlantenService service): ControllerBase
+    public class KlantenController(IKlantenRepository service): ControllerBase
     {
         // GET: api/<ValuesController>
         [HttpGet]

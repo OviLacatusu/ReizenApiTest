@@ -20,6 +20,7 @@ using static Reizen.Data.Models.CQRS.Commands.AddLandToWerelddeel;
 using static Reizen.Data.Models.CQRS.Commands.AddReisToBestemming;
 using static Reizen.Data.Models.CQRS.Commands.DeleteKlant;
 using static Reizen.Data.Models.CQRS.Commands.UpdateKlant;
+using static Reizen.Data.Models.CQRS.Queries.GetReizenNaarBestemming;
 
 namespace Reizen.Data.Models.CQRS
 {
@@ -88,6 +89,7 @@ namespace Reizen.Data.Models.CQRS
             mediator.Register<AddReisToBestemmingCommand, int> (new AddReisToBestemmingCommandHandler ());
             mediator.Register<DeleteKlantCommand, int> (new DeleteKlantCommandHandler ());
             mediator.Register<UpdateKlantCommand, int> (new UpdateKlantCommandHandler ());
+            mediator.Register<GetReizenNaarBestemmingQuery, IList<Reis>> (new GetReizenNaarBestemmingQueryHandler());
 
             //_mediator = mediator;
             //}

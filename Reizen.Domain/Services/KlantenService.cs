@@ -1,4 +1,5 @@
-﻿using Reizen.Data.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Reizen.Data.Models;
 using Reizen.Data.Models.CQRS;
 using Reizen.Data.Models.CQRS.Queries;
 using Reizen.Data.Repositories;
@@ -13,19 +14,38 @@ using static Reizen.Data.Models.CQRS.Queries.GetKlantMetNaam;
 
 namespace Reizen.Domain.Services
 {
-    public sealed class KlantenService (IMediator mediator, ReizenContext context) : IKlantenRepository
+    public sealed class KlantenService (IMediator mediator, IDbContextFactory<ReizenContext> factory) : IKlantenRepository
     {
         public async Task<ICollection<Klant>?> GetKlantenAsync ()
         {
-            return await mediator.ExecuteQuery<GetKlantenQuery, IList<Klant>>(new GetKlantenQuery(context));
+            using (var context = factory.CreateDbContext ())
+            {
+                return await mediator.ExecuteQuery<GetKlantenQuery, IList<Klant>> (new GetKlantenQuery (context));
+            }
         }
         public async Task<Klant?> GetKlantMetIdAsync (int id)
         {
-            return await mediator.ExecuteQuery<GetKlantMetIDQuery, Klant> (new GetKlantMetIDQuery (context, id));
+            using (var context = factory.CreateDbContext ())
+            {
+                return await mediator.ExecuteQuery<GetKlantMetIDQuery, Klant> (new GetKlantMetIDQuery (context, id));
+            }
         }
         public async Task<ICollection<Klant>?> GetKlantenMetNaamAsync (string naam)
         {
-            return await mediator.ExecuteQuery<GetKlantMetNaamQuery, IList<Klant>> (new GetKlantMetNaamQuery(context, naam));
+            using (var context = factory.CreateDbContext ())
+            {
+                return await mediator.ExecuteQuery<GetKlantMetNaamQuery, IList<Klant>> (new GetKlantMetNaamQuery (context, naam));
+            }
+        }
+
+        public Task<int> AddKlant (Klant klant)
+        {
+            throw new NotImplementedException ();
+        }
+
+        public Task<bool> UpdateKlant (int id, Klant klantDetails)
+        {
+            throw new NotImplementedException ();
         }
     }
 }

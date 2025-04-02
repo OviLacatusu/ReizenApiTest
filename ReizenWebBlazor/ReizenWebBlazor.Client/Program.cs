@@ -4,7 +4,11 @@ using Reizen.Domain.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault (args);
 
-builder.Services.AddTransient<IMediator> (_ => Mediator.MediatorFactory ());
-builder.Services.AddTransient<KlantenService> ();
+builder.Services.AddHttpClient("",client => {
+    client.BaseAddress = new Uri ("https://localhost:7285");
+});
+//builder.Services.AddTransient<IMediator> (_ => Mediator.MediatorFactory ());
+//builder.Services.AddTransient<KlantenService> ();
+//builder.Services.AddTransient<LandenService> ();
 
 await builder.Build ().RunAsync ();

@@ -31,5 +31,15 @@ namespace Reizen.Data.Repositories
             return await _klantenContext.Klanten.Where (k => k.Voornaam.Contains (naam, StringComparison.OrdinalIgnoreCase) || 
                                                                            k.Familienaam.Contains (naam, StringComparison.OrdinalIgnoreCase)).ToListAsync();
         }
+
+        public Task<int> AddKlant (Klant klant)
+        {
+            throw new NotImplementedException ();
+        }
+
+        public Task<bool> UpdateKlant (int id, Klant klantDetails)
+        {
+            throw new NotImplementedException ();
+        }
     }
 }

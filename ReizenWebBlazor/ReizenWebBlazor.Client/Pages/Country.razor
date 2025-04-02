@@ -1,0 +1,34 @@
+﻿@page "/landen/{NaamLand}"
+@inject HttpClient httpClient
+
+<h3>Land</h3>
+
+<img src="/vlaggen/@(NaamLand).png" />
+@if (bestemmingen != null)
+{
+    <ul>
+        @foreach (var bestemming in bestemmingen)
+        {
+            <li><a href="/bestemmingen/@bestemming.Code">@bestemming.Plaats </a></li>
+        }
+    </ul>
+}
+else
+{
+    <p>Waiting for data...</p>
+}
+
+@code {
+    [Parameter]
+    public string? NaamLand { get; set; }
+
+    private IEnumerable<Reizen.Data.Models.Bestemming> bestemmingen;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (NaamLand != null)
+        {
+            bestemmingen = await httpClient.GetFromJsonAsync<IEnumerable<Reizen.Data.Models.Bestemming>>($"/bestemmingen/{NaamLand}");
+        }
+    }
+}

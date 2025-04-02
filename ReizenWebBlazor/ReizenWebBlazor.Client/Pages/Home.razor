@@ -1,14 +1,18 @@
 ﻿@page "/"
+@inject HttpClient httpClient
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Werelddelen</PageTitle>
 
 <h1>Hello, world!</h1>
-@if(klanten != null)
+@if(werelddelen != null)
 {
-    @foreach (var klant in klanten)   
-      {  
-          <p>@klant.Familienaam @klant.Voornaam @klant.Id</p>  
-      } 
+    <ul>
+        @foreach (var werelddeel in werelddelen)   
+        {
+
+            <li><a href="/werelddelen/@werelddeel.Naam">@werelddeel.Naam  </a></li>
+        }
+    </ul>
 } 
 else 
 {
@@ -17,13 +21,13 @@ else
 
 @code 
 {
-    private IEnumerable<Klant>? klanten;
+    private IEnumerable<Werelddeel>? werelddelen;
 
-    [Inject]
-    public KlantenService KlantenService { get; set; }
+    // [Inject]
+    // public HttpClient HttpClient { get; set; }
 
     protected override async Task OnInitializedAsync() 
     {
-        klanten = await KlantenService.GetKlantenAsync();
+        werelddelen = await httpClient.GetFromJsonAsync<IEnumerable<Werelddeel>>("/werelddelen");
     }
 }

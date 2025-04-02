@@ -21,7 +21,7 @@ public partial class Klant
         get; set;
     }
 
-    public virtual ICollection<Boeking> Boekingens { get; set; } = new List<Boeking> ();
+    public virtual ICollection<Boeking> Boekingen { get; set; } = new List<Boeking> ();
 
     public virtual Woonplaats Woonplaats { get; set; } = null!;
 }

@@ -94,7 +94,7 @@ public partial class ReizenContext : DbContext
             entity.Property (e => e.Klantid).HasColumnName ("klantid");
             entity.Property (e => e.Reisid).HasColumnName ("reisid");
 
-            entity.HasOne (d => d.Klant).WithMany (p => p.Boekingens)
+            entity.HasOne (d => d.Klant).WithMany (p => p.Boekingen)
                 .HasForeignKey (d => d.Klantid)
                 .OnDelete (DeleteBehavior.ClientSetNull)
                 .HasConstraintName ("boekingen_klanten");

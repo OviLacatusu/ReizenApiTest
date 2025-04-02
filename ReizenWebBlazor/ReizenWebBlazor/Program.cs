@@ -10,9 +10,15 @@ builder.Services.AddRazorComponents ()
     //.AddInteractiveServerComponents ()
     .AddInteractiveWebAssemblyComponents ();
 
-builder.Services.AddDbContext<ReizenContext> (options => options.UseSqlServer (builder.Configuration.GetConnectionString ("ReizenDB")));
+builder.Services.AddDbContextFactory<ReizenContext> (options => options.UseSqlServer (builder.Configuration.GetConnectionString ("ReizenDB")));
 builder.Services.AddTransient<IMediator> (_ => Mediator.MediatorFactory ());
 builder.Services.AddTransient<KlantenService> ();
+builder.Services.AddTransient<LandenService> ();
+builder.Services.AddScoped<IReizenRepository, ReizenService> ();
+builder.Services.AddHttpClient ("", client =>
+{
+    client.BaseAddress = new Uri ("https://localhost:7285");
+});
 
 
 var app = builder.Build ();
