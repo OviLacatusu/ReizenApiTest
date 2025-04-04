@@ -8,13 +8,24 @@ namespace ReizenApi.Controllers
 {
     [Route ("[controller]")]
     [ApiController]
-    public class BestemmingenController(ILandenWerelddelenRepository service) : ControllerBase
+    public class BestemmingenController (ILandenWerelddelenRepository service) : ControllerBase
     {
         // GET: api/<BestemmingenController>
         [HttpGet ("{naam}")]
-        public async Task<ICollection<Bestemming>> Get (string naam)
+        public async Task<ActionResult<ICollection<Bestemming>>> Get (string naam)
         {
-            return await service.GetBestemmingenVanLandAsync(naam);
+            if (naam is null || naam == "")
+            {
+                return BadRequest ();
+            }
+            var result = service.GetBestemmingenVanLandAsync (naam);
+
+            if (result == null)
+            {
+                return NotFound ();
+            }
+            return Ok(result);
+
         }
 
         // GET api/<BestemmingenController>/5

@@ -12,10 +12,19 @@ namespace ReizenApi.Controllers
     {
         // GET: api/<LandenController>
         [HttpGet ("{naam}")]
-        public async Task<ICollection<Land>> Get ( string naam)
+        public async Task<ActionResult<ICollection<Land>>> Get ( string naam)
         {
-            return await service.GetLandenVanWerelddeelAsync (naam);
-        }
+            if (naam == null || naam == "")
+            {
+                return BadRequest ();
+            }
+            var result = await service.GetLandenVanWerelddeelAsync (naam);
+            if (result is null)
+            {
+                return NotFound ();
+            }
+            return Ok (result);
+    }
 
         // GET api/<LandenController>/5
         [HttpGet ("{id:int}")]

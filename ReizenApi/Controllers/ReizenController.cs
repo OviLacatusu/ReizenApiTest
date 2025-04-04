@@ -12,9 +12,18 @@ namespace ReizenApi.Controllers
     {
         // GET: api/<ReizenController>
         [HttpGet ("{code}")]
-        public async Task<ICollection<Reis>> Get (string code)
+        public async Task<ActionResult<ICollection<Reis>>> Get (string code)
         {
-            return await service.GetReizenMetBestemmingAsync(code);
+            if (code == null || code == "")
+            {
+                return BadRequest ();
+            }
+            var result = await service.GetReizenMetBestemmingAsync (code);
+            if (result is null)
+            {
+                return NotFound ();
+            }
+            return Ok (result);
         }
 
         // GET api/<ReizenController>/5

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Reizen.Data.Models.CQRS;
 using Reizen.Data.Repositories;
 using Reizen.Domain.Services;
+using ReizenApi;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,7 @@ builder.Services.AddScoped<IKlantenRepository,KlantenService> ();
 builder.Services.AddScoped<ILandenWerelddelenRepository, LandenService> ();
 builder.Services.AddScoped<IReizenRepository, ReizenService> ();
 builder.Services.AddCors ();
+builder.Services.AddAutoMapper (typeof (AutoMapperProfile));
 
 // Add services to the container.
 

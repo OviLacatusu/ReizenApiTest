@@ -12,9 +12,14 @@ namespace ReizenApi.Controllers
     {
         // GET: api/<Werelddeel>
         [HttpGet]
-        public async Task<ICollection<Werelddeel>?> GetWerelddelenAsync ()
+        public async Task<ActionResult<ICollection<Werelddeel>?>> GetWerelddelenAsync ()
         {
-            return await service.GetWerelddelenAsync ();
+            var result = await service.GetWerelddelenAsync ();
+            if (result is null)
+            {
+                return NotFound ();
+            }
+            return Ok (result);
         }
 
         // GET api/<Werelddeel>/5
