@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ReizenApi.Models
+namespace Reizen.Domain.Models
 {
     public class BoekingDTO
     {

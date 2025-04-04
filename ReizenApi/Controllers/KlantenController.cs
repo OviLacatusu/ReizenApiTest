@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Reizen.Data.Models;
 using Reizen.Data.Repositories;
-using ReizenApi.Models;
+using Reizen.Domain.Models;
 using Reizen.Domain.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860

@@ -20,16 +20,13 @@ namespace Reizen.Domain.Models
 
         public string Adres { get; set; } = null!;
 
-        public ICollection<Boeking> Boekingen { get; set; } = new List<Boeking> ();
-
-        public Woonplaats Woonplaats { get; set; } = null!;
-        private KlantDTO (string voornaam, string familienaam, string adres, int id)
-        {
-            this.Voornaam = voornaam;
-            this.Familienaam = familienaam;
-            this.Adres = adres;
-            this.Id = id;
-        }
+        //private KlantDTO (string voornaam, string familienaam, string adres, int? id)
+        //{
+        //    this.Voornaam = voornaam;
+        //    this.Familienaam = familienaam;
+        //    this.Adres = adres;
+        //    this.Id = id;
+        //}
 
         //public static Klant (Data.Models.Klant klant)
         //{

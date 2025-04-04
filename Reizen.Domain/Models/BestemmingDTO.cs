@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ReizenApi.Models
+namespace Reizen.Domain.Models
 {
     public class BestemmingDTO
     {
@@ -15,11 +15,11 @@ namespace ReizenApi.Models
 
         public string Plaats { get; set; } = null!;
 
-        public BestemmingDTO (string plaats, string code, int? id)
-        {
-            Plaats = plaats;
-            Code = code;
-            Id = id;
-        }
+        //public BestemmingDTO (string plaats, string code, int? id)
+        //{
+        //    Plaats = plaats;
+        //    Code = code;
+        //    Id = id;
+        //}
     }
 }

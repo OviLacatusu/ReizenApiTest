@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ReizenApi.Models
+namespace Reizen.Domain.Models
 {
     public class WoonplaatsDTO
     {
@@ -14,11 +14,11 @@ namespace ReizenApi.Models
 
         public string Naam { get; set; } = null!;
 
-        public WoonplaatsDTO(string naam, int postcode, int? id) 
-        {
-            Naam = naam;
-            Postcode = postcode;
-            Id = id;
-        }
+        //public WoonplaatsDTO(string naam, int postcode, int? id) 
+        //{
+        //    Naam = naam;
+        //    Postcode = postcode;
+        //    Id = id;
+        //}
     }
 }

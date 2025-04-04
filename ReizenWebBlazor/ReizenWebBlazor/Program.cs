@@ -44,6 +44,6 @@ app.MapStaticAssets ();
 app.MapRazorComponents<App> ()
     //.AddInteractiveServerRenderMode ()
     .AddInteractiveWebAssemblyRenderMode ()
-    .AddAdditionalAssemblies (typeof (ReizenWebBlazor.Components._Imports).Assembly);
+    .AddAdditionalAssemblies (typeof (ReizenWebBlazor.Client._Imports).Assembly);
 
 app.Run ();

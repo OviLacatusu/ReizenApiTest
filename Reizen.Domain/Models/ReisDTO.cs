@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ReizenApi.Models
+namespace Reizen.Domain.Models
 {
     public class ReisDTO
     {
@@ -40,16 +40,16 @@ namespace ReizenApi.Models
             get; set;
         }
 
-        public ReisDTO (DateOnly date, int aantalDagen, decimal prijsPP, int aantalVolwassenen, int aantalKinderen, string bestemmingCode, int? id)
-        {
-            Vertrek = date;
-            AantalDagen = aantalDagen;
-            PrijsPerPersoon = prijsPP;
-            AantalVolwassenen = aantalVolwassenen;
-            AantalKinderen = aantalKinderen;
-            BestemmingsCode = bestemmingCode;
-            Id = id;
-        }
+        //public ReisDTO (DateOnly date, int aantalDagen, decimal prijsPP, int aantalVolwassenen, int aantalKinderen, string bestemmingCode, int? id)
+        //{
+        //    Vertrek = date;
+        //    AantalDagen = aantalDagen;
+        //    PrijsPerPersoon = prijsPP;
+        //    AantalVolwassenen = aantalVolwassenen;
+        //    AantalKinderen = aantalKinderen;
+        //    BestemmingsCode = bestemmingCode;
+        //    Id = id;
+        //}
     }
    
 }

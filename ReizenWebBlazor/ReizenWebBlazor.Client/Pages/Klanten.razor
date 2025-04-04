@@ -1,4 +1,5 @@
 ﻿@page "/klants"
+@using Reizen.Domain.Models
 @inject HttpClient httpClient
 
 <PageTitle>Klanten</PageTitle>
@@ -18,13 +19,13 @@ else
 
 @code
 {
-    private IEnumerable<KlantDTO>? klanten;
+    private ICollection<KlantDTO>? klanten;
 
     // [Inject]
     // public KlantenService KlantenService { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        klanten = await httpClient.GetFromJsonAsync<KlantDTO>("/klanten");
+        klanten = await httpClient.GetFromJsonAsync<ICollection<KlantDTO>>("/klanten");
     }
 }

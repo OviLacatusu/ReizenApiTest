@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ReizenApi.Models
+namespace Reizen.Domain.Models
 {
     public class WerelddeelDTO
     {
@@ -12,10 +12,10 @@ namespace ReizenApi.Models
 
         public string Naam { get; set; } = null!;
 
-        public WerelddeelDTO(string naam, int? id) 
-        { 
-            Naam = naam;
-            Id = id;
-        }
+        //public WerelddeelDTO(string naam, int? id) 
+        //{ 
+        //    Naam = naam;
+        //    Id = id;
+        //}
     }
 }
