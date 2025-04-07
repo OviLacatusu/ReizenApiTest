@@ -9,12 +9,10 @@ public partial class Woonplaats
     {
         get; set;
     }
-
     public int Postcode
     {
         get; set;
     }
-
     public string Naam { get; set; } = null!;
 
     public virtual ICollection<Klant> Klanten { get; set; } = new List<Klant> ();

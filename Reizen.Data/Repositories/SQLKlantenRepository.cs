@@ -41,5 +41,20 @@ namespace Reizen.Data.Repositories
         {
             throw new NotImplementedException ();
         }
+
+        Task<Klant?> IKlantenRepository.AddKlant (Klant klant)
+        {
+            throw new NotImplementedException ();
+        }
+
+        Task<Klant?> IKlantenRepository.UpdateKlant (int id, Klant klantDetails)
+        {
+            throw new NotImplementedException ();
+        }
+
+        public Task<Wrapper<int>> DeleteKlant (int id)
+        {
+            throw new NotImplementedException ();
+        }
     }
 }

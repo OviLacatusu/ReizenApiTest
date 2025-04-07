@@ -22,13 +22,13 @@ else
     [Parameter]
     public string? NaamLand { get; set; }
 
-    private IEnumerable<Reizen.Data.Models.Bestemming> bestemmingen;
+    private IEnumerable<Reizen.Domain.Models.BestemmingDTO> bestemmingen;
 
     protected override async Task OnInitializedAsync()
     {
         if (NaamLand != null)
         {
-            bestemmingen = await httpClient.GetFromJsonAsync<IEnumerable<Reizen.Data.Models.Bestemming>>($"/bestemmingen/{NaamLand}");
+            bestemmingen = await httpClient.GetFromJsonAsync<IEnumerable<Reizen.Domain.Models.BestemmingDTO>>($"/bestemmingen/{NaamLand}");
         }
     }
 }

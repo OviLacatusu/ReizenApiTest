@@ -9,15 +9,15 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public class AddReisToBestemming
     {
-        public record AddReisToBestemmingCommand(Reis reis, Bestemming bestemming, ReizenContext context):ICommand<int>;
+        public record AddReisToBestemmingCommand(Reis reis, Bestemming bestemming, ReizenContext context):ICommand<Wrapper<int>>;
 
-        public class AddReisToBestemmingCommandHandler : ICommandHandler<AddReisToBestemmingCommand, int>
+        public class AddReisToBestemmingCommandHandler : ICommandHandler<AddReisToBestemmingCommand, Wrapper<int>>
         {
-            public async Task<int> Execute (AddReisToBestemmingCommand command)
+            public async Task<Wrapper<int>> Execute (AddReisToBestemmingCommand command)
             {
                 var bestemming = await command.context.Bestemmingen.FindAsync (command.bestemming);
                 bestemming?.Reizen.Add (command.reis);
-                return await command.context.SaveChangesAsync ();
+                return new Wrapper<int>(await command.context.SaveChangesAsync ());
             }
         }
     }

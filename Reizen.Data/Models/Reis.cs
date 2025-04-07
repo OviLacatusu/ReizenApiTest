@@ -37,7 +37,7 @@ public partial class Reis
         get; set;
     }
 
-    public virtual Bestemming BestemmingscodeNavigation { get; set; } = null!;
+    public virtual Bestemming Bestemming { get; set; } = null!;
 
     public virtual ICollection<Boeking> Boekingen { get; set; } = new List<Boeking> ();
 }

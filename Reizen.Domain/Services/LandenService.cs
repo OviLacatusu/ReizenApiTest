@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Reizen.Data.Models;
 using Reizen.Data.Models.CQRS;
+using Reizen.Data.Models.CQRS.Commands;
 using Reizen.Data.Models.CQRS.Queries;
 using Reizen.Data.Repositories;
 using System;
@@ -8,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Reizen.Data.Models.CQRS.Commands.AddLandToWerelddeel;
+using static Reizen.Data.Models.CQRS.Queries.GetBestemmingen;
 using static Reizen.Data.Models.CQRS.Queries.GetBestemmingenVanLand;
 using static Reizen.Data.Models.CQRS.Queries.GetKlanten;
 using static Reizen.Data.Models.CQRS.Queries.GetKlantMetID;
@@ -41,6 +44,22 @@ namespace Reizen.Domain.Services
             using (var context = factory.CreateDbContext ())
             {
                 return await mediator.ExecuteQuery<GetBestemmingenVanLandQuery, IList<Bestemming>> (new GetBestemmingenVanLandQuery (landnaam, context));
+            }
+        }
+
+        public async Task<ICollection<Bestemming>?> GetBestemmingenAsync ()
+        {
+            using (var context = factory.CreateDbContext ())
+            {
+                return await mediator.ExecuteQuery<GetBestemmingenQuery, IList<Bestemming>> (new GetBestemmingenQuery (context));
+            }
+        }
+
+        public async Task<Wrapper<int>> AddLandToWerelddeel (Land land, Werelddeel deel)
+        {
+            using (var context = factory.CreateDbContext ())
+            {
+                return await mediator.ExecuteCommand<AddLandToWerelddeelCommand, Wrapper<int>> (new AddLandToWerelddeelCommand(land, deel, context));
             }
         }
     }

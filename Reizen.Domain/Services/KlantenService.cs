@@ -1,13 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Reizen.Data.Models;
 using Reizen.Data.Models.CQRS;
+using Reizen.Data.Models.CQRS.Commands;
 using Reizen.Data.Models.CQRS.Queries;
 using Reizen.Data.Repositories;
+using Reizen.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Reizen.Data.Models.CQRS.Commands.AddKlant;
+using static Reizen.Data.Models.CQRS.Commands.DeleteKlant;
+using static Reizen.Data.Models.CQRS.Commands.UpdateKlant;
 using static Reizen.Data.Models.CQRS.Queries.GetKlanten;
 using static Reizen.Data.Models.CQRS.Queries.GetKlantMetID;
 using static Reizen.Data.Models.CQRS.Queries.GetKlantMetNaam;
@@ -38,14 +43,28 @@ namespace Reizen.Domain.Services
             }
         }
 
-        public Task<int> AddKlant (Klant klant)
+        public async Task<Klant?> AddKlant (Klant klant)
         {
-            throw new NotImplementedException ();
+            using (var context = factory.CreateDbContext ())
+            {
+                return await mediator.ExecuteCommand<AddKlantCommand, Klant?> (new AddKlantCommand (klant, context));
+            }
         }
 
-        public Task<bool> UpdateKlant (int id, Klant klantDetails)
+        public async Task<Klant?> UpdateKlant (int id, Klant klantDetails)
         {
-            throw new NotImplementedException ();
+            using (var context = factory.CreateDbContext ())
+            {
+                return await mediator.ExecuteCommand<UpdateKlantCommand, Klant?> (new UpdateKlantCommand (klantDetails, id, context));
+            }
+        }
+
+        public async Task<Wrapper<int>?> DeleteKlant (int id)
+        {
+            using (var context = factory.CreateDbContext ())
+            {
+                return await mediator.ExecuteCommand<DeleteKlantCommand, Wrapper<int>> (new DeleteKlantCommand (id, context));
+            }
         }
     }
 }

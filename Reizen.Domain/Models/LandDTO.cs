@@ -12,6 +12,8 @@ namespace Reizen.Domain.Models
 
         public string Naam { get; set; } = null!;
 
+        public WerelddeelDTO Werelddeel { get; set;} = null!;
+
         //public LandDTO(string naam, int? id) 
         //{ 
         //    this.Naam = naam;

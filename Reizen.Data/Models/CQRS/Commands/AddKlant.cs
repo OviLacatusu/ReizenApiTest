@@ -9,14 +9,15 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public class AddKlant
     {
-        public record AddKlantCommand(Klant klant, ReizenContext context) : ICommand<int>;
+        public record AddKlantCommand(Klant klant, ReizenContext context) : ICommand<Klant?>;
 
-        public class AddKlantCommandHandler : ICommandHandler<AddKlantCommand, int>
+        public class AddKlantCommandHandler : ICommandHandler<AddKlantCommand, Klant?>
         {
-            public async Task<int> Execute (AddKlantCommand command)
+            public async Task<Klant?> Execute (AddKlantCommand command)
             {
-                await command.context.Klanten.AddAsync (command.klant);
-                return command.context.SaveChangesAsync ().Id;
+                var result = await command.context.Klanten.AddAsync (command.klant);
+                await command.context.SaveChangesAsync ();
+                return result.Entity;
             }
         }
     }

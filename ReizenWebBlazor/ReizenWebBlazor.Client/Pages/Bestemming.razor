@@ -1,15 +1,28 @@
 ﻿@page "/bestemmingen/{Bestemmingscode}"
+@using Reizen.Domain.Models
 @inject HttpClient httpClient
 
-<h3>Bestemmingen</h3>
 @if (reizen != null)
 {
-    <ul>
+    <h3>@reizen.FirstOrDefault()?.Bestemming.Plaats</h3>
+    <img src="/bestemmingen/@(reizen.FirstOrDefault()?.Bestemming.Plaats).jpg"/>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Vertrek</th><th>Prijs/person</th><th>Aantal dagen</th><th>Boeken</th>
+            </tr>
+        </thead>
+        <tbody>
+        
         @foreach (var reis in reizen)
         {
-            <li><a href="/reizen">@reis.Id @reis.PrijsPerPersoon @reis.AantalDagen </a></li>
+            <tr>
+                <td>@reis.Vertrek.ToString()</td><td>@reis.PrijsPerPersoon</td><td>@reis.AantalDagen</td><td><a href="">Boeken</a></td>
+            </tr>
         }
-    </ul>
+        
+        </tbody>
+    </table>
 }
 else
 {
@@ -19,13 +32,13 @@ else
     [Parameter]
     public string Bestemmingscode { get; set; }
 
-    private IEnumerable<Reis> reizen;
+    private IEnumerable<ReisDTO> reizen;
 
     protected override async Task OnInitializedAsync()
     {
         if (Bestemmingscode != null)
         {
-            reizen = await httpClient.GetFromJsonAsync<IEnumerable<Reis>>($"/reizen/{Bestemmingscode}");
+            reizen = await httpClient.GetFromJsonAsync<IEnumerable<ReisDTO>>($"/reizen/{Bestemmingscode}");
         }
     }
 }

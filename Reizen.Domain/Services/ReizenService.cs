@@ -1,12 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Reizen.Data.Models;
 using Reizen.Data.Models.CQRS;
+using Reizen.Data.Models.CQRS.Commands;
 using Reizen.Data.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Reizen.Data.Models.CQRS.Commands.AddReisToBestemming;
 using static Reizen.Data.Models.CQRS.Queries.GetReizenNaarBestemming;
 
 namespace Reizen.Domain.Services
@@ -19,6 +21,14 @@ namespace Reizen.Domain.Services
             {
                 return await mediator.ExecuteQuery<GetReizenNaarBestemmingQuery, IList<Reis>> (new GetReizenNaarBestemmingQuery (context, bestemmingscode));
             }
-        }   
+        }
+
+        public async Task<Wrapper<int>> AddReisToBestemming (Reis reis, Bestemming bestemming)
+        {
+            using (var context = factory.CreateDbContext ())
+            {
+                return await mediator.ExecuteCommand<AddReisToBestemmingCommand, Wrapper<int>> (new AddReisToBestemmingCommand (reis, bestemming, context));
+            }
+        }
     }
 }

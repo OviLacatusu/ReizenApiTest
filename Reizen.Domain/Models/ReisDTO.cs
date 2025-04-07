@@ -39,7 +39,7 @@ namespace Reizen.Domain.Models
         {
             get; set;
         }
-
+        public BestemmingDTO Bestemming { get; set; } = null;
         //public ReisDTO (DateOnly date, int aantalDagen, decimal prijsPP, int aantalVolwassenen, int aantalKinderen, string bestemmingCode, int? id)
         //{
         //    Vertrek = date;

@@ -31,7 +31,7 @@ namespace Reizen.Data.Models.CQRS
 
         //private IMediator _mediator = null;
         public async Task<TResult?> ExecuteCommand<TCommand, TResult> (TCommand command) where TCommand : ICommand<TResult>
-                                                                                          where TResult : class
+                                                                                          where TResult : class 
         {
             foreach (var handler in _commandHandlers)
             {
@@ -42,10 +42,17 @@ namespace Reizen.Data.Models.CQRS
             }
             return null;
         }
-
-        public Task ExecuteCommand<TCommand> (TCommand command) where TCommand : ICommand
+        
+        public async Task ExecuteCommand<TCommand> (TCommand command) where TCommand : ICommand
         {
-            throw new NotImplementedException ();
+            foreach (var handler in _commandHandlers)
+            {
+                if (handler is ICommandHandler<TCommand>)
+                {
+                    (handler as ICommandHandler<TCommand>)?.Execute (command);
+                    break;
+                }
+            }
         }
 
         public async Task<TResult?> ExecuteQuery<TQuery, TResult> (TQuery query) where TQuery : IQuery<TResult>
@@ -73,8 +80,6 @@ namespace Reizen.Data.Models.CQRS
 
         public static IMediator? MediatorFactory ()
         {
-            //if (_mediator == null)
-            //{
             var mediator = new Mediator ();
 
             mediator.Register<GetBestemmingenVanLandQuery, IList<Bestemming>> (new GetBestemmingenVanLandQueryHandler());
@@ -84,18 +89,14 @@ namespace Reizen.Data.Models.CQRS
             mediator.Register<GetLandenVanWerelddeelQuery, IList<Land>> (new GetLandenVanWerelddeelQueryHandler());
             mediator.Register<GetWerelddelenQuery, IList<Werelddeel>> (new GetWerelddelenQueryHandler());
             mediator.Register<AddBestemmingToLandCommand, int> (new AddBestemmingToLandCommandHandler ());
-            mediator.Register<AddKlantCommand, int> (new AddKlantCommandHandler ());
-            mediator.Register<AddLandToWerelddeelCommand, int> (new AddLandToWerelddeelCommandHandler ());
-            mediator.Register<AddReisToBestemmingCommand, int> (new AddReisToBestemmingCommandHandler ());
-            mediator.Register<DeleteKlantCommand, int> (new DeleteKlantCommandHandler ());
-            mediator.Register<UpdateKlantCommand, int> (new UpdateKlantCommandHandler ());
+            mediator.Register<AddKlantCommand, Klant?> (new AddKlantCommandHandler ());
+            mediator.Register<AddLandToWerelddeelCommand, Wrapper<int>> (new AddLandToWerelddeelCommandHandler ());
+            mediator.Register<AddReisToBestemmingCommand, Wrapper<int>> (new AddReisToBestemmingCommandHandler ());
+            mediator.Register<DeleteKlantCommand, Wrapper<int>> (new DeleteKlantCommandHandler ());
+            mediator.Register<UpdateKlantCommand, Klant> (new UpdateKlantCommandHandler ());
             mediator.Register<GetReizenNaarBestemmingQuery, IList<Reis>> (new GetReizenNaarBestemmingQueryHandler());
 
-            //_mediator = mediator;
-            //}
-            //return _mediator;
-
-            Console.WriteLine (mediator.GetHashCode());
+            //Console.WriteLine (mediator.GetHashCode());
 
             return mediator;
         }

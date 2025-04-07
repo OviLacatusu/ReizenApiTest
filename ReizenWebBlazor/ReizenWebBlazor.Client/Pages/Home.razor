@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using Reizen.Domain.Models
 @inject HttpClient httpClient
 
 <PageTitle>Werelddelen</PageTitle>
@@ -21,13 +22,16 @@ else
 
 @code 
 {
-    private IEnumerable<Werelddeel>? werelddelen;
+    private IEnumerable<WerelddeelDTO>? werelddelen;
 
     // [Inject]
     // public HttpClient HttpClient { get; set; }
 
-    protected override async Task OnInitializedAsync() 
+    protected override async Task OnInitializedAsync( )
     {
-        werelddelen = await httpClient.GetFromJsonAsync<IEnumerable<Werelddeel>>("/werelddelen");
+        
+        {
+            werelddelen = await httpClient.GetFromJsonAsync<IEnumerable<WerelddeelDTO>>("/werelddelen");
+        }
     }
 }

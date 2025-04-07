@@ -64,8 +64,9 @@ namespace ReizenApi.Controllers
 
         // POST api/<ValuesController>
         [HttpPost]
-        public void Post ([FromBody] string value)
+        public void Post ([FromBody] KlantDTO klant)
         {
+
         }
 
         // PUT api/<ValuesController>/5

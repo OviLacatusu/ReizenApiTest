@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Reizen.Data.Models;
 using Reizen.Data.Repositories;
+using Reizen.Domain.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,9 +10,21 @@ namespace ReizenApi.Controllers
 {
     [Route ("[controller]")]
     [ApiController]
-    public class BestemmingenController (ILandenWerelddelenRepository service) : ControllerBase
+    public class BestemmingenController (ILandenWerelddelenRepository service, IMapper mapper) : ControllerBase
     {
-        // GET: api/<BestemmingenController>
+        [HttpGet]
+        public async Task<ActionResult<ICollection<Bestemming>>> Get ()
+        {
+            var result = await service.GetBestemmingenAsync ();
+
+            if (result.Count == 0)
+            {
+                return NotFound ();
+            }
+            var dtos = mapper.Map<ICollection<Bestemming>> (result);
+            return Ok (dtos);
+        }
+        // GET: <BestemmingenController>
         [HttpGet ("{naam}")]
         public async Task<ActionResult<ICollection<Bestemming>>> Get (string naam)
         {
@@ -18,36 +32,36 @@ namespace ReizenApi.Controllers
             {
                 return BadRequest ();
             }
-            var result = service.GetBestemmingenVanLandAsync (naam);
+            var result = await service.GetBestemmingenVanLandAsync (naam);
 
-            if (result == null)
+            if (result.Count == 0)
             {
                 return NotFound ();
             }
-            return Ok(result);
-
+            var dtos = mapper.Map<ICollection<Bestemming>> (result);
+            return Ok(dtos);
         }
 
-        // GET api/<BestemmingenController>/5
+        // GET <BestemmingenController>/5
         [HttpGet ("{id:int}")]
         public string Get (int id)
         {
             return "value";
         }
 
-        // POST api/<BestemmingenController>
+        // POST <BestemmingenController>
         [HttpPost]
         public void Post ([FromBody] string value)
         {
         }
 
-        // PUT api/<BestemmingenController>/5
+        // PUT <BestemmingenController>/5
         [HttpPut ("{id}")]
         public void Put (int id, [FromBody] string value)
         {
         }
 
-        // DELETE api/<BestemmingenController>/5
+        // DELETE <BestemmingenController>/5
         [HttpDelete ("{id}")]
         public void Delete (int id)
         {

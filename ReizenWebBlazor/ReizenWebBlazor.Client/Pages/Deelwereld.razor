@@ -1,4 +1,5 @@
 ﻿@page "/Werelddelen/{Naam}"
+@using Reizen.Domain.Models
 @inject HttpClient httpClient
 
 <h3>Landen</h3>
@@ -19,13 +20,13 @@ else
     [Parameter]
     public string Naam { get; set; }
 
-    private IEnumerable<Land> landen;
+    private IEnumerable<LandDTO> landen;
 
     protected override async Task OnInitializedAsync()
     {
         if (Naam != null)
         {
-            landen = await httpClient.GetFromJsonAsync<IEnumerable<Land>>($"/landen/{Naam}");
+            landen = await httpClient.GetFromJsonAsync<IEnumerable<LandDTO>>($"/landen/{Naam}");
         }
     }
 }

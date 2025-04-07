@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Reizen.Data.Models;
 using Reizen.Data.Repositories;
+using Reizen.Domain.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,18 +10,19 @@ namespace ReizenApi.Controllers
 {
     [Route ("[controller]")]
     [ApiController]
-    public class WerelddelenController(ILandenWerelddelenRepository service) : ControllerBase
+    public class WerelddelenController(ILandenWerelddelenRepository service, IMapper mapper) : ControllerBase
     {
         // GET: api/<Werelddeel>
         [HttpGet]
-        public async Task<ActionResult<ICollection<Werelddeel>?>> GetWerelddelenAsync ()
+        public async Task<ActionResult<ICollection<WerelddeelDTO>?>> GetWerelddelenAsync ()
         {
             var result = await service.GetWerelddelenAsync ();
             if (result is null)
             {
                 return NotFound ();
             }
-            return Ok (result);
+            var dtos = mapper.Map<ICollection<WerelddeelDTO>> (result);
+            return Ok (dtos);
         }
 
         // GET api/<Werelddeel>/5

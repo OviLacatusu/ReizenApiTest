@@ -16,7 +16,7 @@ namespace Reizen.Data.Models.CQRS.Queries
         {
             public async Task<IList<Reis>?> Execute (GetReizenNaarBestemmingQuery query)
             {
-                return (await query.context.Reizen.ToListAsync ()).Where (r => r.Bestemmingscode == query.bestemmingscode).ToList();
+                return (await query.context.Reizen.Include( r => r.Bestemming).ToListAsync ()).Where (r => r.Bestemmingscode == query.bestemmingscode).ToList();
             }
         }
     }

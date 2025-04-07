@@ -173,7 +173,7 @@ public partial class ReizenContext : DbContext
                 .HasColumnName ("prijsPerPersoon");
             entity.Property (e => e.Vertrek).HasColumnName ("vertrek");
 
-            entity.HasOne (d => d.BestemmingscodeNavigation).WithMany (p => p.Reizen)
+            entity.HasOne (d => d.Bestemming).WithMany (p => p.Reizen)
                 .HasForeignKey (d => d.Bestemmingscode)
                 .OnDelete (DeleteBehavior.ClientSetNull)
                 .HasConstraintName ("reizen_bestemmingen");

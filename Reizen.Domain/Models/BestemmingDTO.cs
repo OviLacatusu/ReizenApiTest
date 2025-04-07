@@ -11,9 +11,9 @@ namespace Reizen.Domain.Models
     {
         public string Code { get; set; } = null!;
 
-        public int? Id { get; set; }
-
         public string Plaats { get; set; } = null!;
+
+        public LandDTO Land { get; set; }
 
         //public BestemmingDTO (string plaats, string code, int? id)
         //{
