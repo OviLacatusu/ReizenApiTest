@@ -1,44 +1,61 @@
 ﻿@page "/bestemmingen/{Bestemmingscode}"
 @using Reizen.Domain.Models
+@using System.Net
 @inject HttpClient httpClient
 
 @if (reizen != null)
 {
     <h3>@reizen.FirstOrDefault()?.Bestemming.Plaats</h3>
     <img src="/bestemmingen/@(reizen.FirstOrDefault()?.Bestemming.Plaats).jpg"/>
-    <table class="table">
+    <table class="table table-striped">
         <thead>
             <tr>
-                <th>Vertrek</th><th>Prijs/person</th><th>Aantal dagen</th><th>Boeken</th>
+                <th scope="col">Vertrek</th><th scope="col">Prijs/person</th><th scope="col">Aantal dagen</th><th scope="col">Boeken</th>
             </tr>
         </thead>
         <tbody>
-        
-        @foreach (var reis in reizen)
-        {
-            <tr>
-                <td>@reis.Vertrek.ToString()</td><td>@reis.PrijsPerPersoon</td><td>@reis.AantalDagen</td><td><a href="">Boeken</a></td>
-            </tr>
-        }
-        
+            @foreach (var reis in reizen)
+            {
+                <tr>
+                    <td>@reis.Vertrek.ToString()</td><td>@reis.PrijsPerPersoon</td><td>@reis.AantalDagen</td><td><a href="/boeken/@reis.Id">Boeken</a></td>
+                </tr>
+            }
         </tbody>
     </table>
 }
 else
 {
-    <p>Waiting for data...</p>
+    @if (Error is null)
+    {
+        <p>Waiting for data...</p>
+    }
+
+    else { 
+        <p>@Error</p>
+    }
 }
 @code {
     [Parameter]
-    public string Bestemmingscode { get; set; }
+    public string Bestemmingscode { get; init; }
 
     private IEnumerable<ReisDTO> reizen;
+    private string Error;
 
     protected override async Task OnInitializedAsync()
     {
         if (Bestemmingscode != null)
         {
-            reizen = await httpClient.GetFromJsonAsync<IEnumerable<ReisDTO>>($"/reizen/{Bestemmingscode}");
+            try
+            {
+                reizen = await httpClient.GetFromJsonAsync<IEnumerable<ReisDTO>>($"/reizen/{Bestemmingscode}");
+            }
+            catch (HttpRequestException ex) 
+            {
+                if(ex.StatusCode == HttpStatusCode.NotFound)
+                {
+                    Error = "No trips available";
+                }
+            }
         }
     }
 }

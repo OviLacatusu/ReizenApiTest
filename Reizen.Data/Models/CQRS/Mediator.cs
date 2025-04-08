@@ -21,6 +21,7 @@ using static Reizen.Data.Models.CQRS.Commands.AddReisToBestemming;
 using static Reizen.Data.Models.CQRS.Commands.DeleteKlant;
 using static Reizen.Data.Models.CQRS.Commands.UpdateKlant;
 using static Reizen.Data.Models.CQRS.Queries.GetReizenNaarBestemming;
+using static Reizen.Data.Models.CQRS.Queries.GetReisMetId;
 
 namespace Reizen.Data.Models.CQRS
 {
@@ -78,6 +79,7 @@ namespace Reizen.Data.Models.CQRS
             _queryHandlers.Add (handler);
         }
 
+        // Not all queries and commands are plugged in
         public static IMediator? MediatorFactory ()
         {
             var mediator = new Mediator ();
@@ -94,6 +96,7 @@ namespace Reizen.Data.Models.CQRS
             mediator.Register<AddReisToBestemmingCommand, Wrapper<int>> (new AddReisToBestemmingCommandHandler ());
             mediator.Register<DeleteKlantCommand, Wrapper<int>> (new DeleteKlantCommandHandler ());
             mediator.Register<UpdateKlantCommand, Klant> (new UpdateKlantCommandHandler ());
+            mediator.Register<GetReisMetIdQuery, Reis> (new GetReisMetIdQueryHandler ());
             mediator.Register<GetReizenNaarBestemmingQuery, IList<Reis>> (new GetReizenNaarBestemmingQueryHandler());
 
             //Console.WriteLine (mediator.GetHashCode());

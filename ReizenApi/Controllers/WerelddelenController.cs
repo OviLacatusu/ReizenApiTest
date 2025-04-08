@@ -10,19 +10,30 @@ namespace ReizenApi.Controllers
 {
     [Route ("[controller]")]
     [ApiController]
-    public class WerelddelenController(ILandenWerelddelenRepository service, IMapper mapper) : ControllerBase
+    public class WerelddelenController(
+        ILandenWerelddelenRepository _service, 
+        IMapper _mapper,
+        ILogger<WerelddelenController> _logger) : ControllerBase
     {
         // GET: api/<Werelddeel>
         [HttpGet]
         public async Task<ActionResult<ICollection<WerelddeelDTO>?>> GetWerelddelenAsync ()
         {
-            var result = await service.GetWerelddelenAsync ();
-            if (result is null)
+            try
             {
-                return NotFound ();
+                var result = await _service.GetWerelddelenAsync ();
+                if (result is null || !result.Any())
+                {
+                    _logger.LogInformation ("No continents found");
+                    return NotFound ();
+                }
+                var dtos = _mapper.Map<ICollection<WerelddeelDTO>> (result);
+                return Ok (dtos);
             }
-            var dtos = mapper.Map<ICollection<WerelddeelDTO>> (result);
-            return Ok (dtos);
+            catch (Exception ex) {
+                _logger.LogError (ex, "Error while fetching destinations");
+                return StatusCode (500, "An error occurred while processing your request");
+            }
         }
 
         // GET api/<Werelddeel>/5

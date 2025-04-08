@@ -11,6 +11,8 @@ namespace Reizen.Data.Repositories
     {
         Task<ICollection<Reis>?> GetReizenMetBestemmingAsync (string bestemming);
 
-        Task<Wrapper<int>> AddReisToBestemming (Reis reis, Bestemming bestemming);
+        Task<Wrapper<int>> AddReisToBestemmingAsync (Reis reis, Bestemming bestemming);
+
+        Task<Reis>? GetReisMetIdAsync (int id);
     }
 }

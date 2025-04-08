@@ -13,6 +13,6 @@ namespace Reizen.Data.Repositories
         Task<ICollection<Land>?> GetLandenVanWerelddeelAsync (string? werelddeelNaam);
         Task<ICollection<Bestemming>?> GetBestemmingenVanLandAsync (string? landnaam);
         Task<ICollection<Bestemming>?> GetBestemmingenAsync ();
-
+        Task<Bestemming> AddBestemmingAsync (Bestemming bestemming);
     }
 }

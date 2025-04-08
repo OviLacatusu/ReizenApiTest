@@ -10,49 +10,86 @@ namespace ReizenApi.Controllers
 {
     [Route ("[controller]")]
     [ApiController]
-    public class BestemmingenController (ILandenWerelddelenRepository service, IMapper mapper) : ControllerBase
+    public class BestemmingenController (
+        ILandenWerelddelenRepository _service, 
+        IMapper _mapper,
+        ILogger<BestemmingenController> _logger) : ControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<ICollection<Bestemming>>> Get ()
+        public async Task<ActionResult<ICollection<Bestemming>>> GetAll ()
         {
-            var result = await service.GetBestemmingenAsync ();
-
-            if (result.Count == 0)
+            try
             {
-                return NotFound ();
+                var result = await _service.GetBestemmingenAsync ();
+
+                if (result == null || !result.Any())
+                {
+                    _logger.LogInformation ("No destinations found");
+                    return NotFound ();
+                }
+                var dtos = _mapper.Map<ICollection<Bestemming>> (result);
+                return Ok (dtos);
             }
-            var dtos = mapper.Map<ICollection<Bestemming>> (result);
-            return Ok (dtos);
+            catch (Exception ex) {
+                _logger.LogError (ex, "Error while fetching destinations");
+                return StatusCode (500, "An error occurred while processing your request");
+            }
         }
         // GET: <BestemmingenController>
         [HttpGet ("{naam}")]
-        public async Task<ActionResult<ICollection<Bestemming>>> Get (string naam)
+        public async Task<ActionResult<ICollection<Bestemming>>> GetByCountry (string landNaam)
         {
-            if (naam is null || naam == "")
+            try
             {
-                return BadRequest ();
-            }
-            var result = await service.GetBestemmingenVanLandAsync (naam);
+                if (string.IsNullOrEmpty(landNaam))
+                {
+                    _logger.LogWarning ("Invalid country name provided");
+                    return BadRequest ();
+                }
+                var result = await _service.GetBestemmingenVanLandAsync (landNaam);
 
-            if (result.Count == 0)
+                if (result == null || !result.Any())
+                {
+                    _logger.LogInformation ("No destinations found for country: {CountryName}", landNaam);
+                    return NotFound ();
+                }
+                var dtos = _mapper.Map<ICollection<Bestemming>> (result);
+                return Ok (dtos);
+            }
+            catch (Exception ex)
             {
-                return NotFound ();
+                _logger.LogError (ex, "Error occurred while fetching destinations for country: {CountryName}", landNaam);
+                return StatusCode (500, "An error occurred while processing your request");
             }
-            var dtos = mapper.Map<ICollection<Bestemming>> (result);
-            return Ok(dtos);
-        }
-
-        // GET <BestemmingenController>/5
-        [HttpGet ("{id:int}")]
-        public string Get (int id)
-        {
-            return "value";
         }
 
         // POST <BestemmingenController>
         [HttpPost]
-        public void Post ([FromBody] string value)
+        public async Task<ActionResult> Post ([FromBody] BestemmingDTO bestemmingDto)
         {
+            try
+            {
+                if (bestemmingDto == null)
+                {
+                    _logger.LogWarning ("Invalid data provided");
+                    return BadRequest ("Invalid data");
+                }
+                var bestemming = _mapper.Map<Bestemming> (bestemmingDto);
+                var result = await _service.AddBestemmingAsync (bestemming);
+
+                if (result == null)
+                {
+                    _logger.LogError ("Error while trying to add destination");
+                    return StatusCode (500, "An error occurred while processing your request");
+                }
+                var createdDto = _mapper.Map<BestemmingDTO> (result);
+                return CreatedAtAction (nameof (GetByCountry), new { landNaam = createdDto.Land.Naam  }, createdDto);
+            }
+            catch (Exception ex) 
+            {
+                _logger.LogError ("Error while trying to add destination");
+                return StatusCode (500, "An error occurred while processing your request");
+            }
         }
 
         // PUT <BestemmingenController>/5

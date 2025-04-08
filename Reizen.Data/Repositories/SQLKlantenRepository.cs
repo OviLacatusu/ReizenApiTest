@@ -42,17 +42,17 @@ namespace Reizen.Data.Repositories
             throw new NotImplementedException ();
         }
 
-        Task<Klant?> IKlantenRepository.AddKlant (Klant klant)
+        Task<Klant?> IKlantenRepository.AddKlantAsync (Klant klant)
         {
             throw new NotImplementedException ();
         }
 
-        Task<Klant?> IKlantenRepository.UpdateKlant (int id, Klant klantDetails)
+        Task<Klant?> IKlantenRepository.UpdateKlantAsync (int id, Klant klantDetails)
         {
             throw new NotImplementedException ();
         }
 
-        public Task<Wrapper<int>> DeleteKlant (int id)
+        public Task<Wrapper<int>> DeleteKlantAsync (int id)
         {
             throw new NotImplementedException ();
         }

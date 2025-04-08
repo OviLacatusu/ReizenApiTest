@@ -10,24 +10,36 @@ namespace ReizenApi.Controllers
 {
     [Route ("[controller]")]
     [ApiController]
-    public class LandenController(ILandenWerelddelenRepository service, IMapper mapper) : ControllerBase
+    public class LandenController(
+        ILandenWerelddelenRepository _service, 
+        IMapper _mapper,
+        ILogger<LandenController> _logger) : ControllerBase
     {
         // GET: <LandenController>
 
         [HttpGet ("{naam}")]
-        public async Task<ActionResult<ICollection<LandDTO>>> Get ( string naam)
+        public async Task<ActionResult<ICollection<LandDTO>>> GetVanWerelddeel ( string naam)
         {
-            if (naam == null || naam == "")
+            try
             {
-                return BadRequest ();
+                if (string.IsNullOrEmpty(naam))
+                {
+                    _logger.LogWarning ("Invalid value provided");
+                    return BadRequest ();
+                }
+                var result = await _service.GetLandenVanWerelddeelAsync (naam);
+                if (result == null || !result.Any())
+                {
+                    _logger.LogInformation ("No countries found");
+                    return NotFound ();
+                }
+                var dtos = _mapper.Map<ICollection<Land>> (result);
+                return Ok (dtos);
             }
-            var result = await service.GetLandenVanWerelddeelAsync (naam);
-            if (result.Count == 0)
-            {
-                return NotFound ();
+            catch (Exception ex) {
+                _logger.LogError (ex, "Error while fetching countries");
+                return StatusCode (500, "An error occurred while processing your request");
             }
-            var dtos = mapper.Map<ICollection<Land>>(result);
-            return Ok (dtos);
         }
 
         // GET <LandenController>/5

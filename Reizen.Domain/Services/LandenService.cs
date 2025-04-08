@@ -55,11 +55,19 @@ namespace Reizen.Domain.Services
             }
         }
 
-        public async Task<Wrapper<int>> AddLandToWerelddeel (Land land, Werelddeel deel)
+        public async Task<Wrapper<int>> AddLandToWerelddeelAsync (Land land, Werelddeel deel)
         {
             using (var context = factory.CreateDbContext ())
             {
                 return await mediator.ExecuteCommand<AddLandToWerelddeelCommand, Wrapper<int>> (new AddLandToWerelddeelCommand(land, deel, context));
+            }
+        }
+
+        public Task<Bestemming> AddBestemmingAsync (Bestemming bestemming)
+        {
+            using (var context = factory.CreateDbContext ())
+            {
+
             }
         }
     }

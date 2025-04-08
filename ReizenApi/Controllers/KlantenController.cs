@@ -11,71 +11,123 @@ namespace ReizenApi.Controllers
 {
     [Route ("[controller]")]
     [ApiController]
-    public class KlantenController(IKlantenRepository service, IMapper mapper): ControllerBase
+    public class KlantenController(
+        IKlantenRepository _service, 
+        IMapper _mapper,
+        ILogger<KlantenController> _logger): ControllerBase
     {
-        // GET: api/<ValuesController>
+        // GET: <ValuesController>
         [HttpGet]
         public async Task<ActionResult<ICollection<KlantDTO>?>> GetKlantenAsync ()
         {
-            var result = await service.GetKlantenAsync ();
-
-            if (result == null)
+            try
             {
-                return NotFound ();
+                var result = await _service.GetKlantenAsync ();
+                if (result == null || !result.Any ())
+                {
+                    _logger.LogInformation ("No clients found");
+                    return NotFound ();
+                }
+                var dtos = _mapper.Map<ICollection<KlantDTO>> (result);
+                return Ok (dtos);
             }
-            var dtos = mapper.Map<ICollection<KlantDTO>> (result);
-
-            return Ok(dtos);
+            catch (Exception ex) 
+            {
+                _logger.LogError (ex, "Error while fetching clients");
+                return StatusCode (500, ex);
+            }
         }
-
+        // GET: <ValuesController>/van
         [HttpGet ("{naam}")]
         public async Task<ActionResult<ICollection<KlantDTO>?>> GetMetNaam (string naam)
         {
-            if (naam == "" || naam is null)
+            try
             {
-                return BadRequest ();
-            }
-            var result = await service.GetKlantenMetNaamAsync (naam);
+                if (string.IsNullOrEmpty(naam))
+                {
+                    _logger.LogWarning ("Invalid name provided");
+                    return BadRequest ();
+                }
+                var result = await _service.GetKlantenMetNaamAsync (naam);
 
-            if (result == null)
-            {
-                return NotFound ();
+                if (result == null || !result.Any())
+                {
+                    _logger.LogInformation ("Clients not found");
+                    return NotFound ();
+                }
+                var dtos = _mapper.Map<ICollection<KlantDTO>> (result);
+                return Ok (dtos);
             }
-            var dtos = mapper.Map<ICollection<KlantDTO>> (result);
-            return Ok(dtos);
+            catch (Exception ex) 
+            {
+                _logger.LogError (ex, $"Error while fetching clients with {naam}");
+                return StatusCode (500, ex);
+            }
             
         }
-        // GET api/<ValuesController>/5
+        // GET <ValuesController>/5
         [HttpGet ("{id:int}")]
-        public async Task<ActionResult<KlantDTO?>> Get (int id)
+        public async Task<ActionResult<KlantDTO?>> GetMetId (int id)
         {
-            if (id < 0)
+            try
             {
-                return BadRequest ();
+                if (id < 0)
+                {
+                    _logger.LogWarning ("Invalid id");
+                    return BadRequest ();
+                }
+                var result = await _service.GetKlantMetIdAsync (id);
+                if (result is null)
+                {
+                    _logger.LogInformation ("Client not found");
+                    return NotFound ();
+                }
+                var dto = _mapper.Map<KlantDTO> (result);
+                return Ok (dto);
             }
-            var result = await service.GetKlantMetIdAsync (id);
-            if (result is null)
+            catch (Exception ex) 
             {
-                return NotFound (id);
+                _logger.LogError (ex, $"Error while fetching client with id {id}");
+                return StatusCode (500, ex);
             }
-            var dto = mapper.Map<KlantDTO> (result);
-            return Ok (dto);
         }
 
-        // POST api/<ValuesController>
+        // POST <ValuesController>
         [HttpPost]
-        public void Post ([FromBody] KlantDTO klant)
+        public async Task<ActionResult> Post ([FromBody] KlantDTO klantDto)
         {
+            try
+            {
+                if (klantDto is null)
+                {
+                    _logger.LogWarning ("Invalid data provided");
+                    return BadRequest ();
+                }
+                var klant = _mapper.Map<Klant> (klantDto);
+                var result = await _service.AddKlantAsync (klant);
 
+                if (result is null)
+                {
+                    _logger.LogError ("Error while trying to add Client");
+                    return StatusCode (500, "An error occurred while processing your request");
+                }
+                var dto = _mapper.Map<KlantDTO> (klant);
+                return CreatedAtAction(nameof(GetMetId), new{ klantVoornaam = dto.Voornaam, klantFamilinaam = dto.Familienaam }, dto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError ("Error while trying to add Client");
+                return StatusCode (500, "An error occurred while processing your request");
+            }
         }
 
-        // PUT api/<ValuesController>/5
+        // PUT <ValuesController>/5
         [HttpPut ("{id}")]
         public void Put (int id, [FromBody] string value)
         {
         }
 
-        // DELETE api/<ValuesController>/5
+        // DELETE <ValuesController>/5
         [HttpDelete ("{id}")]
         public void Delete (int id)
         {

@@ -1,0 +1,62 @@
+﻿@page "/boeken/{ReisId:int}"
+@using Reizen.Domain.Models
+@inject HttpClient httpClient;
+<h3>Boeken</h3>
+@if (reis is not null)
+{
+    <h4>Bestemming</h4>
+    <p>@reis.Bestemming?.Plaats</p>
+    <h4>Vertrek</h4>
+    <p>@reis.Vertrek</p>
+    <h4>Aantal dagen</h4>
+    <p>@reis.PrijsPerPersoon</p>
+    <form method="get">
+        <label for="familienaam">Familienaam bevat:</label>
+        <InputText @bind-Value="familienaam" id="familienaam"></InputText>
+        <button type="submit" @onclick="GetKlanten" class="btn btn-primary">Zoek</button>
+    </form>
+    @if (klanten is not null) {
+        <table class="table table-striped" >
+            <thead>
+                <tr>
+                    <th>Familienaam</th><th>Voornaam</th><th>Woonplaats</th><th>Boeken</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var klant in klanten)
+                {
+                <tr>
+                    <td>@klant.Familienaam</td><td>@klant.Voornaam</td><td>@klant.Adres</td><td><a href="/@klant.Id">Boeken</a></td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+else { 
+    <p>Waiting for data...</p>
+}
+@code {
+    [Parameter]
+    public int ReisId { get; init; }
+
+    private ReisDTO reis;
+    private ReisDTO Reis { get;  }
+    private string familienaam;
+
+    private ICollection<KlantDTO> klanten;
+
+    protected override async Task OnInitializedAsync() 
+    {
+        if(ReisId>0){
+            reis = await httpClient.GetFromJsonAsync<ReisDTO>($"/reizen/{ReisId}");
+        }
+    }
+    private async void GetKlanten() 
+    {
+        if (familienaam is not null)
+        {
+            klanten = await httpClient.GetFromJsonAsync<ICollection<KlantDTO>>($"/klanten/{familienaam}");
+        }
+    }
+}

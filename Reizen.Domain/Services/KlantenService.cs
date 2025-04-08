@@ -43,7 +43,7 @@ namespace Reizen.Domain.Services
             }
         }
 
-        public async Task<Klant?> AddKlant (Klant klant)
+        public async Task<Klant?> AddKlantAsync (Klant klant)
         {
             using (var context = factory.CreateDbContext ())
             {
@@ -51,7 +51,7 @@ namespace Reizen.Domain.Services
             }
         }
 
-        public async Task<Klant?> UpdateKlant (int id, Klant klantDetails)
+        public async Task<Klant?> UpdateKlantAsync (int id, Klant klantDetails)
         {
             using (var context = factory.CreateDbContext ())
             {
@@ -59,7 +59,7 @@ namespace Reizen.Domain.Services
             }
         }
 
-        public async Task<Wrapper<int>?> DeleteKlant (int id)
+        public async Task<Wrapper<int>?> DeleteKlantAsync (int id)
         {
             using (var context = factory.CreateDbContext ())
             {
