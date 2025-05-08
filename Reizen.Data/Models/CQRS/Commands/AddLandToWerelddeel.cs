@@ -10,18 +10,20 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public class AddLandToWerelddeel
     {
-        public record AddLandToWerelddeelCommand(Land land, Werelddeel deel, ReizenContext context): ICommand<Wrapper<int>>;
+        public record AddLandToWerelddeelCommand(Land land, Werelddeel deel, ReizenContext context): ICommand<Land>;
 
-        public class AddLandToWerelddeelCommandHandler : ICommandHandler<AddLandToWerelddeelCommand, Wrapper<int>>
+        public class AddLandToWerelddeelCommandHandler : ICommandHandler<AddLandToWerelddeelCommand, Land>
         {
-            public async Task<Wrapper<int>> Execute (AddLandToWerelddeelCommand command)
+            public async Task<Land?> Execute (AddLandToWerelddeelCommand command)
             {
                 var deelw = await command.context.Werelddelen.FindAsync (command.deel);
+                Land result = null;
                 if (deelw?.Landen.Where (l => command.land.Naam == l.Naam).Count() == 0)
                 {
-                    deelw?.Landen.Add (command.land);
+                    deelw.Landen.Add (command.land);
                 }
-                return new Wrapper<int>(await command.context.SaveChangesAsync ());
+                await command.context.SaveChangesAsync ();
+                return command.land;
             }
         }
     }

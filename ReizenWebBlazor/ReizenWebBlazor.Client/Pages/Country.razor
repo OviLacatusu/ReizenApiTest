@@ -1,9 +1,11 @@
 ﻿@page "/landen/{NaamLand}"
+@using Reizen.Domain.Models
 @inject HttpClient httpClient
 
 <h3>Land</h3>
 
 <img src="/vlaggen/@(NaamLand).png" />
+
 @if (bestemmingen != null)
 {
     <ul>
@@ -28,7 +30,7 @@ else
     {
         if (NaamLand != null)
         {
-            bestemmingen = await httpClient.GetFromJsonAsync<IEnumerable<Reizen.Domain.Models.BestemmingDTO>>($"/bestemmingen/{NaamLand}");
+            bestemmingen = await httpClient.GetFromJsonAsync<IEnumerable<BestemmingDTO>>($"api/bestemmingen/{NaamLand}");
         }
     }
 }

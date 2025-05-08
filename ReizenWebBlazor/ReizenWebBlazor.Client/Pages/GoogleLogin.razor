@@ -1,0 +1,10 @@
+﻿@page "/GoogleLogin"
+<GoogleAccess _OnAuthCodeReceived="HandleCode" />
+
+@code {
+    private async Task HandleCode(string code)
+    {
+        Console.WriteLine($"Received code: {code}");
+        // TODO: Send the code to your backend to exchange for tokens
+    }
+}

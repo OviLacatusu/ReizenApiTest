@@ -26,6 +26,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        klanten = await httpClient.GetFromJsonAsync<ICollection<KlantDTO>>("/klanten");
+        klanten = await httpClient.GetFromJsonAsync<ICollection<KlantDTO>>("api/klanten");
     }
 }

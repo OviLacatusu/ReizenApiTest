@@ -49,14 +49,14 @@ else {
     protected override async Task OnInitializedAsync() 
     {
         if(ReisId>0){
-            reis = await httpClient.GetFromJsonAsync<ReisDTO>($"/reizen/{ReisId}");
+            reis = await httpClient.GetFromJsonAsync<ReisDTO>($"api/reizen/{ReisId}");
         }
     }
     private async void GetKlanten() 
     {
         if (familienaam is not null)
         {
-            klanten = await httpClient.GetFromJsonAsync<ICollection<KlantDTO>>($"/klanten/{familienaam}");
+            klanten = await httpClient.GetFromJsonAsync<ICollection<KlantDTO>>($"api/klanten/{familienaam}");
         }
     }
 }

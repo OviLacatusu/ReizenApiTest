@@ -8,7 +8,7 @@ using Reizen.Domain.Models;
 
 namespace ReizenApi.Controllers
 {
-    [Route ("[controller]")]
+    [Route ("api/[controller]")]
     [ApiController]
     public class BestemmingenController (
         ILandenWerelddelenRepository _service, 
@@ -36,7 +36,7 @@ namespace ReizenApi.Controllers
             }
         }
         // GET: <BestemmingenController>
-        [HttpGet ("{naam}")]
+        [HttpGet ("{landNaam}")]
         public async Task<ActionResult<ICollection<Bestemming>>> GetByCountry (string landNaam)
         {
             try

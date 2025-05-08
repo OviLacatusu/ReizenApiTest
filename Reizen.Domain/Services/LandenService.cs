@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Reizen.Data.Models.CQRS.Commands.AddBestemming;
 using static Reizen.Data.Models.CQRS.Commands.AddLandToWerelddeel;
 using static Reizen.Data.Models.CQRS.Queries.GetBestemmingen;
 using static Reizen.Data.Models.CQRS.Queries.GetBestemmingenVanLand;
@@ -55,19 +56,19 @@ namespace Reizen.Domain.Services
             }
         }
 
-        public async Task<Wrapper<int>> AddLandToWerelddeelAsync (Land land, Werelddeel deel)
+        public async Task<Land> AddLandToWerelddeelAsync (Land land, Werelddeel deel)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<AddLandToWerelddeelCommand, Wrapper<int>> (new AddLandToWerelddeelCommand(land, deel, context));
+                return await mediator.ExecuteCommand<AddLandToWerelddeelCommand, Land> (new AddLandToWerelddeelCommand(land, deel, context));
             }
         }
 
-        public Task<Bestemming> AddBestemmingAsync (Bestemming bestemming)
+        public async Task<Bestemming> AddBestemmingAsync (Bestemming bestemming)
         {
             using (var context = factory.CreateDbContext ())
             {
-
+                return await mediator.ExecuteCommand<AddBestemmingCommand, Bestemming> (new AddBestemmingCommand(context, bestemming));
             }
         }
     }

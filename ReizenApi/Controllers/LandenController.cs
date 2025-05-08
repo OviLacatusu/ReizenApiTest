@@ -8,7 +8,7 @@ using Reizen.Domain.Models;
 
 namespace ReizenApi.Controllers
 {
-    [Route ("[controller]")]
+    [Route ("api/[controller]")]
     [ApiController]
     public class LandenController(
         ILandenWerelddelenRepository _service, 

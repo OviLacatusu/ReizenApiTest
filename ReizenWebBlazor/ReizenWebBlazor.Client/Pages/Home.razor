@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@page "/Home"
 @using Reizen.Domain.Models
 @inject HttpClient httpClient
 
@@ -29,9 +29,8 @@ else
 
     protected override async Task OnInitializedAsync( )
     {
-        
         {
-            werelddelen = await httpClient.GetFromJsonAsync<IEnumerable<WerelddeelDTO>>("/werelddelen");
+            werelddelen = await httpClient.GetFromJsonAsync<IEnumerable<WerelddeelDTO>>("api/werelddelen");
         }
     }
 }

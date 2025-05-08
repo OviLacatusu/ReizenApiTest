@@ -1,14 +1,24 @@
+
+
+using GoogleAccess.Domain.Models;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Reizen.Data.Models.CQRS;
-using Reizen.Domain.Services;
+using System.Net.Http.Json;
 
 var builder = WebAssemblyHostBuilder.CreateDefault (args);
 
-builder.Services.AddHttpClient("",client => {
-    client.BaseAddress = new Uri ("https://localhost:7285");
+// making a request to the minimal API on ReizenApi to get the configuration settings for Google OAuth
+
+HttpClient clientH = new HttpClient ();
+clientH.BaseAddress = new Uri ("https://ovilacatusu-002-site1.qtempurl.com/");
+//clientH.BaseAddress = new Uri ("https://localhost:7217/");
+var config = await clientH.GetFromJsonAsync<GoogleAuthConfig> ("api/GetServerOauthConfig");
+
+builder.Services.AddTransient<GoogleAuthConfig> (x => config);
+
+builder.Services.AddHttpClient ("", client =>
+{
+    client.BaseAddress = new Uri ("https://ovilacatusu-002-site1.qtempurl.com/");
+    //client.BaseAddress = new Uri ("https://localhost:7217/");
 });
-//builder.Services.AddTransient<IMediator> (_ => Mediator.MediatorFactory ());
-//builder.Services.AddTransient<KlantenService> ();
-//builder.Services.AddTransient<LandenService> ();
 
 await builder.Build ().RunAsync ();

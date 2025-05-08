@@ -9,7 +9,7 @@ using Reizen.Domain.Models;
 
 namespace ReizenApi.Controllers
 {
-    [Route ("[controller]")]
+    [Route ("api/[controller]")]
     [ApiController]
     public class ReizenController(
         IReizenRepository _service, 

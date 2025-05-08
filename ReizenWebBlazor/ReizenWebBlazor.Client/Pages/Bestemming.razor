@@ -47,7 +47,7 @@ else
         {
             try
             {
-                reizen = await httpClient.GetFromJsonAsync<IEnumerable<ReisDTO>>($"/reizen/{Bestemmingscode}");
+                reizen = await httpClient.GetFromJsonAsync<IEnumerable<ReisDTO>>($"api/reizen/{Bestemmingscode}");
             }
             catch (HttpRequestException ex) 
             {

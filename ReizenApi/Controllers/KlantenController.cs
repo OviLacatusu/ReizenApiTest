@@ -9,7 +9,7 @@ using Reizen.Domain.Services;
 
 namespace ReizenApi.Controllers
 {
-    [Route ("[controller]")]
+    [Route ("api/[controller]")]
     [ApiController]
     public class KlantenController(
         IKlantenRepository _service, 

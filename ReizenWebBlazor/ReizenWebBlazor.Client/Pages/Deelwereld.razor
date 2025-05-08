@@ -26,7 +26,7 @@ else
     {
         if (Naam != null)
         {
-            landen = await httpClient.GetFromJsonAsync<IEnumerable<LandDTO>>($"/landen/{Naam}");
+            landen = await httpClient.GetFromJsonAsync<IEnumerable<LandDTO>>($"api/landen/{Naam}");
         }
     }
 }
