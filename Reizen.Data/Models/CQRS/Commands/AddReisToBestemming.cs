@@ -9,15 +9,22 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public class AddReisToBestemming
     {
-        public record AddReisToBestemmingCommand(Reis reis, Bestemming bestemming, ReizenContext context):ICommand<Wrapper<int>>;
+        public record AddReisToBestemmingCommand(Reis reis, Bestemming bestemming, ReizenContext context):ICommand<Reis?>;
 
-        public class AddReisToBestemmingCommandHandler : ICommandHandler<AddReisToBestemmingCommand, Wrapper<int>>
+        public class AddReisToBestemmingCommandHandler : ICommandHandler<AddReisToBestemmingCommand, Reis?>
         {
-            public async Task<Wrapper<int>> Execute (AddReisToBestemmingCommand command)
+            public async Task<Reis?> Execute (AddReisToBestemmingCommand command)
             {
-                var bestemming = await command.context.Bestemmingen.FindAsync (command.bestemming);
-                bestemming?.Reizen.Add (command.reis);
-                return new Wrapper<int>(await command.context.SaveChangesAsync ());
+                using var transaction = await command.context.Database.BeginTransactionAsync ();
+                {
+                    var bestemming = await command.context.Bestemmingen.FindAsync (command.bestemming);
+                    
+                    bestemming?.Reizen.Add (command.reis);
+
+                    await transaction.CommitAsync ();
+
+                    return command.reis;
+                }
             }
         }
     }

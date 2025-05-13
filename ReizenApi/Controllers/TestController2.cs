@@ -33,12 +33,13 @@ using System.CodeDom;
 using System.Collections.Concurrent;
 using Google.Apis.Drive.v3.Data;
 using GoogleAccess.Domain.Models;
+using Reizen.Domain.Models;
 
 
-namespace ReizenWebBlazor.Controllers
+namespace ReizenApi.Controllers
 {
     [Route ("api/[controller]")]
-    public class TestController : Controller
+    public class TestController2 : Controller
     {
         private const string CODE_ARG = "code";
         private const string CREDENTIALS_ARG = "credentials";
@@ -54,7 +55,7 @@ namespace ReizenWebBlazor.Controllers
         private readonly IHttpClientFactory _httpFactory;
         private readonly GoogleAuthService  _service;
 
-        public TestController (
+        public TestController2 (
 
             IHttpClientFactory _httpFactory,
             GoogleAuthConfig _config,
@@ -87,7 +88,7 @@ namespace ReizenWebBlazor.Controllers
             {
                 var responseContent = (await _service.ExchangeAuthorizationCodeAsync (code));
                 this.HttpContext.Session.Set<AuthResponse> ("oauthResponse", responseContent);
-            
+               
             }
             catch (Exception ex) {
                 model.Message += ex.Message + "\n " + ex.InnerException + "\n"+ex.StackTrace;

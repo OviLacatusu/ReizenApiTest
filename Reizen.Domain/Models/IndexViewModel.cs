@@ -1,4 +1,4 @@
-﻿namespace GoogleAccess.Domain.Models
+﻿namespace Reizen.Domain.Models
 {
     public class IndexViewModel
     {

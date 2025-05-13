@@ -14,7 +14,7 @@ namespace Reizen.Data.Repositories
         Task<ICollection<Klant>?> GetKlantenMetNaamAsync (string naam);
         Task<Klant?> AddKlantAsync (Klant klant);
         Task<Klant?> UpdateKlantAsync (int id, Klant klantDetails);
-        Task<Wrapper<int>> DeleteKlantAsync (int id);
+        Task<Klant?> DeleteKlantAsync (int id);
 
     }
 }

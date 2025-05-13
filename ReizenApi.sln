@@ -16,6 +16,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReizenWebBlazor", "ReizenWe
 		{E89E2C58-5329-4E17-A78A-2AB123DB99AF} = {E89E2C58-5329-4E17-A78A-2AB123DB99AF}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReizenApi", "ReizenApi\ReizenApi.csproj", "{1D8DBE40-DB10-4B5C-81A4-9690A7D6C106}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +44,10 @@ Global
 		{8D2436BC-A0DF-42DF-91E1-FDC3905122A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D2436BC-A0DF-42DF-91E1-FDC3905122A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D2436BC-A0DF-42DF-91E1-FDC3905122A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D8DBE40-DB10-4B5C-81A4-9690A7D6C106}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D8DBE40-DB10-4B5C-81A4-9690A7D6C106}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D8DBE40-DB10-4B5C-81A4-9690A7D6C106}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D8DBE40-DB10-4B5C-81A4-9690A7D6C106}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

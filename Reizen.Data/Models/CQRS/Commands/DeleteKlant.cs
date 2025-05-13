@@ -9,17 +9,23 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public class DeleteKlant
     {
-        public record DeleteKlantCommand (int klantId, ReizenContext context) : ICommand<Wrapper<int>>;
+        public record DeleteKlantCommand (int klantId, ReizenContext context) : ICommand<Klant?>;
 
-        public class DeleteKlantCommandHandler : ICommandHandler<DeleteKlantCommand, Wrapper<int>>
+        public class DeleteKlantCommandHandler : ICommandHandler<DeleteKlantCommand, Klant?>
         {
-            public async Task<Wrapper<int>> Execute (DeleteKlantCommand command)
+            public async Task<Klant?> Execute (DeleteKlantCommand command)
             {
-                Klant klant = new Klant { Id = command.klantId };
-                command.context.Attach (klant);
-                command.context.Klanten.Remove (klant);
+                using var transaction = command.context.Database.BeginTransaction ();
+                {
 
-                return new Wrapper<int>(await command.context.SaveChangesAsync ());
+                    Klant klant = new Klant { Id = command.klantId };
+                    command.context.Attach (klant);
+                    command.context.Klanten.Remove (klant);
+
+                    transaction.Commit ();
+
+                    return klant;
+                }
             }
         }     
     }

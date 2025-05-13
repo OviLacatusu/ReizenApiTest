@@ -4,34 +4,52 @@
 @inject GoogleAuthConfig _config;
 
 <h3>GoogleAccess</h3>
-<button @onclick="StartLogin">Authorize with Google</button>
-@code {
-    private DotNetObjectReference<GoogleAccess>? _objectRef;
-
-    [Parameter]
-    public EventCallback<string> _OnAuthCodeReceived { get; set; }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender) {
-        if (firstRender) {
-            _objectRef = DotNetObjectReference.Create(this);
-            Console.WriteLine(_config.ClientId);
-            await JSRuntime.InvokeVoidAsync("googleAuth.init", _config.ClientId, _config.AuthScope, "https://localhost:7217/GoogleLogin", _objectRef);
-        }
-    }
-    private async Task StartLogin()
-    {
-        await JSRuntime.InvokeVoidAsync("googleAuth.requestCode");
-    }
-    [JSInvokable]
-    public async Task OnAuthCodeReceived(string code)
-    {
-        Console.WriteLine($"Received auth code: {code}");
-        await _OnAuthCodeReceived.InvokeAsync(code);
-    }
-    public void Dispose()
-    {
-        _objectRef?.Dispose();
+<button onclick="">Authorize with Google</button>
+@{
+    if (!string.IsNullOrEmpty(code)) { 
+    <p>code</p>
     }
 }
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="google-auth.js"></script>
+@code {
+    [Parameter]
+    public string code { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(code)) 
+        { 
+            
+        }
+    }
+    // private DotNetObjectReference<GoogleAccess>? _objectRef;
+
+    // [Parameter]
+    // public EventCallback<string> _OnAuthCodeReceived { get; set; }
+
+    // protected override async Task OnAfterRenderAsync(bool firstRender) {
+    //     if (firstRender) {
+    //         _objectRef = DotNetObjectReference.Create(this);
+    //         Console.WriteLine(_config.ClientId);
+    //         await JSRuntime.InvokeVoidAsync("googleAuth.init", _config.ClientId, _config.AuthScope, "https:localhost:7217/GoogleLogin", _objectRef);
+    //     }
+    // }
+    // private async Task StartLogin()
+    // {
+    //     await JSRuntime.InvokeVoidAsync("googleAuth.requestCode");
+    // }
+    // [JSInvokable]
+    // public async Task OnAuthCodeReceived(string code)
+    // {
+    //     Console.WriteLine($"Received auth code: {code}");
+    //     await _OnAuthCodeReceived.InvokeAsync(code);
+    // }
+    // public void Dispose()
+    // {
+    //     _objectRef?.Dispose();
+        // }
+
+
+
+}
+@* <script src="https://accounts.google.com/gsi/client" async defer></script> *@
+@* <script src="google-auth.js"></script> *@

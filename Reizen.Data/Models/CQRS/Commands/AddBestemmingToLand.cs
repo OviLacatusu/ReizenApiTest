@@ -9,18 +9,23 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public class AddBestemmingToLand
     {
-        public record AddBestemmingToLandCommand (Bestemming bestemming, Land land, ReizenContext context) : ICommand<int>;
+        public record AddBestemmingToLandCommand (Bestemming bestemming, Land land, ReizenContext context) : ICommand<Bestemming?>;
 
-        public class AddBestemmingToLandCommandHandler : ICommandHandler<AddBestemmingToLandCommand, int>
+        public class AddBestemmingToLandCommandHandler : ICommandHandler<AddBestemmingToLandCommand, Bestemming?>
         {
-            public async Task<int> Execute (AddBestemmingToLandCommand command)
+            public async Task<Bestemming?> Execute (AddBestemmingToLandCommand command)
             {
-                var land = await command.context.Landen.FindAsync(command.land);
-                if (land?.Bestemmingen.Where (el => el.Plaats == command.bestemming.Plaats).Count() == 0)
+                using var transaction = await command.context.Database.BeginTransactionAsync ();
                 {
-                    land.Bestemmingen.Add (command.bestemming);
+                    var land = await command.context.Landen.FindAsync (command.land);
+                    Bestemming bestemming = null;
+                    if (land?.Bestemmingen.Where (el => el.Plaats == command.bestemming.Plaats).Count () == 0)
+                    {
+                        land.Bestemmingen.Add (command.bestemming);
+                    }
+                    await transaction.CommitAsync ();
+                    return command.bestemming;
                 }
-                return await command.context.SaveChangesAsync ();
             }
         }
     }

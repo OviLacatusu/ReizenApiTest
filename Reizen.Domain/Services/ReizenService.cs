@@ -25,15 +25,15 @@ namespace Reizen.Domain.Services
             }
         }
 
-        public async Task<Wrapper<int>> AddReisToBestemmingAsync (Reis reis, Bestemming bestemming)
+        public async Task<Reis?> AddReisToBestemmingAsync (Reis reis, Bestemming bestemming)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<AddReisToBestemmingCommand, Wrapper<int>> (new AddReisToBestemmingCommand (reis, bestemming, context));
+                return await mediator.ExecuteCommand<AddReisToBestemmingCommand, Reis> (new AddReisToBestemmingCommand (reis, bestemming, context));
             }
         }
 
-        public async Task<Reis>? GetReisMetIdAsync (int id)
+        public async Task<Reis?> GetReisMetIdAsync (int id)
         {
             using (var context = factory.CreateDbContext ())
             {

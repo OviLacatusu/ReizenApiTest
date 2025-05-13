@@ -38,6 +38,11 @@ namespace GoogleAccess.Domain.Models
         public readonly GoogleAuthConfig _config;
         private readonly IHttpClientFactory _httpFactory;
 
+        [JsonConstructor]
+        public GoogleAuthService ()
+        {
+        }
+
         public GoogleAuthService(GoogleAuthConfig config, IHttpClientFactory httpClient)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));

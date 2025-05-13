@@ -56,7 +56,7 @@ namespace Reizen.Domain.Services
             }
         }
 
-        public async Task<Land> AddLandToWerelddeelAsync (Land land, Werelddeel deel)
+        public async Task<Land?> AddLandToWerelddeelAsync (Land land, Werelddeel deel)
         {
             using (var context = factory.CreateDbContext ())
             {
@@ -64,7 +64,7 @@ namespace Reizen.Domain.Services
             }
         }
 
-        public async Task<Bestemming> AddBestemmingAsync (Bestemming bestemming)
+        public async Task<Bestemming?> AddBestemmingAsync (Bestemming bestemming)
         {
             using (var context = factory.CreateDbContext ())
             {

@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\TestController2.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="14.0.0" />
   </ItemGroup>
 

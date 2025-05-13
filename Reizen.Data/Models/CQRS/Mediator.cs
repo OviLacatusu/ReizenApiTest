@@ -90,11 +90,11 @@ namespace Reizen.Data.Models.CQRS
             mediator.Register<GetKlantMetNaamQuery, IList<Klant>> (new GetKlantMetNaamQueryHandler ());
             mediator.Register<GetLandenVanWerelddeelQuery, IList<Land>> (new GetLandenVanWerelddeelQueryHandler());
             mediator.Register<GetWerelddelenQuery, IList<Werelddeel>> (new GetWerelddelenQueryHandler());
-            mediator.Register<AddBestemmingToLandCommand, int> (new AddBestemmingToLandCommandHandler ());
+            mediator.Register<AddBestemmingToLandCommand, Bestemming?> (new AddBestemmingToLandCommandHandler ());
             mediator.Register<AddKlantCommand, Klant?> (new AddKlantCommandHandler ());
             mediator.Register<AddLandToWerelddeelCommand, Land> (new AddLandToWerelddeelCommandHandler ());
-            mediator.Register<AddReisToBestemmingCommand, Wrapper<int>> (new AddReisToBestemmingCommandHandler ());
-            mediator.Register<DeleteKlantCommand, Wrapper<int>> (new DeleteKlantCommandHandler ());
+            mediator.Register<AddReisToBestemmingCommand, Reis?> (new AddReisToBestemmingCommandHandler ());
+            mediator.Register<DeleteKlantCommand, Klant?> (new DeleteKlantCommandHandler ());
             mediator.Register<UpdateKlantCommand, Klant> (new UpdateKlantCommandHandler ());
             mediator.Register<GetReisMetIdQuery, Reis> (new GetReisMetIdQueryHandler ());
             mediator.Register<GetReizenNaarBestemmingQuery, IList<Reis>> (new GetReizenNaarBestemmingQueryHandler());

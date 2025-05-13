@@ -16,14 +16,18 @@ namespace Reizen.Data.Models.CQRS.Commands
         {
             public async Task<Land?> Execute (AddLandToWerelddeelCommand command)
             {
-                var deelw = await command.context.Werelddelen.FindAsync (command.deel);
-                Land result = null;
-                if (deelw?.Landen.Where (l => command.land.Naam == l.Naam).Count() == 0)
+                using var transaction = await command.context.Database.BeginTransactionAsync ();
                 {
-                    deelw.Landen.Add (command.land);
+
+                    var deelw = await command.context.Werelddelen.FindAsync (command.deel);
+                    Land result = null;
+                    if (deelw?.Landen.Where (l => command.land.Naam == l.Naam).Count () == 0)
+                    {
+                        deelw.Landen.Add (command.land);
+                    }
+                    await transaction.CommitAsync ();
+                    return command.land;
                 }
-                await command.context.SaveChangesAsync ();
-                return command.land;
             }
         }
     }

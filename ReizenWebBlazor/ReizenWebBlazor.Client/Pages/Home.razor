@@ -1,6 +1,7 @@
 ﻿@page "/Home"
+@rendermode InteractiveServer
 @using Reizen.Domain.Models
-@inject HttpClient httpClient
+@inject IHttpClientFactory httpFactory
 
 <PageTitle>Werelddelen</PageTitle>
 
@@ -30,6 +31,7 @@ else
     protected override async Task OnInitializedAsync( )
     {
         {
+            using var httpClient = httpFactory.CreateClient();
             werelddelen = await httpClient.GetFromJsonAsync<IEnumerable<WerelddeelDTO>>("api/werelddelen");
         }
     }

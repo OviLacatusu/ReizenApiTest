@@ -1,6 +1,8 @@
-﻿@page "/boeken/{ReisId:int}"
-@using Reizen.Domain.Models
+﻿@using Reizen.Domain.Models
+@page "/boeken/{ReisId:int}"
+
 @inject HttpClient httpClient;
+
 <h3>Boeken</h3>
 @if (reis is not null)
 {

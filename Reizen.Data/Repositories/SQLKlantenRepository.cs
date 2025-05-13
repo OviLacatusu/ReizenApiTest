@@ -32,12 +32,12 @@ namespace Reizen.Data.Repositories
                                                                            k.Familienaam.Contains (naam, StringComparison.OrdinalIgnoreCase)).ToListAsync();
         }
 
-        public Task<int> AddKlant (Klant klant)
+        public Task<Klant?> AddKlant (Klant klant)
         {
             throw new NotImplementedException ();
         }
 
-        public Task<bool> UpdateKlant (int id, Klant klantDetails)
+        public Task<Klant?> UpdateKlant (int id, Klant klantDetails)
         {
             throw new NotImplementedException ();
         }
@@ -52,7 +52,7 @@ namespace Reizen.Data.Repositories
             throw new NotImplementedException ();
         }
 
-        public Task<Wrapper<int>> DeleteKlantAsync (int id)
+        public Task<Klant?> DeleteKlantAsync (int id)
         {
             throw new NotImplementedException ();
         }

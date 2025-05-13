@@ -7,10 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\TestController_.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Reizen.Data\Reizen.Data.csproj" />
     <ProjectReference Include="..\..\Reizen.Domain\Reizen.Domain.csproj" />
+    <ProjectReference Include="..\..\ReizenApi\ReizenApi.csproj" />
     <ProjectReference Include="..\ReizenWebBlazor.Client\ReizenWebBlazor.Client.csproj" />
     <PackageReference Include="AutoMapper" Version="14.0.0" />
+    <PackageReference Include="Blazored.SessionStorage" Version="2.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.1" />
   </ItemGroup>
 
@@ -19,6 +25,10 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\" />
   </ItemGroup>
 
 </Project>

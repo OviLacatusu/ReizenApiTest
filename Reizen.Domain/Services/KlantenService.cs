@@ -55,15 +55,15 @@ namespace Reizen.Domain.Services
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<UpdateKlantCommand, Klant?> (new UpdateKlantCommand (klantDetails, id, context));
+                return await mediator.ExecuteCommand<UpdateKlantCommand, Klant> (new UpdateKlantCommand (klantDetails, id, context));
             }
         }
 
-        public async Task<Wrapper<int>?> DeleteKlantAsync (int id)
+        public async Task<Klant?> DeleteKlantAsync (int id)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<DeleteKlantCommand, Wrapper<int>> (new DeleteKlantCommand (id, context));
+                return await mediator.ExecuteCommand<DeleteKlantCommand, Klant?> (new DeleteKlantCommand (id, context));
             }
         }
     }

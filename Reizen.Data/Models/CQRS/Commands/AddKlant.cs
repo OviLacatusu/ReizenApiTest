@@ -17,6 +17,7 @@ namespace Reizen.Data.Models.CQRS.Commands
             {
                 var result = await command.context.Klanten.AddAsync (command.klant);
                 await command.context.SaveChangesAsync ();
+                
                 return result.Entity;
             }
         }
