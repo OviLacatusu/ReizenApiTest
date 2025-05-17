@@ -1,0 +1,122 @@
+﻿@using Reizen.Domain.Models;
+@using global::GoogleAccess.Domain.Models
+@using Microsoft.AspNetCore.WebUtilities;
+
+@page "/GoogleLogin2"
+
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
+
+@implements IDisposable;
+@inject IHttpClientFactory _factory;
+@inject NavigationManager _navManager;
+@inject PersistentComponentState _state;
+
+@* <GoogleAccess _OnAuthCodeReceived="HandleCode" /> *@
+
+<a class="btn-link" href="@link" @onclick="(() => WasClicked = true)">Authorize</a>
+<p>@(code)</p>
+<p>@(accessToken) xxx</p>
+
+@if (HasAccessToken)
+{
+    GetListPhotos();
+    if (PickerSessionData is not null)
+    {
+        <a href="@(PickerSessionData.pickerUri)">Pick Files</a>
+    }
+}
+else
+{
+    <p>Waiting for data...</p>
+}
+
+@code {
+    private PickingSession? PickerSessionData { get; set; }
+
+    private PersistingComponentStateSubscription persistingSubscription;
+
+    private bool HasAccessToken { get; set; }
+
+    private bool QueryHasCode { get; set; }
+
+    private string? code { get; set; }
+
+    private string? accessToken { get; set; }
+
+    private string? link;
+
+    private bool WasClicked { get; set; }
+
+    private async Task HandleCode()
+    {
+        var uri = _navManager.ToAbsoluteUri(_navManager.Uri);
+        // if (code is null)
+        {
+            if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("code", out var result))
+            {
+                code = Convert.ToString(result);
+                if (code is not null)
+                {
+                    QueryHasCode = true;
+                    var client = _factory.CreateClient();
+
+                    var response = (await client.GetStringAsync($"api/Test/HandleCallback?code={code}"));
+
+                    if (bool.TryParse(response, out var test))
+                    {
+                        HasAccessToken = test;
+                    }
+                }
+                //     AuthResponse response = await _service.ExchangeAuthorizationCodeAsync(code);
+
+                //     accessToken = response.AccessToken;
+            }
+        }
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        link = await GetLink();
+        persistingSubscription = _state.RegisterOnPersisting(PersistState);
+
+        if (_state.TryTakeFromJson<string>("accessToken", out var restored))
+        {
+            accessToken = restored;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        //if (WasClicked)
+        {
+            await HandleCode();
+        }
+    }
+
+    private async Task<string?> GetLink()
+    {
+        var client = _factory.CreateClient();
+        return (await client.GetFromJsonAsync<IndexViewModel>("/api/Test/getauthlink"))?.Uri.ToString();
+    }
+
+    private async Task GetListPhotos()
+    {
+        var client = _factory.CreateClient();
+        var result = (await client.GetFromJsonAsync<PickingSession>("/api/Test/GetPickerLink"));
+
+        PickerSessionData = result;
+    }
+
+    private Task PersistState()
+    {
+        _state.PersistAsJson("accessToken", accessToken);
+        return Task.CompletedTask;
+    }
+
+    void IDisposable.Dispose()
+    {
+        persistingSubscription.Dispose();
+    }
+
+}

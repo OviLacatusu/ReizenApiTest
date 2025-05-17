@@ -6,11 +6,8 @@ using Microsoft.Extensions.Http;
 
 namespace GoogleAccess.Domain.Models
 {
-
-
     public static class SessionExtension
     {
-        //private static readonly JsonSerializerOptions _options = new () { PropertyNameCaseInsensitive = true, UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Skip, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
         private static readonly JsonSerializerSettings _options = new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Error, StringEscapeHandling = StringEscapeHandling.Default };
 
         public static void Set<T> (this ISession session, string key, T value)

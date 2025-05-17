@@ -1,55 +1,114 @@
-﻿
+﻿@using Reizen.Domain.Models
+@using ReizenWebBlazor.Client.Services
 @using global::GoogleAccess.Domain.Models
-@inject IJSRuntime JSRuntime
-@inject GoogleAuthConfig _config;
+@using Microsoft.AspNetCore.WebUtilities
+@using Models
+@using System.Text.Json
 
-<h3>GoogleAccess</h3>
-<button onclick="">Authorize with Google</button>
-@{
-    if (!string.IsNullOrEmpty(code)) { 
-    <p>code</p>
-    }
-}
-@code {
+@page "/GoogleAccess"
+
+@rendermode @(new InteractiveServerRenderMode(prerender:false)) 
+
+@inject ILogger<GoogleAccess> _logger;
+@inject IHttpClientFactory _factory;
+@inject NavigationManager _navManager;
+
+@* @inject PollingAPIService _pollingService; *@
+@* @inject IServiceProvider _provider; *@
+
+@inject Blazored.SessionStorage.ISessionStorageService _storage; 
+
+<GoogleAuthorization @bind-PickerSessionData="SessionData" @bind-AccessToken="AccessToken"></GoogleAuthorization>
+
+@code
+{
+    private PollingConfig _config = new();
+    private CancellationToken token = new();
+
     [Parameter]
-    public string code { get; set; }
+    public PickingSession? SessionData { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    [Parameter]
+    public string? AccessToken { get; set; }
+
+    protected override void OnInitialized()
     {
-        if (!string.IsNullOrEmpty(code)) 
-        { 
-            
+        _logger.LogInformation("-- OnInitialized called --");
+    }
+    protected override void OnParametersSet()
+    {
+        _logger.LogInformation("++ OnParametersSet called ++");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) 
+    {
+        _logger.LogInformation($"** OnAfterRender called with firstrender = {firstRender} **");
+        //_config = _provider.GetService<PollingConfig>();
+        if (!firstRender && SessionData != null) 
+        {
+            _logger.LogInformation($"  Setting background state to: {SessionData.pickerUri}  ");
+            //_config.RequestUrl = SessionData.pickerUri;
+            //UpdateState();
+            await PollRequest(SessionData.id);
         }
     }
-    // private DotNetObjectReference<GoogleAccess>? _objectRef;
 
-    // [Parameter]
-    // public EventCallback<string> _OnAuthCodeReceived { get; set; }
-
-    // protected override async Task OnAfterRenderAsync(bool firstRender) {
-    //     if (firstRender) {
-    //         _objectRef = DotNetObjectReference.Create(this);
-    //         Console.WriteLine(_config.ClientId);
-    //         await JSRuntime.InvokeVoidAsync("googleAuth.init", _config.ClientId, _config.AuthScope, "https:localhost:7217/GoogleLogin", _objectRef);
+    // private void UpdateState() 
+    // {
+    //     using (var scope = _provider.CreateScope()){
+    //         var _pollingService = scope.ServiceProvider.GetRequiredService<PollingAPIService>(); 
+    //     _pollingService.UpdateState(state => 
+    //     {
+    //         state.RequestUrl = SessionData?.pickerUri;
+    //     });
     //     }
     // }
-    // private async Task StartLogin()
+
+    // private async Task UpdateStateAsync() 
     // {
-    //     await JSRuntime.InvokeVoidAsync("googleAuth.requestCode");
+    //     using (var scope = _provider.CreateScope())
+    //     {
+    //     var _pollingService = scope.ServiceProvider.GetRequiredService<PollingAPIService>();
+    //     _config = _pollingService.GetConfig();
+    //     await InvokeAsync(StateHasChanged);
+    //     }
     // }
-    // [JSInvokable]
-    // public async Task OnAuthCodeReceived(string code)
-    // {
-    //     Console.WriteLine($"Received auth code: {code}");
-    //     await _OnAuthCodeReceived.InvokeAsync(code);
-    // }
-    // public void Dispose()
-    // {
-    //     _objectRef?.Dispose();
-        // }
 
+    private async Task PollRequest(string id) {
 
+        _logger.LogInformation($"Running PollReques at {DateTime.UtcNow.ToShortTimeString()}");
 
+        if (string.IsNullOrEmpty(id)) throw new ArgumentException("Invalid argument");
+
+        var url = new Uri($"https://photospicker.googleapis.com/v1/sessions/{id}");
+
+        HttpClient client = new HttpClient ();
+        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
+        var stoppingToken = new CancellationToken();
+
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            _logger.LogInformation($"Running PollReques ->> while at {DateTime.UtcNow.ToShortTimeString()}");
+            await Task.Delay(3000, stoppingToken);
+
+            var response = await client.GetAsync(url, stoppingToken);
+            var result = await response.Content.ReadAsStringAsync();
+            var session = JsonSerializer.Deserialize<PickingSession>(result);
+
+            if (session?.mediaItemsSet == true)
+            {
+                break;
+            }
+            
+        }
+
+        using (var client_ = _factory.CreateClient()) 
+        {
+            client_.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
+            var uri = new Uri($"https://photospicker.googleapis.com/v1/mediaItems?sessionId={SessionData?.id}");
+            var response = await client_.GetAsync(uri);
+            var items = await JsonSerializer.DeserializeAsync<DetailsFiles>(response.Content.ReadAsStream());
+        }
+
+    }
 }
-@* <script src="https://accounts.google.com/gsi/client" async defer></script> *@
-@* <script src="google-auth.js"></script> *@

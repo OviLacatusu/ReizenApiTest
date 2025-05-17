@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GoogleAccess.Domain.models
+namespace GoogleAccess.Domain.Models
 {
     public class PickingSession
     {
@@ -15,6 +15,8 @@ namespace GoogleAccess.Domain.models
         public string pickerUri { get; set; }
 
         public string expireTime { get; set; }
+
+        public bool mediaItemsSet { get; set; }
 
         public PickingConfig pickingConfig { get; set; }
 
@@ -28,5 +30,6 @@ namespace GoogleAccess.Domain.models
         {
             public string maxItemCount { get; set; }
         }
+
     }
 }

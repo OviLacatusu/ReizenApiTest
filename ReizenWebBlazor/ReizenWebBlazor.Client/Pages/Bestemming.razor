@@ -1,7 +1,7 @@
 ﻿@page "/bestemmingen/{Bestemmingscode}"
 @using Reizen.Domain.Models
 @using System.Net
-@inject HttpClient httpClient
+@inject IHttpClientFactory httpFactory
 
 @if (reizen != null)
 {
@@ -38,7 +38,7 @@ else
     [Parameter]
     public string Bestemmingscode { get; init; }
 
-    private IEnumerable<ReisDTO> reizen;
+    private IEnumerable<ReisDTO>? reizen;
     private string Error;
 
     protected override async Task OnInitializedAsync()
@@ -47,6 +47,7 @@ else
         {
             try
             {
+                using var httpClient = httpFactory.CreateClient();
                 reizen = await httpClient.GetFromJsonAsync<IEnumerable<ReisDTO>>($"api/reizen/{Bestemmingscode}");
             }
             catch (HttpRequestException ex) 

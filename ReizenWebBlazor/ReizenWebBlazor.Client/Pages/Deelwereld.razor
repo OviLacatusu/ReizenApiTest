@@ -1,6 +1,6 @@
 ﻿@page "/Werelddelen/{Naam}"
 @using Reizen.Domain.Models
-@inject HttpClient httpClient
+@inject IHttpClientFactory httpFactory
 
 <h3>Landen</h3>
 @if (landen != null)
@@ -26,6 +26,7 @@ else
     {
         if (Naam != null)
         {
+            using var httpClient = httpFactory.CreateClient();
             landen = await httpClient.GetFromJsonAsync<IEnumerable<LandDTO>>($"api/landen/{Naam}");
         }
     }

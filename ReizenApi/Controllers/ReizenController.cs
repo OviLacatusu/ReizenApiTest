@@ -12,6 +12,7 @@ namespace ReizenApi.Controllers
     [Route ("api/[controller]")]
     [ApiController]
     public class ReizenController(
+
         IReizenRepository _service, 
         IMapper _mapper,
         ILogger<ReizenController> _logger) : ControllerBase

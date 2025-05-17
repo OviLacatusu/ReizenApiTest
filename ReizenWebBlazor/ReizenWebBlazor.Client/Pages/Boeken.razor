@@ -1,7 +1,7 @@
 ﻿@using Reizen.Domain.Models
 @page "/boeken/{ReisId:int}"
 
-@inject HttpClient httpClient;
+@inject IHttpClientFactory httpFactory
 
 <h3>Boeken</h3>
 @if (reis is not null)
@@ -51,6 +51,7 @@ else {
     protected override async Task OnInitializedAsync() 
     {
         if(ReisId>0){
+            using var httpClient = httpFactory.CreateClient();
             reis = await httpClient.GetFromJsonAsync<ReisDTO>($"api/reizen/{ReisId}");
         }
     }
@@ -58,6 +59,7 @@ else {
     {
         if (familienaam is not null)
         {
+            using var httpClient = httpFactory.CreateClient();
             klanten = await httpClient.GetFromJsonAsync<ICollection<KlantDTO>>($"api/klanten/{familienaam}");
         }
     }

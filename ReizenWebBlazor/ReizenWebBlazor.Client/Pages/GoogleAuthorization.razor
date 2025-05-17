@@ -1,0 +1,164 @@
+﻿@using Reizen.Domain.Models
+@using global::GoogleAccess.Domain.Models
+@using Microsoft.AspNetCore.WebUtilities
+@using System.Text.Json;
+
+@page "/GoogleAuthorization"
+
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
+
+@inject ILogger<GoogleAuthorization> logger;
+@inject IHttpClientFactory _factory;
+@inject NavigationManager _navManager;
+@inject GoogleAuthService _service;
+@inject Blazored.SessionStorage.ISessionStorageService _storage;
+
+<button @onclick="(async () => await ExecuteWithRedirect())" disabled="@HasAccessToken">Authorize</button>
+<p>Access code :@(code)</p>
+
+@if (!String.IsNullOrEmpty(PickerSessionData?.pickerUri))
+{
+    <button @onclick="() => _navManager.NavigateTo(PickerSessionData.pickerUri)">Picker Session request</button>
+}
+
+@code {
+    [Parameter]
+    public PickingSession? PickerSessionData { get; set; }
+
+    private bool? HasAccessToken { get; set; }
+
+    private bool? QueryHasCode { get; set; }
+
+    private string? code { get; set; }
+
+    [Parameter]
+    public string? AccessToken { get; set; }
+
+    private string? link;
+
+    private bool? WasClicked { get; set; }
+
+    private bool? HasLinkOAuth { get; set; }
+
+    [Parameter]
+    public EventCallback<PickingSession?> PickerSessionDataChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> AccessTokenChanged { get; set; }
+
+    // handling the callback from Google Authorization request
+    private async Task HandleCode()
+    {
+        var uri = _navManager.ToAbsoluteUri(_navManager.Uri);
+
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("code", out var queryCode))
+        {
+            code = Convert.ToString(queryCode);
+            if (code is not null)
+            {
+                QueryHasCode = true;
+                var client = _factory.CreateClient();
+                // Method in Server side Web API to handle the exchange of a authorization code for an access token
+                var result = await client.GetAsync($"api/Test/HandleCallback?code={code}");
+                result.EnsureSuccessStatusCode();
+
+                var response = await JsonSerializer.DeserializeAsync<string?>(await result.Content.ReadAsStreamAsync());
+
+                //if (!String.IsNullOrEmpty(response?.RefreshToken))
+                {
+                    if (!string.IsNullOrEmpty(response))
+                    {
+                        AccessToken = response;
+                        await AccessTokenChanged.InvokeAsync(AccessToken);
+                        HasAccessToken = true;
+                        StateHasChanged();
+                    }
+                }
+            }
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        logger.LogInformation(" OnInitialized called ");
+    }
+
+    protected override void OnParametersSet()
+    {
+        logger.LogInformation(" OnParametersSet called ");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        logger.LogInformation($" OnAfterRender called with firstRender: {firstRender}");
+        if (firstRender)
+        {
+            await RestoreState();
+            if (!HasLinkOAuth.GetValueOrDefault())
+            {
+                link = await GetLink();
+                HasLinkOAuth = true;
+            }
+            if (WasClicked.GetValueOrDefault())
+            {
+                await HandleCode();
+            }
+            if (HasAccessToken.GetValueOrDefault())
+            {
+                PickerSessionData = await GetPickerSession();
+                await PickerSessionDataChanged.InvokeAsync(PickerSessionData);
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            await PersistState();
+        }
+    }
+    private async Task<string?> GetLink()
+    {
+        var client = _factory.CreateClient();
+        return (await client.GetFromJsonAsync<IndexViewModel>("/api/Test/getauthlink"))?.Uri.ToString();
+    }
+    // I am not quite sure where to best persist session state and restore from it
+    // TODO: Figure this out
+    private async Task PersistState()
+    {
+        await _storage.SetItemAsync<string?>(nameof(link), link);
+
+        await _storage.SetItemAsync<bool?>(nameof(HasAccessToken), HasAccessToken);
+        await _storage.SetItemAsync<bool?>(nameof(HasLinkOAuth), HasLinkOAuth);
+        await _storage.SetItemAsync<bool?>(nameof(WasClicked), WasClicked);
+
+        await _storage.SetItemAsync<PickingSession?>(nameof(PickerSessionData), PickerSessionData);
+    }
+    // I am not quite sure where to best persist session state and restore from it
+    // TODO: Figure this out
+    private async Task RestoreState()
+    {
+        HasAccessToken = await _storage.GetItemAsync<bool?>(nameof(HasAccessToken));
+        HasLinkOAuth = await _storage.GetItemAsync<bool?>(nameof(HasLinkOAuth));
+        WasClicked = await _storage.GetItemAsync<bool?>(nameof(WasClicked));
+        code = await _storage.GetItemAsync<string?>(nameof(code));
+        link = await _storage.GetItemAsync<string?>(nameof(link));
+        PickerSessionData = await _storage.GetItemAsync<PickingSession?>(nameof(PickerSessionData));
+    }
+    // Method to be called when Authorization button is clicked
+    private async Task ExecuteWithRedirect()
+    {
+        WasClicked = true;
+        await PersistState();
+
+        if (!String.IsNullOrEmpty(link))
+            _navManager.NavigateTo(link);
+    }
+
+    private async Task<PickingSession> GetPickerSession()
+    {
+        var client = _factory.CreateClient();
+        var result = (await client.GetFromJsonAsync<PickingSession>("/api/Test/GetPickerLink"));
+
+        return result;
+    }
+
+}

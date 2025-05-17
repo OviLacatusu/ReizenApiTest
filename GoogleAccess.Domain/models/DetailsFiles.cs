@@ -1,23 +1,42 @@
-﻿namespace GoogleAccess.Domain.Models
-{
-    public class DetailsFiles{
+﻿using Google.Apis.Admin.Directory.directory_v1.Data;
 
-        public IEnumerable<MediaFileDetails> mediaItems
+namespace GoogleAccess.Domain.Models
+{
+    public class DetailsFiles {
+
+        public IEnumerable<PickedMediaItem> mediaItems
         {
             get; set;
-        } = new List<MediaFileDetails>();
+        } = new List<PickedMediaItem> ();
 
         public string? nextPageToken
         {
             get; set;
         } = null;
-        
+
     }
     public class MediaFileDetails
+    {
+        public string mimeType { get; set; }
+        //public string productUrl { get; set; }
+        public string filename { get; set; }
+        public string baseUrl { get; set; }
+    }
+    public class PickedMediaItem
+    {
+        public string id
         {
-            public string id { get; set; }
-            public string productUrl { get; set; }
-            public string filename { get; set; }
-            public string baseUrl { get; set; }
+            get; set;
         }
+        public string createTime
+        {
+            get; set;
+        }
+        public type type;
+        public MediaFileDetails mediaFile
+        {
+            get; set;
+        }
+    }
+    public enum type { TYPE_UNSPECIFIED, PHOTO, VIDEO };
 }

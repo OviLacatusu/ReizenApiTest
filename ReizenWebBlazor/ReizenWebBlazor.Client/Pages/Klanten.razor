@@ -1,6 +1,6 @@
 ﻿@page "/klants"
 @using Reizen.Domain.Models
-@inject HttpClient httpClient
+@inject IHttpClientFactory httpFactory
 
 <PageTitle>Klanten</PageTitle>
 
@@ -26,6 +26,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        using var httpClient = httpFactory.CreateClient();
         klanten = await httpClient.GetFromJsonAsync<ICollection<KlantDTO>>("api/klanten");
     }
 }

@@ -1,40 +1,15 @@
-﻿using System;
-using System.Net;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Auth.OAuth2.Flows;
-using Google.Apis.Auth.OAuth2.Web;
+﻿using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
-using Google.Apis.Util.Store;
-using System.IO ;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using Google.Apis.Gmail.v1;
+using Google.Apis.Json;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
-using Newtonsoft.Json;
-using Google.Apis.Admin.Directory.directory_v1;
-using Google.Apis.Admin.Directory.directory_v1.Data;
-using Data = Google.Apis.Sheets.v4.Data;
-using System.Drawing;
-using System.Collections.Immutable;
-using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
-using System.Collections.Generic;
-using System.Text;
-using System.IO;
-using Google.Apis.Auth.OAuth2.Responses;
-using System.Reflection;
-using Microsoft.AspNetCore.Http.HttpResults;
-using static System.Net.WebRequestMethods;
-using Google.Apis.Gmail.v1;
-using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
-using System.Runtime.InteropServices;
-using System.CodeDom;
-using System.Collections.Concurrent;
-using Google.Apis.Drive.v3.Data;
 using GoogleAccess.Domain.Models;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Reizen.Domain.Models;
-using GoogleAccess.Domain.models;
+using System.Collections.Immutable;
+
 
 
 namespace ReizenApi.Controllers
@@ -73,7 +48,6 @@ namespace ReizenApi.Controllers
         }
 
         [HttpGet ("GetAuthLink")]
-        //[Route("/[controller]")]
         public async Task<ActionResult> GetLink (CancellationToken cancellationToken)
         {
             try
@@ -88,27 +62,21 @@ namespace ReizenApi.Controllers
             {
                 return StatusCode (500, ex);
             }
-
         }
         [HttpGet("HandleCallback")]
-        public async Task<bool> HandleCallback(CancellationToken cancellationToken, [FromQuery] string code) 
+        public async Task<ActionResult> HandleCallback(CancellationToken cancellationToken, [FromQuery] string code) 
         {
             var test = code;
-            //var model = new IndexViewModel ();
             try
             {
                 var responseContent = (await _service.ExchangeAuthorizationCodeAsync (code));
-                //this._session.OAuthState = responseContent;
 
                 this.HttpContext.Session.Set<AuthResponse>("oauthResponse", responseContent);
+                return Ok(JsonConvert.SerializeObject(responseContent.AccessToken));
             }
             catch (Exception ex) {
-                //model.Message += ex.Message + "\n " + ex.InnerException + "\n"+ex.StackTrace;
-                return false;
+                return StatusCode(500, ex);
             }
-            // TODO: Find a more elegant way of redirecting to the original request link 
-            return true;
-            //throw new NotImplementedException ();
         }
 
         [HttpGet ("GetOauthServerSettings")]
@@ -132,19 +100,21 @@ namespace ReizenApi.Controllers
         {
             try
             {
+                // restore AuthResponse state from session
                 var oauth = this.HttpContext.Session.Get<AuthResponse> ("oauthResponse");
                 if (oauth == null)
                     throw new OAuth2Exception ("Access token not found!");
                 if (String.IsNullOrEmpty (id))
                     throw new ArgumentException ("Provided id is null or the empty string!");
 
-                GoogleCredential credentials = GoogleCredential.FromAccessToken (oauth.AccessToken);
-
                 using (var client = _httpFactory.CreateClient ())
                 {
+                    // setting the Authentication header necessary for the request
                     client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue ("Bearer", oauth.AccessToken);
                     
                     var result = await client.GetAsync ($"{GOOGLE_PHOTOS_API_URL}/{id}");
+
+                    result.EnsureSuccessStatusCode ();
                     var details = JsonConvert.DeserializeObject<MediaFileDetails> (await result.Content.ReadAsStringAsync ());
 
                     var bytes = await client.GetByteArrayAsync ($"{details.baseUrl}=d");
@@ -161,10 +131,11 @@ namespace ReizenApi.Controllers
         {
             try
             {
+                // restore AuthResponse state from session
                 var oauth = this.HttpContext.Session.Get<AuthResponse> ("oauthResponse");
                 if (oauth == null)
                     throw new OAuth2Exception ("Access token not found!");
-
+                // creating credentials from access token, necessary for the DriveService creation
                 GoogleCredential credentials = GoogleCredential.FromAccessToken (oauth.AccessToken);
 
                 DriveService service = new DriveService (new BaseClientService.Initializer ()
@@ -173,7 +144,7 @@ namespace ReizenApi.Controllers
                     ApplicationName = "Testing Drive",
                     ValidateParameters = false
                 });
-                
+                // setting up the request
                 var request = service.Files.List ();
 
                 request.IncludeItemsFromAllDrives = true;
@@ -184,7 +155,7 @@ namespace ReizenApi.Controllers
 
                 request.Fields = "files(id, name, mimeType, parents, createdTime, webViewLink, fileExtension, size)";
                 var result = await request.ExecuteAsync ();
-
+                
                 // TODO: replace the Anonymous type with a defined class
                 return Ok (Json (result.Files.Select (el => new {Id = el.Id, Mime = el.MimeType, Name = el.Name, Label = el.LabelInfo })));
             }
@@ -198,62 +169,34 @@ namespace ReizenApi.Controllers
         {
             try
             {
+                // restore AuthResponse state from session
                 var oauth = this.HttpContext.Session.Get<AuthResponse> ("oauthResponse");
-                //var oauth = _session.OAuthState;
+
                 if (oauth is null)
                     throw new OAuth2Exception ("Access token not found! Session has probably expired.");
 
                 using (var client = _httpFactory.CreateClient ())
                 {
+                    // setting the Authentication header necessary for the request
                     client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue ("Bearer", oauth.AccessToken);
-
+                    // sending an empty PickingSession object that will be populated
                     var httpContent = new StringContent(JsonConvert.SerializeObject(new PickingSession()));
-
+                    // POST request
                     var response = await client.PostAsync ($"{GOOGLE_PICKER_API_SESSION_REQ}", httpContent);
+                    response.EnsureSuccessStatusCode ();
 
                     var session = JsonConvert.DeserializeObject<PickingSession> (await response.Content.ReadAsStringAsync());
 
                     return Ok (session);
 
-                    //List<MediaFileDetails> files = new List<MediaFileDetails> ();
-                    //Boolean hasNextPage = true;
-                    //DateTime timeStart = DateTime.Now;
-                    //do
-                    //{
-                    //    // Deserializing the JSON response and checking for the presence of a nextPageToken which
-                    //    // indicates the existence of more items to be requested
-                    //    var content = JsonConvert.DeserializeObject<DetailsFiles> (await response.Content.ReadAsStringAsync ());
-                    //    files.AddRange (content.mediaItems.ToList ());
-
-                    //    if (!String.IsNullOrEmpty (content.nextPageToken))
-                    //    {
-                    //        // making a request with the nextPageToken as parameter to the GET request
-                    //        response = await client.GetAsync ($"{urlRequest}?&pageToken={content.nextPageToken}");
-                    //    }
-                    //    else
-                    //    {
-                    //        hasNextPage = false;
-                    //    }
-
-                    //} while (hasNextPage);
-                    //DateTime timeEnd = DateTime.Now;
-                    //files.Last ().filename += "   " + timeEnd.Subtract(timeStart).Seconds;
-
-                    //if (files.Count > 0)
-                    //{
-                    //    return Ok (files);
-                    //}
-                    //else
-                    {
-                        //return NotFound ("No media items found");
-                    }
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode (500, ex.Message + " Trace " + ex.StackTrace);
+                return StatusCode (500, ex);
             }
         }
+        // Not supported since around 1/05/2025
         [HttpGet ("GetPhotos2")]
         public async Task<ActionResult> GetListPhotos2 ()
         {
@@ -272,16 +215,16 @@ namespace ReizenApi.Controllers
                     List<MediaFileDetails> files = new List<MediaFileDetails> ();
                     Boolean hasNextPage = true;
 
-                    var content = await MakeRequest<DetailsFiles> (urlRequest, client);
-                    files.AddRange (content.mediaItems.ToList());
+                    var content = await MakeRequest<DetailsFiles> (urlRequest);
+                    //files.AddRange (content.mediaItems.ToList());
 
                     DateTime timeStart = DateTime.Now;
                     do
                     {
                         if (!String.IsNullOrEmpty (content.nextPageToken))
                         {
-                            content = await MakeRequest<DetailsFiles> (urlRequest + $"?&pageToken={content.nextPageToken}", client);
-                            files.AddRange (content.mediaItems.ToList ());
+                            content = await MakeRequest<DetailsFiles> (urlRequest + $"?&pageToken={content.nextPageToken}");
+                            //files.AddRange (content.mediaItems.ToList ());
                         }
                         else
                         {
@@ -307,14 +250,18 @@ namespace ReizenApi.Controllers
                 return StatusCode (500, ex);
             }
         }
-        // passing HttpClient object to avoid the overhead of getting a client from the factory when repeated requests are made due to pagination
-        private async Task<T> MakeRequest<T> (string url, HttpClient client)
+        // Generic API request that returns deserialized JSON Objects
+        private async Task<T?> MakeRequest<T> (string url)
         {
             try
             {
-                var response = await client.GetAsync (url);
-                var content = JsonConvert.DeserializeObject<T> (await response.Content.ReadAsStringAsync ());
-                return (content);
+                using (var client = _httpFactory.CreateClient ())
+                {
+
+                    var response = await client.GetAsync (url);
+                    var content = JsonConvert.DeserializeObject<T> (await response.Content.ReadAsStringAsync ());
+                    return (content);
+                }
             }
             catch (Exception ex) 
             {

@@ -6,6 +6,8 @@ using Reizen.Data.Models.CQRS;
 using Reizen.Data.Repositories;
 using Reizen.Domain.Services;
 using ReizenWebBlazor;
+using ReizenWebBlazor.Client.Models;
+using ReizenWebBlazor.Client.Services;
 using ReizenWebBlazor.Components;
 using ReizenWebBlazor.Models;
 using System.Text.Json.Serialization;
@@ -21,7 +23,18 @@ builder.Services.AddRazorComponents ()
 var clientID = builder.Configuration.GetSection ("OAuthConfig").GetValue<string> ("ClientID");
 var clientSecret = builder.Configuration.GetSection ("OAuthConfig").GetValue<string> ("ClientSecret");
 
-builder.Services.AddScoped<IBrowserStorage, SessionStorage> ();
+builder.Services.AddBlazoredSessionStorage ();
+
+builder.Logging.ClearProviders ();
+builder.Logging.AddConsole();
+
+//builder.Services.AddTransient<PollingServiceConfig> ();
+builder.Services.AddTransient<IServiceProvider, ServiceProvider> ();
+// needed for AuthResponse
+builder.Services.AddTransient<GoogleAuthService> ();
+//builder.Services.AddTransient<PollingAPIService> ();
+//builder.Services.AddTransient<IHostedService, PollingAPIService> (provider => provider.GetService<PollingAPIService>());
+//builder.Services.AddHostedService<PollingAPIService> ();
 
 builder.Services.AddCors ();
 
