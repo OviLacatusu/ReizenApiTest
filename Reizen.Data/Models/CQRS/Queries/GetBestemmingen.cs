@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Reizen.Data.Models.CQRS.Queries
 {
-    public class GetBestemmingen
+    public sealed class GetBestemmingen
     {
         public record GetBestemmingenQuery (ReizenContext context) : IQuery<IList<Bestemming>>;
 
@@ -16,7 +16,7 @@ namespace Reizen.Data.Models.CQRS.Queries
         {
             public async Task<IList<Bestemming>?> Execute (GetBestemmingenQuery query)
             {
-                var result = (await query.context.Bestemmingen.ToListAsync ());
+                var result = (await query.context.Bestemmingen?.ToListAsync ());
                 return result.Count == 0 ? null : result.ToList ();
             }
         }

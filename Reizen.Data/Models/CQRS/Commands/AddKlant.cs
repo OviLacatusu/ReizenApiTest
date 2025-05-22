@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Reizen.Data.Models.CQRS.Commands
 {
-    public class AddKlant
+    public sealed class AddKlant
     {
         public record AddKlantCommand(Klant klant, ReizenContext context) : ICommand<Klant?>;
 

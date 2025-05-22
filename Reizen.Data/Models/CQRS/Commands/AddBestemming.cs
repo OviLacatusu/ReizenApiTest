@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Reizen.Data.Models.CQRS.Commands
 {
-    public class AddBestemming
+    public sealed class AddBestemming
     {
         public record AddBestemmingCommand(ReizenContext context, Bestemming bestemming): ICommand<Bestemming>;
 

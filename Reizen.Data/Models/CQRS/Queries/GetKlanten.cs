@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Reizen.Data.Models.CQRS.Queries
 {
-    public class GetKlanten 
+    public sealed class GetKlanten 
     {
         public record GetKlantenQuery(ReizenContext context): IQuery<IList<Klant>>;
 

@@ -13,14 +13,13 @@ namespace GoogleAccess.Domain.Models
         {
             get; set;
         } = null;
-
     }
-    public class MediaFileDetails
+    public class MediaFile
     {
         public string mimeType { get; set; }
-        //public string productUrl { get; set; }
         public string filename { get; set; }
         public string baseUrl { get; set; }
+        public MediaFileMetadata mediaFileMetadata { get; set; }
     }
     public class PickedMediaItem
     {
@@ -32,11 +31,38 @@ namespace GoogleAccess.Domain.Models
         {
             get; set;
         }
-        public type type;
-        public MediaFileDetails mediaFile
+        public string type
         {
             get; set;
         }
+        public MediaFile mediaFile
+        {
+            get; set;
+        }
+        
     }
-    public enum type { TYPE_UNSPECIFIED, PHOTO, VIDEO };
+    public class MediaFileMetadata
+    {
+        public int width { get; set; }
+        public int height { get; set; }
+        public string cameraMake { get; set; }
+        public string cameraModel { get; set; }
+        public PhotoMetadata photoMetadata { get; set; }
+        public VideoMetadata videoMetadata { get; set; }
+    }
+    public class PhotoMetadata
+    {
+        public decimal focalLength { get; set; }
+        public decimal aperturefNumber { get; set; }
+        public int isoEquivalent { get; set; }
+        public string exposureTime { get; set; }
+    }
+    public class VideoMetadata
+    {
+        public decimal fps { get; set; }
+        public string processingStatus { get; set; }
+    }
+    public enum Type { TYPE_UNSPECIFIED, PHOTO, VIDEO };
+
+    public enum VideoProcessingStatus { UNSCPECIFIED, PROCESSING, READY, FAILED };
 }

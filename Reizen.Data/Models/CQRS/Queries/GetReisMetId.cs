@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Reizen.Data.Models.CQRS.Queries
 {
-    public class GetReisMetId
+    public sealed class GetReisMetId
     {
         public record GetReisMetIdQuery(ReizenContext context, int id): IQuery<Reis>;
 

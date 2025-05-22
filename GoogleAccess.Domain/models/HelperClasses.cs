@@ -42,7 +42,6 @@ namespace GoogleAccess.Domain.Models
         public GoogleAuthService ()
         {
         }
-
         public GoogleAuthService(GoogleAuthConfig config, IHttpClientFactory httpClient)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
@@ -78,8 +77,6 @@ namespace GoogleAccess.Domain.Models
             };
 
             var response = await SendTokenRequestAsync(postData);
-            //response.ClientId = _config.ClientId;
-            //response.Secret = _config.ClientSecret;
 
             return response;
         }
@@ -124,7 +121,6 @@ namespace GoogleAccess.Domain.Models
     public record AuthResponseData(string access_token, string refresh_token, int expires_in);
     public class AuthResponse
     {
-        
         private readonly GoogleAuthService _authService;
         private string _accessToken;
         public string AccessToken

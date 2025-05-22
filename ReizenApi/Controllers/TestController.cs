@@ -1,4 +1,5 @@
-﻿using Google.Apis.Auth.OAuth2;
+﻿using Azure.Core;
+using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
 using Google.Apis.Gmail.v1;
 using Google.Apis.Json;
@@ -9,8 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Reizen.Domain.Models;
 using System.Collections.Immutable;
-
-
 
 namespace ReizenApi.Controllers
 {
@@ -31,20 +30,21 @@ namespace ReizenApi.Controllers
         private readonly GoogleAuthConfig _config;
         private readonly IHttpClientFactory _httpFactory;
         private readonly GoogleAuthService  _service;
-        //private SessionStorageGoogle _session;
+        private readonly ILogger<TestController> _logger;
 
         public TestController (
 
             IHttpClientFactory _httpFactory,
+            ILogger<TestController> _logger,
             GoogleAuthConfig _config,
             GoogleAuthService _service
-            //SessionStorageGoogle _session
         )
         {
             this._config = _config ?? throw new ArgumentNullException (nameof(_config));
             this._httpFactory = _httpFactory ?? throw new ArgumentNullException (nameof(_httpFactory));
             this._service = _service ?? throw new ArgumentNullException (nameof(_service));
             //this._session = _session ?? throw new ArgumentNullException (nameof (_session));
+            this._logger = _logger ?? throw new ArgumentNullException (nameof(_logger));
         }
 
         [HttpGet ("GetAuthLink")]
@@ -52,6 +52,7 @@ namespace ReizenApi.Controllers
         {
             try
             {
+                _logger.LogInformation ("Getting Google authorization link");
                 var link = _service.GetAuthenticationUri ();
                 var content = new IndexViewModel ();
                 content.Uri = link;
@@ -60,6 +61,7 @@ namespace ReizenApi.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError ($"Error {ex.Message}");
                 return StatusCode (500, ex);
             }
         }
@@ -69,18 +71,20 @@ namespace ReizenApi.Controllers
             var test = code;
             try
             {
+                _logger.LogInformation ("Handling callback serverside");
                 var responseContent = (await _service.ExchangeAuthorizationCodeAsync (code));
 
                 this.HttpContext.Session.Set<AuthResponse>("oauthResponse", responseContent);
                 return Ok(JsonConvert.SerializeObject(responseContent.AccessToken));
             }
             catch (Exception ex) {
+                _logger.LogError ($"Error {ex.Message}");
                 return StatusCode(500, ex);
             }
         }
 
         [HttpGet ("GetOauthServerSettings")]
-        public async Task<ActionResult> GetClientId ()
+        public async Task<ActionResult> GetClientId (CancellationToken cancellationToken)
         {
             try
             {
@@ -92,11 +96,12 @@ namespace ReizenApi.Controllers
             }
             catch (Exception ex) 
             {
+                _logger.LogError ($"Error {ex.Message}");
                 return StatusCode (500, ex);
             }
         }
         [HttpGet ("CopyPhoto/{id}")]
-        public async Task<ActionResult> CopyPhoto (string id)
+        public async Task<ActionResult> CopyPhoto (string id, CancellationToken cancellationToken)
         {
             try
             {
@@ -115,19 +120,20 @@ namespace ReizenApi.Controllers
                     var result = await client.GetAsync ($"{GOOGLE_PHOTOS_API_URL}/{id}");
 
                     result.EnsureSuccessStatusCode ();
-                    var details = JsonConvert.DeserializeObject<MediaFileDetails> (await result.Content.ReadAsStringAsync ());
+                    var details = JsonConvert.DeserializeObject<MediaFile> (await result.Content.ReadAsStringAsync ());
 
                     var bytes = await client.GetByteArrayAsync ($"{details.baseUrl}=d");
                     await System.IO.File.WriteAllBytesAsync (details.filename, bytes);
                     return Ok ("Image copyed");
                 }
             }
-            catch (Exception ex) { 
+            catch (Exception ex) {
+                _logger.LogError ($"Error {ex.Message}");
                 return StatusCode (500, ex.Message);
             }
         }
         [HttpGet("GetFiles")]
-        public async Task<ActionResult> GetListFiles()
+        public async Task<ActionResult> GetListFiles(CancellationToken cancellationToken)
         {
             try
             {
@@ -160,12 +166,13 @@ namespace ReizenApi.Controllers
                 return Ok (Json (result.Files.Select (el => new {Id = el.Id, Mime = el.MimeType, Name = el.Name, Label = el.LabelInfo })));
             }
             catch (Exception ex) {
+                _logger.LogError ($"Error {ex.Message}");
                 return StatusCode (500, ex.Message);
             }
         }
 
         [HttpGet ("GetPickerLink")]
-        public async Task<ActionResult> GetPickerData ()
+        public async Task<ActionResult> GetPickerData (CancellationToken cancellationToken)
         {
             try
             {
@@ -193,15 +200,17 @@ namespace ReizenApi.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError ($"Error {ex.Message}");
                 return StatusCode (500, ex);
             }
         }
         // Not supported since around 1/05/2025
-        [HttpGet ("GetPhotos2")]
-        public async Task<ActionResult> GetListPhotos2 ()
+        //[HttpGet ("GetPhotos2")]
+        public async Task<ActionResult> GetListPhotos2 (CancellationToken token)
         {
             try
             {
+                // restore AuthResponse state from session
                 var oauth = this.HttpContext.Session.Get<AuthResponse> ("oauthResponse");
                 if (oauth == null)
                     throw new OAuth2Exception ("Access token not found! Session has probably expired.");
@@ -212,10 +221,10 @@ namespace ReizenApi.Controllers
 
                     var urlRequest = GOOGLE_PHOTOS_API_URL;
 
-                    List<MediaFileDetails> files = new List<MediaFileDetails> ();
+                    List<MediaFile> files = new List<MediaFile> ();
                     Boolean hasNextPage = true;
 
-                    var content = await MakeRequest<DetailsFiles> (urlRequest);
+                    var content = await SendGetRequest<DetailsFiles> (urlRequest, token, false, null);
                     //files.AddRange (content.mediaItems.ToList());
 
                     DateTime timeStart = DateTime.Now;
@@ -223,7 +232,7 @@ namespace ReizenApi.Controllers
                     {
                         if (!String.IsNullOrEmpty (content.nextPageToken))
                         {
-                            content = await MakeRequest<DetailsFiles> (urlRequest + $"?&pageToken={content.nextPageToken}");
+                            content = await SendGetRequest<DetailsFiles> ($"{urlRequest}?&pageToken={content.nextPageToken}", token, false, null);
                             //files.AddRange (content.mediaItems.ToList ());
                         }
                         else
@@ -247,24 +256,80 @@ namespace ReizenApi.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError ($"Error {ex.Message}");
+                return StatusCode (500, ex);
+            }
+        }
+        [HttpGet("GetPhotosWithPicker/{sessionId}")]
+        public async Task<ActionResult> GetListWithPicker (string sessionId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                // restore AuthResponse state from session
+                var oauth = this.HttpContext.Session.Get<AuthResponse> ("oauthResponse");
+                if (oauth == null)
+                    throw new OAuth2Exception ("Access token not found! Session has probably expired.");
+
+                _logger.LogInformation ($"Running PollRequest at {DateTime.UtcNow.ToShortTimeString ()}");
+
+                if (string.IsNullOrEmpty (sessionId))
+                    throw new ArgumentException ($"Invalid argument: sessionId = {sessionId} ");
+
+                var url = new Uri ($"https://photospicker.googleapis.com/v1/sessions/{sessionId}");
+
+                var stoppingToken = new CancellationToken ();
+
+                // while loop for polling the session until mediaItemsSet is set to true
+                while (!stoppingToken.IsCancellationRequested)
+                {
+                    _logger.LogInformation ($"Running PollRequest ->> while loop at {DateTime.UtcNow.ToShortTimeString ()}");
+                    await Task.Delay (3000, stoppingToken);
+
+                    var session = await SendGetRequest<PickingSession> (url.ToString(), stoppingToken, true, oauth.AccessToken);
+
+                    if (session?.mediaItemsSet == true)
+                    {
+                        break;
+                    }
+                }
+                _logger.LogInformation ($"Exited while loop in {nameof(GetListWithPicker)} at {DateTime.UtcNow.ToShortTimeString ()}");
+                // requesting the media items chosen by the user 
+                // TODO: Add support for pagination
+                url = new Uri ($"https://photospicker.googleapis.com/v1/mediaItems?sessionId={sessionId}");
+
+                var details = await SendGetRequest<DetailsFiles> (url.ToString(), stoppingToken, true, oauth.AccessToken);
+
+                return Ok (details);
+            }
+            catch (Exception ex) 
+            {
+                _logger.LogError ($"Error {ex.Message}");
                 return StatusCode (500, ex);
             }
         }
         // Generic API request that returns deserialized JSON Objects
-        private async Task<T?> MakeRequest<T> (string url)
+        private async Task<T?> SendGetRequest<T> (string url, CancellationToken stoppingToken, bool WithBearerHeader, string? accessToken)
         {
             try
             {
+                if (WithBearerHeader && String.IsNullOrEmpty (accessToken))
+                {
+                    throw new ArgumentNullException ("Access token missing!");
+                }
                 using (var client = _httpFactory.CreateClient ())
                 {
-
-                    var response = await client.GetAsync (url);
+                    if (WithBearerHeader)
+                    {
+                        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue ("Bearer", accessToken);
+                    }
+                    var response = await client.GetAsync (url, stoppingToken);
                     var content = JsonConvert.DeserializeObject<T> (await response.Content.ReadAsStringAsync ());
                     return (content);
                 }
             }
             catch (Exception ex) 
             {
+                _logger.LogError ($"Error {ex.Message}");
                 throw new HttpRequestException(ex.Message, ex.InnerException) ;
             }
         }
@@ -273,6 +338,7 @@ namespace ReizenApi.Controllers
         {
             try
             {
+                // restore AuthResponse state from session
                 var oauth = this.HttpContext.Session.Get<AuthResponse> ("oauthResponse");
                 if (oauth == null)
                     throw new OAuth2Exception ("Access token not found! Session has probably expired.");
@@ -284,7 +350,7 @@ namespace ReizenApi.Controllers
                     ApplicationName = "Testing Drive",
                     ValidateParameters = false
                 });
-
+                // For testing purposes
                 var request = service.Users.Messages.List("ovi.lacatusu@gmail.com");
                 request.LabelIds = "INBOX";
                 request.IncludeSpamTrash = false;
@@ -294,6 +360,7 @@ namespace ReizenApi.Controllers
                 return Ok (result.Messages);
             }
             catch (Exception ex) {
+                _logger.LogError ($"Error {ex.Message}");
                 return StatusCode (500, ex);
             }
         }

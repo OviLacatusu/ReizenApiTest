@@ -12,11 +12,15 @@
     <p>@reis.Vertrek</p>
     <h4>Aantal dagen</h4>
     <p>@reis.PrijsPerPersoon</p>
-    <form method="get">
+    <div>
         <label for="familienaam">Familienaam bevat:</label>
         <InputText @bind-Value="familienaam" id="familienaam"></InputText>
-        <button type="submit" @onclick="GetKlanten" class="btn btn-primary">Zoek</button>
-    </form>
+        <button type="button" @onclick="GetKlanten" class="btn btn-primary">Zoek</button>
+    </div>
+}else 
+{ 
+    <p>Waiting for data...</p>
+}
     @if (klanten is not null) {
         <table class="table table-striped" >
             <thead>
@@ -27,17 +31,15 @@
             <tbody>
                 @foreach (var klant in klanten)
                 {
-                <tr>
-                    <td>@klant.Familienaam</td><td>@klant.Voornaam</td><td>@klant.Adres</td><td><a href="/@klant.Id">Boeken</a></td>
-                </tr>
+                    <tr>
+                        <td>@klant.Familienaam</td><td>@klant.Voornaam</td><td>@klant.Adres</td><td><a href="/@klant.Id">Boeken</a></td>
+                    </tr>
                 }
             </tbody>
         </table>
     }
-}
-else { 
-    <p>Waiting for data...</p>
-}
+
+
 @code {
     [Parameter]
     public int ReisId { get; init; }
@@ -61,6 +63,7 @@ else {
         {
             using var httpClient = httpFactory.CreateClient();
             klanten = await httpClient.GetFromJsonAsync<ICollection<KlantDTO>>($"api/klanten/{familienaam}");
+            StateHasChanged();
         }
     }
 }

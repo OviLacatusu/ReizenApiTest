@@ -10,13 +10,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static Reizen.Data.Models.CQRS.Commands.AddBestemming;
+using static Reizen.Data.Models.CQRS.Commands.AddLand;
 using static Reizen.Data.Models.CQRS.Commands.AddLandToWerelddeel;
+using static Reizen.Data.Models.CQRS.Commands.DeleteBestemming;
+using static Reizen.Data.Models.CQRS.Commands.DeleteLand;
+using static Reizen.Data.Models.CQRS.Commands.UpdateLand;
 using static Reizen.Data.Models.CQRS.Queries.GetBestemmingen;
 using static Reizen.Data.Models.CQRS.Queries.GetBestemmingenVanLand;
 using static Reizen.Data.Models.CQRS.Queries.GetKlanten;
 using static Reizen.Data.Models.CQRS.Queries.GetKlantMetID;
 using static Reizen.Data.Models.CQRS.Queries.GetKlantMetNaam;
 using static Reizen.Data.Models.CQRS.Queries.GetLandenVanWerelddeel;
+using static Reizen.Data.Models.CQRS.Queries.GetLandMetId;
 using static Reizen.Data.Models.CQRS.Queries.GetReizenNaarBestemming;
 using static Reizen.Data.Models.CQRS.Queries.GetWerelddelen;
 
@@ -69,6 +74,45 @@ namespace Reizen.Domain.Services
             using (var context = factory.CreateDbContext ())
             {
                 return await mediator.ExecuteCommand<AddBestemmingCommand, Bestemming> (new AddBestemmingCommand(context, bestemming));
+            }
+        }
+
+        public async Task<Land?> GetLandMetIdAsync (int id)
+        {
+            using (var context = factory.CreateDbContext ())
+            {
+                return await mediator.ExecuteQuery<GetLandMetIdQuery, Land> (new GetLandMetIdQuery ( id, context));
+            }
+        }
+
+        public async Task<Land?> AddLandAsync (Land land)
+        {
+            using (var context = factory.CreateDbContext ())
+            {
+                return await mediator.ExecuteCommand<AddLandCommand, Land> (new AddLandCommand (land, context));
+            }
+        }
+
+        public async Task<Land?> UpdateLandMetIdAsync (int id, Land land)
+        {
+            using (var context = factory.CreateDbContext ())
+            {
+                return await mediator.ExecuteCommand<UpdateLandCommand, Land?> (new UpdateLandCommand (id, land, context));
+            }
+        }
+        public async Task<Land?> DeleteLandMetIdAsync (int id)
+        {
+            using (var context = factory.CreateDbContext ())
+            {
+                return await mediator.ExecuteCommand <DeleteLandCommand, Land?> (new DeleteLandCommand (id, context));
+            }
+        }
+
+        public async Task<Bestemming?> DeleteBestemmingMetIdAsync (string code)
+        {
+            using (var context = factory.CreateDbContext ())
+            {
+                return await mediator.ExecuteCommand<DeleteBestemmingCommand, Bestemming?> (new DeleteBestemmingCommand (code, context));
             }
         }
     }

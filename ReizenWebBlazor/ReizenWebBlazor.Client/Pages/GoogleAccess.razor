@@ -13,16 +13,22 @@
 @inject IHttpClientFactory _factory;
 @inject NavigationManager _navManager;
 
-@* @inject PollingAPIService _pollingService; *@
-@* @inject IServiceProvider _provider; *@
-
 @inject Blazored.SessionStorage.ISessionStorageService _storage; 
 
 <GoogleAuthorization @bind-PickerSessionData="SessionData" @bind-AccessToken="AccessToken"></GoogleAuthorization>
 
+@if(mediaItems is not null && mediaItems.mediaItems.Count() > 0)
+{
+    foreach (var item in mediaItems.mediaItems) 
+    { 
+        @* <a href="@($"{item.mediaFile.baseUrl}=w{item.mediaFile.mediaFileMetadata.width}-h{item.mediaFile.mediaFileMetadata.height}")">@item.mediaFile.filename</a> *@
+
+        <a href="@($"{item.mediaFile.baseUrl}=d")">@item.mediaFile.filename</a>
+    }
+}
+
 @code
 {
-    private PollingConfig _config = new();
     private CancellationToken token = new();
 
     [Parameter]
@@ -30,6 +36,8 @@
 
     [Parameter]
     public string? AccessToken { get; set; }
+
+    public DetailsFiles mediaItems { get; set; }
 
     protected override void OnInitialized()
     {
@@ -43,72 +51,25 @@
     protected override async Task OnAfterRenderAsync(bool firstRender) 
     {
         _logger.LogInformation($"** OnAfterRender called with firstrender = {firstRender} **");
-        //_config = _provider.GetService<PollingConfig>();
+
         if (!firstRender && SessionData != null) 
         {
             _logger.LogInformation($"  Setting background state to: {SessionData.pickerUri}  ");
-            //_config.RequestUrl = SessionData.pickerUri;
-            //UpdateState();
             await PollRequest(SessionData.id);
         }
     }
 
-    // private void UpdateState() 
-    // {
-    //     using (var scope = _provider.CreateScope()){
-    //         var _pollingService = scope.ServiceProvider.GetRequiredService<PollingAPIService>(); 
-    //     _pollingService.UpdateState(state => 
-    //     {
-    //         state.RequestUrl = SessionData?.pickerUri;
-    //     });
-    //     }
-    // }
-
-    // private async Task UpdateStateAsync() 
-    // {
-    //     using (var scope = _provider.CreateScope())
-    //     {
-    //     var _pollingService = scope.ServiceProvider.GetRequiredService<PollingAPIService>();
-    //     _config = _pollingService.GetConfig();
-    //     await InvokeAsync(StateHasChanged);
-    //     }
-    // }
-
     private async Task PollRequest(string id) {
 
-        _logger.LogInformation($"Running PollReques at {DateTime.UtcNow.ToShortTimeString()}");
+        _logger.LogInformation($"Running PollRequest at {DateTime.UtcNow.ToShortTimeString()}");
 
-        if (string.IsNullOrEmpty(id)) throw new ArgumentException("Invalid argument");
-
-        var url = new Uri($"https://photospicker.googleapis.com/v1/sessions/{id}");
-
-        HttpClient client = new HttpClient ();
-        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
-        var stoppingToken = new CancellationToken();
-
-        while (!stoppingToken.IsCancellationRequested)
+        using (var client = _factory.CreateClient()) 
         {
-            _logger.LogInformation($"Running PollReques ->> while at {DateTime.UtcNow.ToShortTimeString()}");
-            await Task.Delay(3000, stoppingToken);
-
-            var response = await client.GetAsync(url, stoppingToken);
-            var result = await response.Content.ReadAsStringAsync();
-            var session = JsonSerializer.Deserialize<PickingSession>(result);
-
-            if (session?.mediaItemsSet == true)
-            {
-                break;
-            }
-            
+            var response = await client.GetAsync($"api/Test/GetPhotosWithPicker/{id}");
+            mediaItems = await JsonSerializer.DeserializeAsync<DetailsFiles>(await response.Content.ReadAsStreamAsync());
+           
         }
-
-        using (var client_ = _factory.CreateClient()) 
-        {
-            client_.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
-            var uri = new Uri($"https://photospicker.googleapis.com/v1/mediaItems?sessionId={SessionData?.id}");
-            var response = await client_.GetAsync(uri);
-            var items = await JsonSerializer.DeserializeAsync<DetailsFiles>(response.Content.ReadAsStream());
-        }
-
+        _logger.LogInformation($"Exiting PollRequest at {DateTime.UtcNow.ToShortTimeString()}");
+        StateHasChanged();
     }
 }

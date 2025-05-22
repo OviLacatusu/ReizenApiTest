@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Reizen.Data.Models.CQRS.Queries
 {
-    public class GetLandenVanWerelddeel
+    public sealed class GetLandenVanWerelddeel
     {
         public record GetLandenVanWerelddeelQuery(string werelddeel, ReizenContext context):IQuery<IList<Land>>;
 

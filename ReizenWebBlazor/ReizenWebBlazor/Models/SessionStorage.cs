@@ -10,7 +10,6 @@ namespace ReizenWebBlazor.Models
         {
             Storage = storage;
         }
-        
         public async Task DeleteAsync (string key)
         {
             await Storage.DeleteAsync (key);

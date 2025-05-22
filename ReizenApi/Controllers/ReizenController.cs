@@ -50,7 +50,7 @@ namespace ReizenApi.Controllers
         {
             try
             {
-                if (id <= 0)
+                if (id < 0)
                 {
                     _logger.LogWarning ("Invalid value provided");
                     return BadRequest ();
@@ -73,9 +73,34 @@ namespace ReizenApi.Controllers
 
         // POST api/<ReizenController>
         [HttpPost]
-        public void Post ([FromBody] string value)
-        {
-        }
+        //public async Task<ActionResult> Post ([FromBody] ReisDTO reisDto, BestemmingDTO bestemmingDto)
+        //{
+        //    try
+        //    {
+        //        if (reisDto is null || bestemmingDto is null)
+        //        {
+        //            _logger.LogWarning ("Provided value is invalid");
+        //            return BadRequest ();
+        //        }
+        //        var reis = _mapper.Map<Reis> (reisDto);
+
+        //        var bestemming = _mapper.Map<Bestemming> (bestemmingDto);
+        //        var result = await _service.AddReisToBestemmingAsync (reis, bestemming);
+
+        //        if (result is null)
+        //        {
+        //            _logger.LogError ("Error occurred while adding trip");
+        //            return StatusCode (500, "An error occurred while processing your request");
+        //        }
+        //        var dto = _mapper.Map<ReisDTO> (result);
+        //        return Ok (dto);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError ($"Error adding trip");
+        //        return StatusCode (500, "An error occurred while processing your request");
+        //    }
+        //}
 
         // PUT api/<ReizenController>/5
         [HttpPut ("{id}")]
@@ -85,8 +110,36 @@ namespace ReizenApi.Controllers
 
         // DELETE api/<ReizenController>/5
         [HttpDelete ("{id}")]
-        public void Delete (int id)
+        public async Task<ActionResult> Delete (int id)
         {
+            try
+            {
+                if (id < 0)
+                {
+                    _logger.LogWarning ("Provided value is invalid");
+                    return BadRequest ();
+                }
+                var existingReis = await _service.GetReisMetIdAsync (id);
+                if (existingReis is null)
+                {
+                    _logger.LogWarning ($"Trip with id={id} not found");
+                    return BadRequest ();
+                }
+                var result = _service.DeleteReisMetIdAsync (id);
+
+                if (result is null)
+                {
+                    _logger.LogError ("Error occurred while deleting trip");
+                    return StatusCode (500, "An error occurred while processing your request");
+                }
+                var dto = _mapper.Map<BoekingDTO> (result);
+                return Ok (dto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError ($"Error adding boeking");
+                return StatusCode (500, "An error occurred while processing your request");
+            }
         }
     }
 }

@@ -14,5 +14,7 @@ namespace Reizen.Data.Repositories
         Task<Reis?> AddReisToBestemmingAsync (Reis reis, Bestemming bestemming);
 
         Task<Reis?> GetReisMetIdAsync (int id);
+
+        Task<Reis?> DeleteReisMetIdAsync (int id);
     }
 }

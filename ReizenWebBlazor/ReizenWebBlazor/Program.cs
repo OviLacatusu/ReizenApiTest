@@ -1,5 +1,9 @@
 using Blazored.SessionStorage;
 using GoogleAccess.Domain.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Reizen.Data.Models.CQRS;
@@ -10,6 +14,7 @@ using ReizenWebBlazor.Client.Models;
 using ReizenWebBlazor.Client.Services;
 using ReizenWebBlazor.Components;
 using ReizenWebBlazor.Models;
+using System.Net;
 using System.Text.Json.Serialization;
 
 
@@ -28,13 +33,11 @@ builder.Services.AddBlazoredSessionStorage ();
 builder.Logging.ClearProviders ();
 builder.Logging.AddConsole();
 
-//builder.Services.AddTransient<PollingServiceConfig> ();
 builder.Services.AddTransient<IServiceProvider, ServiceProvider> ();
+
 // needed for AuthResponse
 builder.Services.AddTransient<GoogleAuthService> ();
-//builder.Services.AddTransient<PollingAPIService> ();
-//builder.Services.AddTransient<IHostedService, PollingAPIService> (provider => provider.GetService<PollingAPIService>());
-//builder.Services.AddHostedService<PollingAPIService> ();
+
 
 builder.Services.AddCors ();
 
@@ -44,6 +47,16 @@ builder.Services.AddHttpClient ("", client =>
     client.BaseAddress = new Uri ("https://localhost:7285/");
     
 });
+builder.Services.AddAuthentication (options =>
+{
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultChallengeScheme = IdentityConstants.ExternalScheme;
+}).AddCookie ()
+ .AddGoogle (o => {
+    o.ClientId = clientID;
+    o.ClientSecret = clientSecret;
+    o.SaveTokens = true;
+    });
 
 builder.Services.AddControllers ()
     .AddJsonOptions (options => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
@@ -67,6 +80,7 @@ app.UseCors ();
 
 app.UseHttpsRedirection ();
 
+app.UseAuthorization ();
 app.UseAuthorization ();
 
 app.UseStaticFiles ();

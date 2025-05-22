@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Reizen.Data.Models.CQRS.Commands
 {
-    public class AddLandToWerelddeel
+    public sealed class AddLandToWerelddeel
     {
         public record AddLandToWerelddeelCommand(Land land, Werelddeel deel, ReizenContext context): ICommand<Land>;
 

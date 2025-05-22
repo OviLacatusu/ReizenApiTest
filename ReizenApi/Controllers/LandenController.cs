@@ -45,27 +45,131 @@ namespace ReizenApi.Controllers
 
         // GET <LandenController>/5
         [HttpGet ("{id:int}")]
-        public string Get (int id)
+        public async Task<ActionResult> Get (int id)
         {
-            return "value";
+            try
+            {
+                if (id < 0)
+                {
+                    _logger.LogWarning ("Invalid value provided");
+                    return BadRequest ();
+                }
+                var result = await _service.GetLandMetIdAsync (id);
+                if (result == null)
+                {
+                    _logger.LogInformation ($"No countries with an id = {id} found");
+                    return NotFound ();
+                }
+                var dtos = _mapper.Map<Land?> (result);
+                return Ok (dtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError (ex, "Error while fetching country");
+                return StatusCode (500, "An error occurred while processing your request");
+            }
         }
 
         // POST <LandenController>
         [HttpPost]
-        public void Post ([FromBody] string value)
+        public async Task<ActionResult> Post ([FromBody] LandDTO landDto)
         {
+            try
+            {
+                if (landDto is null)
+                {
+                    _logger.LogWarning ("Invalid data provided");
+                    return BadRequest ();
+                }
+                var land = _mapper.Map<Land> (landDto);
+                var result = await _service.AddLandAsync (land);
+
+                if (result is null)
+                {
+                    _logger.LogError ("Error while trying to add Land");
+                    return StatusCode (500, "An error occurred while processing your request");
+                }
+                var dto = _mapper.Map<LandDTO> (land);
+                return CreatedAtAction (nameof (Post), new 
+                {
+                    Naam = dto.Naam,
+                    Werelddeel = dto.Werelddeel,
+                }, dto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError ("Error while trying to add Land");
+                return StatusCode (500, "An error occurred while processing your request");
+            }
         }
 
         // PUT <LandenController>/5
         [HttpPut ("{id}")]
-        public void Put (int id, [FromBody] string value)
+        public async Task<ActionResult> Put (int id, [FromBody] LandDTO landDto)
         {
+            try
+            {
+                if (landDto is null || id < 0)
+                {
+                    _logger.LogWarning ("Invalid data provided");
+                    return BadRequest ();
+                }
+                var existingLand = await _service.GetLandMetIdAsync (id);
+                if (existingLand is null)
+                {
+                    _logger.LogWarning ($"Invalid data provided - land with id={id} was not found");
+                    return BadRequest ();
+                }
+                var land = _mapper.Map<Land> (landDto);
+                var result = await _service.UpdateLandMetIdAsync (id, land);
+
+                if (result is null)
+                {
+                    _logger.LogError ("Error while updating Land");
+                    return StatusCode (500, "An error occurred while processing your request");
+                }
+                var dto = _mapper.Map<LandDTO> (land);
+                return Ok (dto);
+            }
+            catch (Exception ex) 
+            {
+                _logger.LogError ("Error while trying to update Land");
+                return StatusCode (500, "An error occurred while processing your request");
+            }
         }
 
         // DELETE <LandenController>/5
         [HttpDelete ("{id}")]
-        public void Delete (int id)
+        public async Task<ActionResult> Delete (int id)
         {
+            try
+            {
+                if (id < 0)
+                {
+                    _logger.LogWarning ("Invalid data provided - id");
+                    return BadRequest ();
+                }
+                var existingLand = await _service.GetLandMetIdAsync (id);
+                if (existingLand is null)
+                {
+                    _logger.LogWarning ($"Invalid data provided - land with id={id} was not found");
+                    return BadRequest () ;
+                }
+                var result = await _service.DeleteLandMetIdAsync (id);
+
+                if (result is null)
+                {
+                    _logger.LogError ("Error while deleting Land");
+                    return StatusCode (500, "An error occurred while processiong your request");
+                }
+                var dto = _mapper.Map<LandDTO> (result);
+                return Ok (dto);
+            }
+            catch (Exception ex) 
+            {
+                _logger.LogError ("Error while trying to delete Land");
+                return StatusCode (500, "An error occurred while processing your request");
+            }
         }
     }
 }

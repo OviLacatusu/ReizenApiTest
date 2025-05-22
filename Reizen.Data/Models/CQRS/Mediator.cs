@@ -43,7 +43,7 @@ namespace Reizen.Data.Models.CQRS
             }
             return null;
         }
-        
+
         public async Task ExecuteCommand<TCommand> (TCommand command) where TCommand : ICommand
         {
             foreach (var handler in _commandHandlers)

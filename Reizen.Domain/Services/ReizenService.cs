@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static Reizen.Data.Models.CQRS.Commands.AddReisToBestemming;
+using static Reizen.Data.Models.CQRS.Commands.DeleteReis;
 using static Reizen.Data.Models.CQRS.Queries.GetReisMetId;
 using static Reizen.Data.Models.CQRS.Queries.GetReizenNaarBestemming;
 
@@ -29,7 +30,7 @@ namespace Reizen.Domain.Services
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<AddReisToBestemmingCommand, Reis> (new AddReisToBestemmingCommand (reis, bestemming, context));
+                return await mediator.ExecuteCommand<AddReisToBestemmingCommand, Reis?> (new AddReisToBestemmingCommand (reis, bestemming, context));
             }
         }
 
@@ -37,7 +38,15 @@ namespace Reizen.Domain.Services
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetReisMetIdQuery, Reis> (new GetReisMetIdQuery (context, id));
+                return await mediator.ExecuteQuery<GetReisMetIdQuery, Reis?> (new GetReisMetIdQuery (context, id));
+            }
+        }
+
+        public async Task<Reis?> DeleteReisMetIdAsync (int id)
+        {
+            using (var context = factory.CreateDbContext ())
+            {
+                return await mediator.ExecuteCommand<DeleteReisCommand, Reis?> (new DeleteReisCommand (id, context));
             }
         }
     }

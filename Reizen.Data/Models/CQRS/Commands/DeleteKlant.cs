@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Reizen.Data.Models.CQRS.Commands
 {
-    public class DeleteKlant
+    public sealed class DeleteKlant
     {
         public record DeleteKlantCommand (int klantId, ReizenContext context) : ICommand<Klant?>;
 
@@ -15,7 +15,7 @@ namespace Reizen.Data.Models.CQRS.Commands
         {
             public async Task<Klant?> Execute (DeleteKlantCommand command)
             {
-                using var transaction = command.context.Database.BeginTransaction ();
+                using var transaction = await command.context.Database.BeginTransactionAsync ();
                 {
 
                     Klant klant = new Klant { Id = command.klantId };

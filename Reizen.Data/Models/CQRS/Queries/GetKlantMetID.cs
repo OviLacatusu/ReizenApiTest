@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Reizen.Data.Models.CQRS.Queries
 {
-    public class GetKlantMetID
+    public sealed class GetKlantMetID
     {
         public record GetKlantMetIDQuery(ReizenContext context, int id) : IQuery<Klant>;
 

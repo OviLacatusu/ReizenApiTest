@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Reizen.Data.Models.CQRS.Queries
 {
-    public class GetWerelddelen
+    public sealed class GetWerelddelen
     {
         public record GetWerelddelenQuery(ReizenContext context): IQuery<IList<Werelddeel>>;
 

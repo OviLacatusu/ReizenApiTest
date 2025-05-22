@@ -113,7 +113,7 @@ namespace ReizenApi.Controllers
                     return StatusCode (500, "An error occurred while processing your request");
                 }
                 var dto = _mapper.Map<KlantDTO> (klant);
-                return CreatedAtAction(nameof(GetMetId), new{ klantVoornaam = dto.Voornaam, klantFamilinaam = dto.Familienaam }, dto);
+                return CreatedAtAction(nameof(Post), new{ klantVoornaam = dto.Voornaam, klantFamilinaam = dto.Familienaam }, dto);
             }
             catch (Exception ex)
             {
@@ -124,14 +124,71 @@ namespace ReizenApi.Controllers
 
         // PUT <ValuesController>/5
         [HttpPut ("{id}")]
-        public void Put (int id, [FromBody] string value)
+        public async Task<ActionResult> Put ([FromBody] KlantDTO klantDto, int id, CancellationToken token)
         {
+            try
+            {
+                if (klantDto is null)
+                {
+                    _logger.LogWarning ("Invalid data provided");
+                    return BadRequest ();
+                }
+                var klant = _mapper.Map<Klant> (klantDto);
+                var existingKlant = await _service.GetKlantMetIdAsync (id);
+                
+                if (existingKlant is null)
+                {
+                    _logger.LogWarning ("Invalid data provided - client does not exist");
+                    return BadRequest ();
+                }
+                var result = await _service.UpdateKlantAsync (id, klant);
+                if (result is null)
+                {
+                    _logger.LogError ("Error while trying to update Client");
+                    return StatusCode (500, "An error occurred while processing your request");
+                }
+                var dto = _mapper.Map<KlantDTO> (klant);
+                return Ok (dto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError ("Error while trying to update Client");
+                return StatusCode (500, "An error occurred while processing request");
+            }
         }
 
         // DELETE <ValuesController>/5
         [HttpDelete ("{id}")]
-        public void Delete (int id)
+        public async Task<ActionResult> Delete (int id)
         {
+            try
+            {
+                if (id < 0)
+                {
+                    _logger.LogWarning ("Invalid data provided");
+                    return BadRequest ();
+                }
+                var existingKlant = await _service.GetKlantMetIdAsync (id);
+
+                if (existingKlant is null)
+                {
+                    _logger.LogWarning ("Invalid data - client does not exist");
+                    return BadRequest ();
+                }
+                var result = await _service.DeleteKlantAsync (id);
+                if (result is null)
+                {
+                    _logger.LogError ("Error while trying to delete Client");
+                    return StatusCode (500, "An error occurred while processing your request");
+                }
+                var dto = _mapper.Map<KlantDTO> (existingKlant);
+                return Ok (dto);
+            }
+            catch (Exception ex) 
+            {
+                _logger.LogError ("Error while trying to delete Client");
+                return StatusCode (500, "An error occured while processing your request");
+            }
         }
     }
 }

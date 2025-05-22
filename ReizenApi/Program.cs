@@ -24,6 +24,9 @@ builder.Services.AddScoped<IKlantenRepository,KlantenService> ();
 builder.Services.AddScoped<ILandenWerelddelenRepository, LandenService> ();
 builder.Services.AddScoped<IReizenRepository, ReizenService> ();
 
+builder.Logging.ClearProviders ();
+builder.Logging.AddConsole ();
+
 builder.Services.AddDistributedMemoryCache ();
 builder.Services.AddSession ();
 

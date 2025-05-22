@@ -93,6 +93,7 @@ namespace ReizenApi.Controllers
             }
         }
 
+        // Won't be implemented
         // PUT <BestemmingenController>/5
         [HttpPut ("{id}")]
         public void Put (int id, [FromBody] string value)
