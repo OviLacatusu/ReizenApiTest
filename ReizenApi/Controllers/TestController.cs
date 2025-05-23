@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Reizen.Domain.Models;
 using System.Collections.Immutable;
+using System.Net;
 
 namespace ReizenApi.Controllers
 {
@@ -172,20 +173,21 @@ namespace ReizenApi.Controllers
         }
 
         [HttpGet ("GetPickerLink")]
-        public async Task<ActionResult> GetPickerData (CancellationToken cancellationToken)
+        public async Task<ActionResult> GetPickerData ([FromHeader] string Authorization, [FromServices] IHttpContextAccessor context, CancellationToken cancellationToken)
         {
             try
             {
+                Console.WriteLine (context.HttpContext);
                 // restore AuthResponse state from session
-                var oauth = this.HttpContext.Session.Get<AuthResponse> ("oauthResponse");
-
-                if (oauth is null)
+                
+                if (Authorization  is null)
                     throw new OAuth2Exception ("Access token not found! Session has probably expired.");
+                var accessToken = Authorization.Split(" ").Last ();
 
                 using (var client = _httpFactory.CreateClient ())
                 {
                     // setting the Authentication header necessary for the request
-                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue ("Bearer", oauth.AccessToken);
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue ("Bearer", accessToken);
                     // sending an empty PickingSession object that will be populated
                     var httpContent = new StringContent(JsonConvert.SerializeObject(new PickingSession()));
                     // POST request
@@ -206,18 +208,20 @@ namespace ReizenApi.Controllers
         }
         // Not supported since around 1/05/2025
         //[HttpGet ("GetPhotos2")]
-        public async Task<ActionResult> GetListPhotos2 (CancellationToken token)
+        public async Task<ActionResult> GetListPhotos2 ([FromHeader] string Authorization, CancellationToken token)
         {
             try
             {
                 // restore AuthResponse state from session
-                var oauth = this.HttpContext.Session.Get<AuthResponse> ("oauthResponse");
-                if (oauth == null)
+                //var oauth = this.HttpContext.Session.Get<AuthResponse> ("oauthResponse");
+
+                if (Authorization == null)
                     throw new OAuth2Exception ("Access token not found! Session has probably expired.");
+                var accessToken = Authorization.Split (" ").Last ();
 
                 using (var client = _httpFactory.CreateClient ())
                 {
-                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue ("Bearer", oauth.AccessToken);
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue ("Bearer", accessToken);
 
                     var urlRequest = GOOGLE_PHOTOS_API_URL;
 
@@ -261,14 +265,14 @@ namespace ReizenApi.Controllers
             }
         }
         [HttpGet("GetPhotosWithPicker/{sessionId}")]
-        public async Task<ActionResult> GetListWithPicker (string sessionId, CancellationToken cancellationToken)
+        public async Task<ActionResult> GetListWithPicker (string sessionId, [FromHeader] string Authorization, CancellationToken cancellationToken)
         {
             try
             {
                 // restore AuthResponse state from session
-                var oauth = this.HttpContext.Session.Get<AuthResponse> ("oauthResponse");
-                if (oauth == null)
+                if (Authorization == null)
                     throw new OAuth2Exception ("Access token not found! Session has probably expired.");
+                var accessToken = Authorization.Split (" ").Last ();
 
                 _logger.LogInformation ($"Running PollRequest at {DateTime.UtcNow.ToShortTimeString ()}");
 
@@ -285,7 +289,7 @@ namespace ReizenApi.Controllers
                     _logger.LogInformation ($"Running PollRequest ->> while loop at {DateTime.UtcNow.ToShortTimeString ()}");
                     await Task.Delay (3000, stoppingToken);
 
-                    var session = await SendGetRequest<PickingSession> (url.ToString(), stoppingToken, true, oauth.AccessToken);
+                    var session = await SendGetRequest<PickingSession> (url.ToString(), stoppingToken, true, accessToken);
 
                     if (session?.mediaItemsSet == true)
                     {
@@ -297,7 +301,7 @@ namespace ReizenApi.Controllers
                 // TODO: Add support for pagination
                 url = new Uri ($"https://photospicker.googleapis.com/v1/mediaItems?sessionId={sessionId}");
 
-                var details = await SendGetRequest<DetailsFiles> (url.ToString(), stoppingToken, true, oauth.AccessToken);
+                var details = await SendGetRequest<DetailsFiles> (url.ToString(), stoppingToken, true, accessToken);
 
                 return Ok (details);
             }

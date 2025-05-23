@@ -1,0 +1,45 @@
+﻿
+@page "/Home"
+@rendermode InteractiveServer
+@using Reizen.Domain.Models
+@inject IHttpClientFactory httpFactory
+@inject ILogger<Home> _logger;
+
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
+
+<PageTitle>Werelddelen</PageTitle>
+
+<AuthorizeView>
+<h1>Choose the continent</h1>
+@if(werelddelen != null)
+    {
+        <ul>
+            @foreach (var werelddeel in werelddelen)   
+            {
+                _logger.LogInformation(context.User.Identity.Name);
+                <li><a href="/werelddelen/@werelddeel.Naam">@werelddeel.Naam  </a></li>
+        }
+    </ul>
+} 
+else 
+{
+    <p>Waiting for data...</p>
+}
+</AuthorizeView>
+@code 
+{
+    private IEnumerable<WerelddeelDTO>? werelddelen;
+
+    // [Inject]
+    // public HttpClient HttpClient { get; set; }
+
+    protected override async Task OnInitializedAsync( )
+    {
+        {
+            using var httpClient = httpFactory.CreateClient();
+            werelddelen = await httpClient.GetFromJsonAsync<IEnumerable<WerelddeelDTO>>("api/werelddelen");
+        }
+    }
+}

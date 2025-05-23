@@ -1,0 +1,25 @@
+﻿@using Microsoft.AspNetCore.Authentication
+@page "/"
+@inject IHttpContextAccessor _context
+<PageTitle>Home </PageTitle>
+
+<h1>Hello, world! </h1>
+Welcome to your new app.
+<AuthorizeView>
+    @if (context.User.Identity.IsAuthenticated) { 
+        var properties = _context.HttpContext?.Features.Get<IAuthenticateResultFeature>()?.AuthenticateResult?.Properties;
+        var test = properties.GetTokens();
+        accessToken = test.Where(e => e.Name.ToLower().Contains("access")).FirstOrDefault().Value;
+        <p>Access token: @accessToken </p>
+    }
+</AuthorizeView>
+
+@code{
+
+    private string accessToken { get; set; }
+
+    private void GetSomething() 
+    { 
+        
+    }
+}

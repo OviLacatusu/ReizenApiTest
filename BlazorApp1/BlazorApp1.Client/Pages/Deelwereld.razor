@@ -1,0 +1,36 @@
+﻿@page "/Werelddelen/{Naam}"
+@using Reizen.Domain.Models
+@inject IHttpClientFactory httpFactory
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
+
+<h3>Landen</h3>
+@if (landen != null)
+{
+    <ul>
+    @foreach (var land in landen)
+    {
+        <li><a href="/landen/@land.Naam">@land.Naam </a></li>
+    }
+    </ul>
+}
+else
+{
+    <p>Waiting for data...</p>
+}
+@code {
+    [Parameter]
+    public string Naam { get; set; }
+
+    private IEnumerable<LandDTO> landen;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Naam != null)
+        {
+            using var httpClient = httpFactory.CreateClient();
+            landen = await httpClient.GetFromJsonAsync<IEnumerable<LandDTO>>($"api/landen/{Naam}");
+        }
+    }
+}

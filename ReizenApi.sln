@@ -7,16 +7,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reizen.Domain", "Reizen.Dom
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reizen.Data", "Reizen.Data\Reizen.Data.csproj", "{FB08C08E-FECF-41B7-A3CE-6AD563CB9337}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReizenWebBlazor.Client", "ReizenWebBlazor\ReizenWebBlazor.Client\ReizenWebBlazor.Client.csproj", "{59C77B3A-D0CF-4CBD-BC41-383F55860F08}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoogleAccess.Domain", "GoogleAccess.Domain\GoogleAccess.Domain.csproj", "{E89E2C58-5329-4E17-A78A-2AB123DB99AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReizenWebBlazor", "ReizenWebBlazor\ReizenWebBlazor\ReizenWebBlazor.csproj", "{8D2436BC-A0DF-42DF-91E1-FDC3905122A5}"
-	ProjectSection(ProjectDependencies) = postProject
-		{E89E2C58-5329-4E17-A78A-2AB123DB99AF} = {E89E2C58-5329-4E17-A78A-2AB123DB99AF}
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReizenApi", "ReizenApi\ReizenApi.csproj", "{1D8DBE40-DB10-4B5C-81A4-9690A7D6C106}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorApp1", "BlazorApp1\BlazorApp1\BlazorApp1.csproj", "{17AB7A94-F753-4054-BAE5-6348D5D8469E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorApp1.Client", "BlazorApp1\BlazorApp1.Client\BlazorApp1.Client.csproj", "{0781B803-19D0-4248-A4D9-1898779D19D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,22 +29,22 @@ Global
 		{FB08C08E-FECF-41B7-A3CE-6AD563CB9337}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB08C08E-FECF-41B7-A3CE-6AD563CB9337}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB08C08E-FECF-41B7-A3CE-6AD563CB9337}.Release|Any CPU.Build.0 = Release|Any CPU
-		{59C77B3A-D0CF-4CBD-BC41-383F55860F08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{59C77B3A-D0CF-4CBD-BC41-383F55860F08}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{59C77B3A-D0CF-4CBD-BC41-383F55860F08}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{59C77B3A-D0CF-4CBD-BC41-383F55860F08}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E89E2C58-5329-4E17-A78A-2AB123DB99AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E89E2C58-5329-4E17-A78A-2AB123DB99AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E89E2C58-5329-4E17-A78A-2AB123DB99AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E89E2C58-5329-4E17-A78A-2AB123DB99AF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8D2436BC-A0DF-42DF-91E1-FDC3905122A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8D2436BC-A0DF-42DF-91E1-FDC3905122A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8D2436BC-A0DF-42DF-91E1-FDC3905122A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8D2436BC-A0DF-42DF-91E1-FDC3905122A5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1D8DBE40-DB10-4B5C-81A4-9690A7D6C106}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1D8DBE40-DB10-4B5C-81A4-9690A7D6C106}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D8DBE40-DB10-4B5C-81A4-9690A7D6C106}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D8DBE40-DB10-4B5C-81A4-9690A7D6C106}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17AB7A94-F753-4054-BAE5-6348D5D8469E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17AB7A94-F753-4054-BAE5-6348D5D8469E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17AB7A94-F753-4054-BAE5-6348D5D8469E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17AB7A94-F753-4054-BAE5-6348D5D8469E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0781B803-19D0-4248-A4D9-1898779D19D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0781B803-19D0-4248-A4D9-1898779D19D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0781B803-19D0-4248-A4D9-1898779D19D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0781B803-19D0-4248-A4D9-1898779D19D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

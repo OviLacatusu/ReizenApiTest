@@ -1,0 +1,109 @@
+﻿@using Microsoft.AspNetCore.Http
+@using Reizen.Domain.Models
+@using global::GoogleAccess.Domain.Models
+@using Microsoft.AspNetCore.WebUtilities
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Authentication
+@using System.Text.Json
+@using Models
+
+@page "/GoogleAccess"
+
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
+
+@inject IJSRuntime JSRuntime;
+@inject ILogger<GoogleStuff> _logger;
+@inject IHttpClientFactory _factory;
+@inject NavigationManager _navManager;
+@inject AuthenticationStateProvider _authStateProvider;
+@inject IHttpContextAccessor _httpContextAccessor;
+
+@inject Blazored.SessionStorage.ISessionStorageService _storage;
+
+<AuthorizeView>
+
+    <button @onclick="TestTab">Share Photos</button>
+
+    @if (mediaItems is not null && mediaItems.mediaItems.Count() > 0)
+    {
+        foreach (var item in mediaItems.mediaItems)
+        {
+            <a href="@($"{item.mediaFile.baseUrl}=d")" >@item.mediaFile.filename</a>
+        }
+    }
+
+</AuthorizeView>
+@code
+{
+    private CancellationToken token = new();
+
+    [Parameter]
+    public PickingSession? SessionData { get; set; }
+
+    [Parameter]
+    public string? AccessToken { get; set; }
+
+    public DetailsFiles mediaItems { get; set; }
+
+    private void GetTokens() 
+    {
+        // var properties = _httpContextAccessor.HttpContext?.Features.Get<IAuthenticateResultFeature>()?.AuthenticateResult?.Properties;
+        // var test = properties?.GetTokens();
+        // AccessToken = test?.Where(e => e.Name.ToLower().Contains("access"))?.FirstOrDefault()?.Value;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _logger.LogInformation("-- OnInitialized called --");
+        if (_httpContextAccessor?.HttpContext?.User?.Identity?.IsAuthenticated == true)
+        {
+            await GetPickerSession();
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        _logger.LogInformation("++ OnParametersSet called ++");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        _logger.LogInformation($"** OnAfterRender called with firstrender = {firstRender} **");
+
+        if (!firstRender && SessionData != null)
+        {
+            _logger.LogInformation($"  Setting background state to: {SessionData.pickerUri}  ");
+            
+        }
+    }
+
+    private async Task GetPickerSession()
+    {
+        var client = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor));
+        client.BaseAddress = new Uri("https://localhost:7285/");
+        var result = await client.GetFromJsonAsync<PickingSession>("/api/Test/GetPickerLink");
+
+        SessionData = result;
+    }
+    public async Task TestTab()
+    {
+        await JSRuntime.InvokeVoidAsync("open", $"{SessionData.pickerUri}", "_blank");
+        await PollRequest(SessionData.id);
+    }
+
+    private async Task PollRequest(string id)
+    {
+        _logger.LogInformation($"Running PollRequest at {DateTime.UtcNow.ToShortTimeString()}");
+
+        using (var client = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor)))
+        {
+            client.BaseAddress = new Uri("https://localhost:7285/");
+            var response = await client.GetAsync($"api/Test/GetPhotosWithPicker/{id}");
+            mediaItems = await JsonSerializer.DeserializeAsync<DetailsFiles>(await response.Content?.ReadAsStreamAsync());
+
+        }
+        _logger.LogInformation($"Exiting PollRequest at {DateTime.UtcNow.ToShortTimeString()}");
+        StateHasChanged();
+    }
+
+}

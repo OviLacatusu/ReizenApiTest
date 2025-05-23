@@ -1,0 +1,40 @@
+﻿@page "/landen/{NaamLand}"
+@using Reizen.Domain.Models
+@inject IHttpClientFactory httpFactory
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
+
+<h3>Land</h3>
+
+<img src="/vlaggen/@(NaamLand).png" />
+
+@if (bestemmingen != null)
+{
+    <ul>
+        @foreach (var bestemming in bestemmingen)
+        {
+            <li><a href="/bestemmingen/@bestemming.Code">@bestemming.Plaats </a></li>
+        }
+    </ul>
+}
+else
+{
+    <p>Waiting for data...</p>
+}
+
+@code {
+    [Parameter]
+    public string? NaamLand { get; set; }
+
+    private IEnumerable<Reizen.Domain.Models.BestemmingDTO> bestemmingen;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (NaamLand != null)
+        {
+            using var httpClient = httpFactory.CreateClient();
+            bestemmingen = await httpClient.GetFromJsonAsync<IEnumerable<BestemmingDTO>>($"api/bestemmingen/{NaamLand}");
+        }
+    }
+}
