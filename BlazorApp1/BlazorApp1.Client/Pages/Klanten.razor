@@ -3,7 +3,7 @@
 
 @page "/klants"
 
-@inject IHttpClientFactory httpFactory
+@inject IHttpClientFactory _httpFactory
 
 @attribute [Authorize]
 
@@ -31,7 +31,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        using var httpClient = httpFactory.CreateClient();
+        using var httpClient = _httpFactory.CreateClient();
         klanten = await httpClient.GetFromJsonAsync<ICollection<KlantDTO>>("api/klanten");
     }
 }

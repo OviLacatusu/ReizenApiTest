@@ -27,10 +27,4 @@
     <ProjectReference Include="..\..\Reizen.Domain\Reizen.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Update="Pages\Counter.razor">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </Content>
-  </ItemGroup>
-
 </Project>

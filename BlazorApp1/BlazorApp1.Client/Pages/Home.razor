@@ -3,7 +3,7 @@
 
 @page "/Home"
 
-@inject IHttpClientFactory httpFactory
+@inject IHttpClientFactory _httpFactory
 @inject ILogger<Home> _logger;
 
 @rendermode InteractiveServer
@@ -37,7 +37,7 @@ else
     protected override async Task OnInitializedAsync( )
     {
         {
-            using var httpClient = httpFactory.CreateClient();
+            using var httpClient = _httpFactory.CreateClient();
             werelddelen = await httpClient.GetFromJsonAsync<IEnumerable<WerelddeelDTO>>("api/werelddelen");
         }
     }

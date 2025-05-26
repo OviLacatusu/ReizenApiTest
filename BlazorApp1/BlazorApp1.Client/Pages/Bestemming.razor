@@ -4,8 +4,8 @@
 
 @page "/bestemmingen/{Bestemmingscode}"
 
-@inject IHttpClientFactory httpFactory
-@inject ILogger<Bestemming> logger;
+@inject IHttpClientFactory _httpFactory
+@inject ILogger<Bestemming> _logger;
 
 @attribute [Authorize]
 
@@ -56,7 +56,7 @@ else
         {
             try
             {
-                using var httpClient = httpFactory.CreateClient();
+                using var httpClient = _httpFactory.CreateClient();
                 reizen = await httpClient.GetFromJsonAsync<IEnumerable<ReisDTO>>($"api/reizen/{Bestemmingscode}");
             }
             catch (HttpRequestException ex) 

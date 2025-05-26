@@ -8,7 +8,7 @@
 
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime JSRuntime;
-@inject ILogger<GoogleAuthorization> logger;
+@inject ILogger<GoogleAuthorization> _logger;
 @inject IHttpClientFactory _factory;
 @inject NavigationManager _navManager;
 @inject GoogleAuthService _service;
@@ -85,17 +85,17 @@
 
     protected override void OnInitialized()
     {
-        logger.LogInformation(" OnInitialized called ");
+        _logger.LogInformation(" OnInitialized called ");
     }
 
     protected override void OnParametersSet()
     {
-        logger.LogInformation(" OnParametersSet called ");
+        _logger.LogInformation(" OnParametersSet called ");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        logger.LogInformation($" OnAfterRender called with firstRender: {firstRender}");
+        _logger.LogInformation($" OnAfterRender called with firstRender: {firstRender}");
         if (firstRender)
         {
             await RestoreState();

@@ -35,7 +35,7 @@
     [Parameter]
     public string? AccessToken { get; set; }
 
-    public DetailsFiles mediaItems { get; set; }
+    public DetailsFiles? mediaItems { get; set; }
 
     protected override void OnInitialized()
     {
@@ -64,7 +64,7 @@
         using (var client = _factory.CreateClient()) 
         {
             var response = await client.GetAsync($"api/Test/GetPhotosWithPicker/{id}");
-            mediaItems = await JsonSerializer.DeserializeAsync<DetailsFiles>(await response.Content.ReadAsStreamAsync());
+            mediaItems = await JsonSerializer.DeserializeAsync<DetailsFiles?>(await response.Content.ReadAsStreamAsync());
            
         }
         _logger.LogInformation($"Exiting PollRequest at {DateTime.UtcNow.ToShortTimeString()}");

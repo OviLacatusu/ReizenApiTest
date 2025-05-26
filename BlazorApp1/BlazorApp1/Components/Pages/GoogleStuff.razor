@@ -43,8 +43,6 @@
 
         }
     </script>
-
-
 </AuthorizeView>
 
 @code
@@ -57,7 +55,7 @@
     [Parameter]
     public string? AccessToken { get; set; }
 
-    public DetailsFiles mediaItems { get; set; }
+    public DetailsFiles? mediaItems { get; set; }
 
     private async Task DownloadFileFromUrl(string filename, string fileURL) 
     {
