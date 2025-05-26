@@ -6,7 +6,6 @@
 
 @page "/GoogleAuthorization"
 
-@rendermode @(new InteractiveServerRenderMode(prerender:false))
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime JSRuntime;
 @inject ILogger<GoogleAuthorization> logger;
@@ -15,7 +14,9 @@
 @inject GoogleAuthService _service;
 @inject Blazored.SessionStorage.ISessionStorageService _storage;
 
-    <button @onclick="(async () => await ExecuteWithRedirect())" disabled="@HasAccessToken">Authorize</button>
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
+
+    @* <button @onclick="(async () => await ExecuteWithRedirect())" disabled="@HasAccessToken">Authorize</button> *@
     <p>Access code :@(AccessToken)</p>
 
     @if (!String.IsNullOrEmpty(PickerSessionData?.pickerUri))
@@ -78,7 +79,6 @@
                     HasAccessToken = true;
                     StateHasChanged();
                 }
-                
             }
         }
     }

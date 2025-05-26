@@ -1,9 +1,11 @@
-﻿@page "/bestemmingen/{Bestemmingscode}"
-@using Reizen.Domain.Models
+﻿@using Reizen.Domain.Models
 @using System.Net
 @using Microsoft.AspNetCore.Authorization
 
+@page "/bestemmingen/{Bestemmingscode}"
+
 @inject IHttpClientFactory httpFactory
+@inject ILogger<Bestemming> logger;
 
 @attribute [Authorize]
 
@@ -21,7 +23,7 @@
             @foreach (var reis in reizen)
             {
                 <tr>
-                    <td>@reis.Vertrek.ToString()</td><td>@reis.PrijsPerPersoon</td><td>@reis.AantalDagen</td><td><a href="/boeken/@reis.Id">Boeken</a></td>
+                    <td>@reis.Vertrek.ToString()</td><td>@reis.PrijsPerPersoon</td><td>@reis.AantalDagen</td><td><a href="/reisKiezen/@reis.Id">Boeken</a></td>
                 </tr>
             }
         </tbody>
@@ -38,11 +40,14 @@ else
         <p>@Error</p>
     }
 }
-@code {
+
+@code 
+{
     [Parameter]
     public string Bestemmingscode { get; init; }
 
     private IEnumerable<ReisDTO>? reizen;
+
     private string Error;
 
     protected override async Task OnInitializedAsync()

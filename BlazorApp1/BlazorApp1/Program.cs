@@ -1,17 +1,15 @@
-using BlazorApp1.Client.Pages;
 using BlazorApp1.Components;
 using BlazorApp1.Components.Account;
 using BlazorApp1.Data;
 using Blazored.SessionStorage;
+using Google.Apis.Auth.AspNetCore3;
 using GoogleAccess.Domain.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authentication.Google;
-using Google.Apis.Auth.AspNetCore3;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder (args);
 
@@ -82,9 +80,11 @@ builder.Services.AddAuthentication (options =>
     options.Events.OnTicketReceived = ctx =>
     {
         List<AuthenticationToken>? tokens = ctx.Properties?.GetTokens ().ToList ();
-        var accessToken = tokens?.FirstOrDefault (t => t.Name == "access_token")?.Value;
+        ctx?.Properties?.StoreTokens (tokens);
 
-        ctx.Properties?.StoreTokens (tokens);
+        var details = ctx?.Principal?.Claims.Select (c => new Tuple<string, string>(c.Type, c.Value));
+        ctx?.Properties?.SetParameter ("userdetails", details);
+
         return Task.CompletedTask;
     };
 });

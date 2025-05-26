@@ -1,24 +1,23 @@
-﻿
-@page "/Home"
-@rendermode InteractiveServer
+﻿@using Microsoft.AspNetCore.Authorization
 @using Reizen.Domain.Models
+
+@page "/Home"
+
 @inject IHttpClientFactory httpFactory
 @inject ILogger<Home> _logger;
 
-@using Microsoft.AspNetCore.Authorization
-
-@attribute [Authorize]
+@rendermode InteractiveServer
 
 <PageTitle>Werelddelen</PageTitle>
 
-<AuthorizeView>
+@* <AuthorizeView> *@
 <h1>Choose the continent</h1>
 @if(werelddelen != null)
     {
         <ul>
             @foreach (var werelddeel in werelddelen)   
             {
-                _logger.LogInformation(context.User.Identity.Name);
+                @* _logger.LogInformation(context?.User?.Identity?.Name); *@
                 <li><a href="/werelddelen/@werelddeel.Naam">@werelddeel.Naam  </a></li>
         }
     </ul>
@@ -27,7 +26,7 @@ else
 {
     <p>Waiting for data...</p>
 }
-</AuthorizeView>
+@* </AuthorizeView> *@
 @code 
 {
     private IEnumerable<WerelddeelDTO>? werelddelen;

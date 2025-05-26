@@ -1,0 +1,78 @@
+﻿@using Reizen.Domain.Models
+@using Microsoft.AspNetCore.Authorization;
+
+@page "/reisKiezen/{ReisId:int}"
+
+@inject ILogger<ReisKiezen> _logger;
+@inject IHttpClientFactory _httpFactory
+
+@rendermode InteractiveServer
+
+
+<h3>Boeken</h3>
+@if(Reis is not null)
+{
+    <h4>Bestemming</h4>
+    <p>@Reis.Bestemming?.Plaats</p>
+    <h4>Vertrek</h4>
+    <p>@Reis.Vertrek</p>
+    <h4>Aantal dagen</h4>
+    <p>@Reis.PrijsPerPersoon</p>
+    <div >
+        <label for="familienaam">Familienaam bevat:</label>
+        <InputText @bind-value="familienaam" id="familienaam"></InputText>
+        <button type="button" @onclick="(async () => await GetKlanten())" class="btn btn-primary">Zoek</button>
+    </div>
+}else 
+{ 
+    <p>Waiting for data...</p>
+}
+@if (klanten is not null) {
+    <table class="table table-striped" >
+        <thead>
+            <tr>
+                <th>Familienaam</th><th>Voornaam</th><th>Woonplaats</th><th>Boeken</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var klant in klanten)
+            {
+                <tr>
+                    <td>@klant.Familienaam</td><td>@klant.Voornaam</td><td>@klant.Adres</td><td><a href="/boeken/@ReisId/@klant.Id">Boeken</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public int ReisId { get; init; }
+
+    // private ReisDTO? reis;
+    private ReisDTO? Reis { get; set; }
+
+    private string? familienaam { get; set; }
+
+    private ICollection<KlantDTO>? klanten;
+
+    protected override async Task OnInitializedAsync() 
+    {
+        if (ReisId > 0) 
+        {
+            using var httpClient = _httpFactory.CreateClient();
+            Reis = await httpClient.GetFromJsonAsync<ReisDTO>($"api/reizen/{ReisId}");
+        }
+    }
+
+    private async Task GetKlanten() 
+    {
+        if (familienaam is not null)
+        {
+            using (var httpClient = _httpFactory.CreateClient())
+            {
+                klanten = await httpClient.GetFromJsonAsync<ICollection<KlantDTO>>($"api/klanten/{familienaam}");
+            }
+        }
+    }
+}

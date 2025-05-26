@@ -134,16 +134,17 @@ namespace ReizenApi.Controllers
             }
         }
         [HttpGet("GetFiles")]
-        public async Task<ActionResult> GetListFiles(CancellationToken cancellationToken)
+        public async Task<ActionResult> GetListFiles([FromHeader] string Authorization,CancellationToken cancellationToken)
         {
             try
             {
                 // restore AuthResponse state from session
-                var oauth = this.HttpContext.Session.Get<AuthResponse> ("oauthResponse");
-                if (oauth == null)
+                //var oauth = this.HttpContext.Session.Get<AuthResponse> ("oauthResponse");
+                if (Authorization == null)
                     throw new OAuth2Exception ("Access token not found!");
+                var accessToken = Authorization.Split(" ").Last ();
                 // creating credentials from access token, necessary for the DriveService creation
-                GoogleCredential credentials = GoogleCredential.FromAccessToken (oauth.AccessToken);
+                GoogleCredential credentials = GoogleCredential.FromAccessToken (accessToken);
 
                 DriveService service = new DriveService (new BaseClientService.Initializer ()
                 {
@@ -156,7 +157,7 @@ namespace ReizenApi.Controllers
 
                 request.IncludeItemsFromAllDrives = true;
                 request.PageSize = 200;
-                request.AccessToken = oauth.AccessToken;
+                request.AccessToken = accessToken;
                 request.SupportsAllDrives = true;
                 request.Corpora = "allDrives";
 
@@ -188,7 +189,7 @@ namespace ReizenApi.Controllers
                 {
                     // setting the Authentication header necessary for the request
                     client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue ("Bearer", accessToken);
-                    // sending an empty PickingSession object that will be populated
+                    // sending an empty PickingSession object that will be returned with session details
                     var httpContent = new StringContent(JsonConvert.SerializeObject(new PickingSession()));
                     // POST request
                     var response = await client.PostAsync ($"{GOOGLE_PICKER_API_SESSION_REQ}", httpContent);
@@ -212,6 +213,7 @@ namespace ReizenApi.Controllers
         {
             try
             {
+                
                 // restore AuthResponse state from session
                 //var oauth = this.HttpContext.Session.Get<AuthResponse> ("oauthResponse");
 
@@ -269,7 +271,7 @@ namespace ReizenApi.Controllers
         {
             try
             {
-                // restore AuthResponse state from session
+                // pull access token from header
                 if (Authorization == null)
                     throw new OAuth2Exception ("Access token not found! Session has probably expired.");
                 var accessToken = Authorization.Split (" ").Last ();
@@ -281,15 +283,13 @@ namespace ReizenApi.Controllers
 
                 var url = new Uri ($"https://photospicker.googleapis.com/v1/sessions/{sessionId}");
 
-                var stoppingToken = new CancellationToken ();
-
                 // while loop for polling the session until mediaItemsSet is set to true
-                while (!stoppingToken.IsCancellationRequested)
+                while (!cancellationToken.IsCancellationRequested)
                 {
                     _logger.LogInformation ($"Running PollRequest ->> while loop at {DateTime.UtcNow.ToShortTimeString ()}");
-                    await Task.Delay (3000, stoppingToken);
+                    await Task.Delay (3000, cancellationToken);
 
-                    var session = await SendGetRequest<PickingSession> (url.ToString(), stoppingToken, true, accessToken);
+                    var session = await SendGetRequest<PickingSession> (url.ToString(), cancellationToken, true, accessToken);
 
                     if (session?.mediaItemsSet == true)
                     {
@@ -297,11 +297,11 @@ namespace ReizenApi.Controllers
                     }
                 }
                 _logger.LogInformation ($"Exited while loop in {nameof(GetListWithPicker)} at {DateTime.UtcNow.ToShortTimeString ()}");
-                // requesting the media items chosen by the user 
+                // requesting the details of the media items chosen by the user 
                 // TODO: Add support for pagination
                 url = new Uri ($"https://photospicker.googleapis.com/v1/mediaItems?sessionId={sessionId}");
 
-                var details = await SendGetRequest<DetailsFiles> (url.ToString(), stoppingToken, true, accessToken);
+                var details = await SendGetRequest<DetailsFiles> (url.ToString(), cancellationToken, true, accessToken);
 
                 return Ok (details);
             }
@@ -338,16 +338,17 @@ namespace ReizenApi.Controllers
             }
         }
         [HttpGet ("GetEmails")]
-        public async Task<ActionResult> GetEmails (CancellationToken cancellationToken)
+        public async Task<ActionResult> GetEmails ([FromHeader] string Authorization, CancellationToken cancellationToken)
         {
             try
             {
                 // restore AuthResponse state from session
-                var oauth = this.HttpContext.Session.Get<AuthResponse> ("oauthResponse");
-                if (oauth == null)
+                //var oauth = this.HttpContext.Session.Get<AuthResponse> ("oauthResponse");
+                if (Authorization == null)
                     throw new OAuth2Exception ("Access token not found! Session has probably expired.");
+                var accessToken = Authorization.Split(" ").Last ();
 
-                var credentials = GoogleCredential.FromAccessToken (oauth.AccessToken);
+                var credentials = GoogleCredential.FromAccessToken (accessToken);
                 var service = new GmailService (new BaseClientService.Initializer ()
                 {
                     HttpClientInitializer = credentials,
@@ -358,7 +359,7 @@ namespace ReizenApi.Controllers
                 var request = service.Users.Messages.List("ovi.lacatusu@gmail.com");
                 request.LabelIds = "INBOX";
                 request.IncludeSpamTrash = false;
-                request.AccessToken = oauth.AccessToken;
+                request.AccessToken = accessToken;
 
                 var result = await request.ExecuteAsync ();
                 return Ok (result.Messages);

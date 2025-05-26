@@ -1,72 +1,71 @@
-﻿@page "/boeken/{ReisId:int}"
+﻿@using Microsoft.AspNetCore.Authorization
 @using Reizen.Domain.Models
-@using Microsoft.AspNetCore.Authorization;
 
-@inject IHttpClientFactory httpFactory
+@page "/boeken/{ReisId}/{KlantId}"
 
-@attribute [Authorize]
+@inject ILogger<Boeken> _logger;
+@inject IHttpClientFactory _httpFactory
 
-<h3>Boeken</h3>
-@if (reis is not null)
+@rendermode InteractiveServer
+
+<h2>Reis</h2>
+<p style="font:bold">Bestemming</p>
+<p>@Reis.Bestemming</p>
+
+<p style="font:bold">Vertrek</p>
+<p>@Reis.Vertrek</p>
+
+<p style="font:bold">Aantal dagen</p>
+<p>@Reis.AantalDagen</p>
+
+<p style="font:bold">Prijs per persoon</p>
+<p>@Reis.PrijsPerPersoon</p>
+
+<h2>Klant</h2>
+<p>@($"{Klant.Voornaam} {Klant.Familienaam}")</p>
+<p>@Klant.Adres</p>
+
+<h2>Boeking</h2>
+<label for="aantalV">Aantal volwassenen</label>
+<InputText id="aantalV"></InputText>
+
+<label for="aantalK">Aantal kinderen</label>
+<InputText id="aantalK"></InputText>
+
+<InputCheckbox id="annulatieV"></InputCheckbox>
+<label>Annulatie verzekering</label>
+
+<button class="btn btn-primary">Boeken</button>
+
+@code 
 {
-    <h4>Bestemming</h4>
-    <p>@reis.Bestemming?.Plaats</p>
-    <h4>Vertrek</h4>
-    <p>@reis.Vertrek</p>
-    <h4>Aantal dagen</h4>
-    <p>@reis.PrijsPerPersoon</p>
-    <div>
-        <label for="familienaam">Familienaam bevat:</label>
-        <InputText @bind-Value="familienaam" id="familienaam"></InputText>
-        <button type="button" @onclick="GetKlanten" class="btn btn-primary">Zoek</button>
-    </div>
-}else 
-{ 
-    <p>Waiting for data...</p>
-}
-    @if (klanten is not null) {
-        <table class="table table-striped" >
-            <thead>
-                <tr>
-                    <th>Familienaam</th><th>Voornaam</th><th>Woonplaats</th><th>Boeken</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var klant in klanten)
-                {
-                    <tr>
-                        <td>@klant.Familienaam</td><td>@klant.Voornaam</td><td>@klant.Adres</td><td><a href="/@klant.Id">Boeken</a></td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
-
-
-@code {
     [Parameter]
     public int ReisId { get; init; }
 
-    private ReisDTO reis;
-    private ReisDTO Reis { get;  }
-    private string familienaam;
+    [Parameter]
+    public int KlantId { get; init; }
 
-    private ICollection<KlantDTO> klanten;
+    private KlantDTO? Klant { get; set; }
 
-    protected override async Task OnInitializedAsync() 
+    private ReisDTO? Reis { get; set; }
+
+    private BoekingDTO? Boeking { get; set; }
+
+    protected override async Task OnInitializedAsync()
     {
-        if(ReisId>0){
-            using var httpClient = httpFactory.CreateClient();
-            reis = await httpClient.GetFromJsonAsync<ReisDTO>($"api/reizen/{ReisId}");
-        }
-    }
-    private async void GetKlanten() 
-    {
-        if (familienaam is not null)
+        if (ReisId > 0) 
         {
-            using var httpClient = httpFactory.CreateClient();
-            klanten = await httpClient.GetFromJsonAsync<ICollection<KlantDTO>>($"api/klanten/{familienaam}");
-            StateHasChanged();
+            using (var httpClient = _httpFactory.CreateClient()) {
+
+                Reis = await httpClient.GetFromJsonAsync<ReisDTO?>($"/api/reizen/{ReisId}");
+            }
+        }
+        if (KlantId > 0)
+        { 
+            using (var httpClient = _httpFactory.CreateClient()) 
+            {
+                Klant = await httpClient.GetFromJsonAsync<KlantDTO?>($"/api/klanten/{KlantId}");
+            }
         }
     }
 }

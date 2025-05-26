@@ -22,17 +22,31 @@
 
 <AuthorizeView>
 
-    <button @onclick="TestTab">Share Photos</button>
+    <button @onclick="OpenTabAndPollSession">Share Photos</button>
 
     @if (mediaItems is not null && mediaItems.mediaItems.Count() > 0)
     {
         foreach (var item in mediaItems.mediaItems)
         {
-            <a href="@($"{item.mediaFile.baseUrl}=d")" >@item.mediaFile.filename</a>
+            <a href="@($"{item.mediaFile.baseUrl}=w{item.mediaFile.mediaFileMetadata.width}-h{item.mediaFile.mediaFileMetadata.height}")" >@item.mediaFile.filename</a>
         }
+        var last = mediaItems.mediaItems.Last();
+        @* DownloadFileFromUrl(last.mediaFile.filename, last.mediaFile.baseUrl+"=d"); *@
     }
+    <script>
+        window.triggerFileDownload = (fileName, url) => {
+        const anchorElement = document.createElement('a');
+        anchorElement.href = url;
+        anchorElement.download = fileName ?? '';
+        anchorElement.click();
+        anchorElement.remove();
+
+        }
+    </script>
+
 
 </AuthorizeView>
+
 @code
 {
     private CancellationToken token = new();
@@ -45,11 +59,9 @@
 
     public DetailsFiles mediaItems { get; set; }
 
-    private void GetTokens() 
+    private async Task DownloadFileFromUrl(string filename, string fileURL) 
     {
-        // var properties = _httpContextAccessor.HttpContext?.Features.Get<IAuthenticateResultFeature>()?.AuthenticateResult?.Properties;
-        // var test = properties?.GetTokens();
-        // AccessToken = test?.Where(e => e.Name.ToLower().Contains("access"))?.FirstOrDefault()?.Value;
+        await JSRuntime.InvokeVoidAsync("triggerFileDownload", filename, fileURL);
     }
 
     protected override async Task OnInitializedAsync()
@@ -66,7 +78,7 @@
         _logger.LogInformation("++ OnParametersSet called ++");
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override void OnAfterRender(bool firstRender)
     {
         _logger.LogInformation($"** OnAfterRender called with firstrender = {firstRender} **");
 
@@ -85,7 +97,7 @@
 
         SessionData = result;
     }
-    public async Task TestTab()
+    public async Task OpenTabAndPollSession()
     {
         await JSRuntime.InvokeVoidAsync("open", $"{SessionData.pickerUri}", "_blank");
         await PollRequest(SessionData.id);
@@ -100,10 +112,8 @@
             client.BaseAddress = new Uri("https://localhost:7285/");
             var response = await client.GetAsync($"api/Test/GetPhotosWithPicker/{id}");
             mediaItems = await JsonSerializer.DeserializeAsync<DetailsFiles>(await response.Content?.ReadAsStreamAsync());
-
         }
         _logger.LogInformation($"Exiting PollRequest at {DateTime.UtcNow.ToShortTimeString()}");
         StateHasChanged();
     }
-
 }

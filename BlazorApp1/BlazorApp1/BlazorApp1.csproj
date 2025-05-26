@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Reizen.Data\Reizen.Data.csproj" />
+    <ProjectReference Include="..\..\Reizen.Domain\Reizen.Domain.csproj" />
     <ProjectReference Include="..\BlazorApp1.Client\BlazorApp1.Client.csproj" />
 	  <PackageReference Include="AutoMapper" Version="14.0.0" />
 	  <PackageReference Include="Blazored.SessionStorage" Version="2.4.0" />

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,31 +15,32 @@ namespace Reizen.Domain.Models
         }
 
         public string BestemmingsCode { get; set; } = null!;
-
+        [Required]
         public DateOnly Vertrek
         {
             get; set;
         }
-
+        [Required]
         public int AantalDagen
         {
             get; set;
         }
-
+        [Required]
         public decimal PrijsPerPersoon
         {
             get; set;
         }
-
+        [Required]
         public int AantalVolwassenen
         {
             get; set;
         }
-
+        [Required]
         public int AantalKinderen
         {
             get; set;
         }
+        [Required]
         public BestemmingDTO Bestemming { get; set; } = null;
         //public ReisDTO (DateOnly date, int aantalDagen, decimal prijsPP, int aantalVolwassenen, int aantalKinderen, string bestemmingCode, int? id)
         //{
