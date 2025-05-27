@@ -25,39 +25,39 @@ using static Reizen.Data.Models.CQRS.Queries.GetLandMetId;
 using static Reizen.Data.Models.CQRS.Queries.GetReizenNaarBestemming;
 using static Reizen.Data.Models.CQRS.Queries.GetWerelddelen;
 
-namespace Reizen.Domain.Services
+namespace Reizen.Data.Services
 {
     public sealed class LandenService (IMediator mediator, IDbContextFactory<ReizenContext> factory) : ILandenWerelddelenRepository
     {
-        public async Task<ICollection<Werelddeel>?> GetWerelddelenAsync ()
+        public async Task<Result<IList<Werelddeel>>> GetWerelddelenAsync ()
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetWerelddelenQuery, IList<Werelddeel>> (new GetWerelddelenQuery (context));
+                return await mediator.ExecuteQuery<GetWerelddelenQuery, Result<IList<Werelddeel>>> (new GetWerelddelenQuery (context));
             }
         }
 
-        public async Task<ICollection<Land>?> GetLandenVanWerelddeelAsync (string? werelddeelNaam)
+        public async Task<Result<IList<Land>>> GetLandenVanWerelddeelAsync (string? werelddeelNaam)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetLandenVanWerelddeelQuery, IList<Land>> (new GetLandenVanWerelddeelQuery (werelddeelNaam, context));
+                return await mediator.ExecuteQuery<GetLandenVanWerelddeelQuery, Result<IList<Land>>> (new GetLandenVanWerelddeelQuery (werelddeelNaam, context));
             }
         }
 
-        public async Task<ICollection<Bestemming>?> GetBestemmingenVanLandAsync (string? landnaam)
+        public async Task<Result<IList<Bestemming>>> GetBestemmingenVanLandAsync (string? landnaam)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetBestemmingenVanLandQuery, IList<Bestemming>> (new GetBestemmingenVanLandQuery (landnaam, context));
+                return await mediator.ExecuteQuery<GetBestemmingenVanLandQuery, Result<IList<Bestemming>>> (new GetBestemmingenVanLandQuery (landnaam, context));
             }
         }
 
-        public async Task<ICollection<Bestemming>?> GetBestemmingenAsync ()
+        public async Task<Result<IList<Bestemming>>> GetBestemmingenAsync ()
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetBestemmingenQuery, IList<Bestemming>> (new GetBestemmingenQuery (context));
+                return await mediator.ExecuteQuery<GetBestemmingenQuery, Result<IList<Bestemming>>> (new GetBestemmingenQuery (context));
             }
         }
 
@@ -77,11 +77,11 @@ namespace Reizen.Domain.Services
             }
         }
 
-        public async Task<Land?> GetLandMetIdAsync (int id)
+        public async Task<Result<Land>> GetLandMetIdAsync (int id)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetLandMetIdQuery, Land> (new GetLandMetIdQuery ( id, context));
+                return await mediator.ExecuteQuery<GetLandMetIdQuery, Result<Land>> (new GetLandMetIdQuery ( id, context));
             }
         }
 

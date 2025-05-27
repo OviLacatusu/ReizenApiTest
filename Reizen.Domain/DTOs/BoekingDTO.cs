@@ -6,7 +6,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Reizen.Domain.Models
+namespace Reizen.Domain.DTOs
 {
     public class BoekingDTO
     {
@@ -14,14 +14,14 @@ namespace Reizen.Domain.Models
         {
             get; set;
         }
-        [Required(ErrorMessage = "Field is required")]
-        [Range(0, Int32.MaxValue)]
+        [Required (ErrorMessage = "Field is required")]
+        [Range (0, int.MaxValue)]
         public int Klantid
         {
             get; set;
         }
         [Required (ErrorMessage = "Field is required")]
-        [Range (0, Int32.MaxValue)]
+        [Range (0, int.MaxValue)]
         public int Reisid
         {
             get; set;

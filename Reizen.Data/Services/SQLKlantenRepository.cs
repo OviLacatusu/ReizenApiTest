@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Reizen.Domain.Services
+namespace Reizen.Data.Services
 {
-    public class SQLKlantenRepository : IKlantenRepository
+    public class SQLKlantenRepository //: IKlantenRepository
     {
         private readonly ReizenContext _klantenContext;
 
@@ -43,12 +43,12 @@ namespace Reizen.Domain.Services
             throw new NotImplementedException ();
         }
 
-        Task<Result<Klant>> IKlantenRepository.AddKlantAsync (Klant klant)
+        Task<Result<Klant>> AddKlantAsync (Klant klant)
         {
             throw new NotImplementedException ();
         }
 
-        Task<Result<Klant>> IKlantenRepository.UpdateKlantAsync (int id, Klant klantDetails)
+        Task<Result<Klant>> UpdateKlantAsync (int id, Klant klantDetails)
         {
             throw new NotImplementedException ();
         }

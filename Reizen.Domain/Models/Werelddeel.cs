@@ -18,7 +18,6 @@ namespace Reizen.Domain.Models
         private Werelddeel ()
         {
         }
-
         public Werelddeel (string name)
         {
             if (string.IsNullOrEmpty (name))

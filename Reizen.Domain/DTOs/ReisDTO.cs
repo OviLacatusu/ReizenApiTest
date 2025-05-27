@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Reizen.Domain.Models
+namespace Reizen.Domain.DTOs
 {
     public class ReisDTO
     {
@@ -21,25 +21,25 @@ namespace Reizen.Domain.Models
             get; set;
         }
         [Required (ErrorMessage = "Field is required")]
-        [Range(0,365)]
+        [Range (0, 365)]
         public int AantalDagen
         {
             get; set;
         }
         [Required (ErrorMessage = "Field is required")]
-        [Range(0,1000000)]
+        [Range (0, 1000000)]
         public decimal PrijsPerPersoon
         {
             get; set;
         }
         [Required (ErrorMessage = "Field is required")]
-        [Range (0,100)]
+        [Range (0, 100)]
         public int AantalVolwassenen
         {
             get; set;
         }
         [Required (ErrorMessage = "Field is required")]
-        [Range(0, 100)]
+        [Range (0, 100)]
         public int AantalKinderen
         {
             get; set;
@@ -57,5 +57,5 @@ namespace Reizen.Domain.Models
         //    Id = id;
         //}
     }
-   
+
 }

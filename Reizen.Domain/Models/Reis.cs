@@ -1,4 +1,4 @@
-﻿using Reizen.Data.Models;
+﻿//using Reizen.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -16,7 +16,7 @@ namespace Reizen.Domain.Models
         public decimal PrijsPerPersoon { get; private set; }
 
         public Bestemming Bestemming { get; private set; }
-        public DateOnly VertrekDatum { get; private set; }
+        public DateOnly Vertrek { get; private set; }
 
         private readonly List<Boeking> _boekingen = new List<Boeking>();
         public ReadOnlyCollection<Boeking> Boekingen => _boekingen.AsReadOnly ();
@@ -34,7 +34,7 @@ namespace Reizen.Domain.Models
             if (bestemming is null)
                 throw new ArgumentNullException ("Destination cannot be null");
 
-            VertrekDatum = vertrek;
+            Vertrek = vertrek;
             Bestemming = bestemming;
             AantalDagen = aantalDagen;
             PrijsPerPersoon = prijsPerPersoon;
@@ -53,7 +53,7 @@ namespace Reizen.Domain.Models
             if (aantalKinderen < 0)
                 throw new ArgumentException ("Number of kids cannot be negative");
 
-            VertrekDatum = vertrek;
+            Vertrek = vertrek;
             AantalDagen = aantalDagen;
             PrijsPerPersoon = prijsPerPersoon;
         }

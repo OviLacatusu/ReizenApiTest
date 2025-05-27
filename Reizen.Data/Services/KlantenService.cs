@@ -18,29 +18,29 @@ using static Reizen.Data.Models.CQRS.Queries.GetKlantMetID;
 using static Reizen.Data.Models.CQRS.Queries.GetKlantMetNaam;
 using Klant = Reizen.Data.Models.Klant;
 
-namespace Reizen.Domain.Services
+namespace Reizen.Data.Services
 {
     public sealed class KlantenService (IMediator mediator, IDbContextFactory<ReizenContext> factory) : IKlantenRepository
     {
-        public async Task<ICollection<Klant>?> GetKlantenAsync ()
+        public async Task<Result<IList<Klant>>> GetKlantenAsync ()
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetKlantenQuery, IList<Klant>> (new GetKlantenQuery (context));
+                return await mediator.ExecuteQuery<GetKlantenQuery, Result<IList<Klant>>> (new GetKlantenQuery (context));
             }
         }
-        public async Task<Klant?> GetKlantMetIdAsync (int id)
+        public async Task<Result<Klant>> GetKlantMetIdAsync (int id)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetKlantMetIDQuery, Klant> (new GetKlantMetIDQuery (context, id));
+                return await mediator.ExecuteQuery<GetKlantMetIDQuery, Result<Klant>> (new GetKlantMetIDQuery (context, id));
             }
         }
-        public async Task<ICollection<Klant>?> GetKlantenMetNaamAsync (string naam)
+        public async Task<Result<IList<Klant>>> GetKlantenMetNaamAsync (string naam)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetKlantMetNaamQuery, IList<Klant>> (new GetKlantMetNaamQuery (context, naam));
+                return await mediator.ExecuteQuery<GetKlantMetNaamQuery, Result<IList<Klant>>> (new GetKlantMetNaamQuery (context, naam));
             }
         }
 

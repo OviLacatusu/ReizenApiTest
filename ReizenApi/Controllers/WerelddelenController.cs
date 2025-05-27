@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Reizen.Data.Models;
-using Reizen.Domain.Services;
-using Reizen.Domain.Models;
+using Reizen.Data.Services;
 using Werelddeel = Reizen.Data.Models.Werelddeel;
+using Reizen.Domain.DTOs;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ReizenApi.Controllers
@@ -18,17 +18,17 @@ namespace ReizenApi.Controllers
     {
         // GET: api/<Werelddeel>
         [HttpGet]
-        public async Task<ActionResult<ICollection<WerelddeelDTO>?>> GetWerelddelenAsync ()
+        public async Task<ActionResult> GetWerelddelenAsync ()
         {
             try
             {
                 var result = await _service.GetWerelddelenAsync ();
-                if (result is null || !result.Any())
+                if (!result.IsSuccessful)
                 {
-                    _logger.LogInformation ("No continents found");
+                    _logger.LogInformation ($"No continents found: {result.Error}");
                     return NotFound ();
                 }
-                var dtos = _mapper.Map<ICollection<WerelddeelDTO>> (result);
+                var dtos = _mapper.Map<ICollection<WerelddeelDTO>> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex) {

@@ -68,7 +68,7 @@ public partial class ReizenContext : DbContext
                 .IsUnicode (false)
                 .IsFixedLength ()
                 .HasColumnName ("code");
-            entity.Property (e => e.Landid).HasColumnName ("landid");
+            //entity.Property (e => e.Landid).HasColumnName ("landid");
             entity.Property (e => e.Plaats)
                 .HasMaxLength (20)
                 .IsUnicode (false)

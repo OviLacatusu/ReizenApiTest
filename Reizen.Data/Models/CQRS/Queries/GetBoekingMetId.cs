@@ -10,14 +10,28 @@ namespace Reizen.Data.Models.CQRS.Queries
 {
     public sealed class GetBoekingMetId
     {
-        public record GetBoekingMetIdQuery(int id, ReizenContext context): IQuery<Boeking?>;
+        public record GetBoekingMetIdQuery(int id, ReizenContext context): IQuery<Result<Boeking?>>;
 
-        public class GetBoekingMetIdQueryHandler : IQueryHandler<GetBoekingMetIdQuery, Boeking?>
+        public class GetBoekingMetIdQueryHandler : IQueryHandler<GetBoekingMetIdQuery, Result<Boeking?>>
         {
-            public async Task<Boeking?> Handle (GetBoekingMetIdQuery query)
+            public async Task<Result<Boeking?>> Handle (GetBoekingMetIdQuery query)
             {
-                var boeking = await query.context.Boekingen.FirstOrDefaultAsync (el => el.Id == query.id);
-                return boeking;
+                try
+                {
+                    if (query.id <= 0)
+                    {
+                        return Result<Boeking?>.Failure ("Invalid booking ID");
+                    }
+
+                    var boeking = await query.context.Boekingen.FirstOrDefaultAsync (el => el.Id == query.id);
+                    return boeking == null
+                        ? Result<Boeking?>.Failure ($"Booking with ID {query.id} not found")
+                        : Result<Boeking?>.Success (boeking);
+                }
+                catch (Exception ex)
+                {
+                    return Result<Boeking?>.Failure ($"Error retrieving booking: {ex.Message}");
+                }
             }
         }
     }

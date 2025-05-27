@@ -14,15 +14,15 @@ using static Reizen.Data.Models.CQRS.Commands.DeleteReis;
 using static Reizen.Data.Models.CQRS.Queries.GetReisMetId;
 using static Reizen.Data.Models.CQRS.Queries.GetReizenNaarBestemming;
 
-namespace Reizen.Domain.Services
+namespace Reizen.Data.Services
 {
     public class ReizenService (IMediator mediator, IDbContextFactory<ReizenContext> factory) : IReizenRepository
     {
-        public async Task<ICollection<Reis>?> GetReizenMetBestemmingAsync (string bestemmingscode)
+        public async Task<Result<IList<Reis>>> GetReizenMetBestemmingAsync (string bestemmingscode)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetReizenNaarBestemmingQuery, IList<Reis>> (new GetReizenNaarBestemmingQuery (context, bestemmingscode));
+                return await mediator.ExecuteQuery<GetReizenNaarBestemmingQuery, Result<IList<Reis>>> (new GetReizenNaarBestemmingQuery (context, bestemmingscode));
             }
         }
 
@@ -34,11 +34,11 @@ namespace Reizen.Domain.Services
             }
         }
 
-        public async Task<Reis?> GetReisMetIdAsync (int id)
+        public async Task<Result<Reis>> GetReisMetIdAsync (int id)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetReisMetIdQuery, Reis?> (new GetReisMetIdQuery (context, id));
+                return await mediator.ExecuteQuery<GetReisMetIdQuery, Result<Reis>> (new GetReisMetIdQuery (context, id));
             }
         }
 

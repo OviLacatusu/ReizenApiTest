@@ -13,7 +13,7 @@ using static Reizen.Data.Models.CQRS.Commands.UpdateBoeking;
 using static Reizen.Data.Models.CQRS.Queries.GetBoekingen;
 using static Reizen.Data.Models.CQRS.Queries.GetBoekingMetId;
 
-namespace Reizen.Domain.Services
+namespace Reizen.Data.Services
 {
     public class BoekingenService (IMediator mediator, IDbContextFactory<ReizenContext> factory) : IBoekingenRepository
     {
@@ -33,19 +33,19 @@ namespace Reizen.Domain.Services
             }
         }
 
-        public async Task<IList<Boeking>?> GetBoekingenAsync ()
+        public async Task<Result<IList<Boeking>>> GetBoekingenAsync ()
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetBoekingenQuery, IList<Boeking>?> (new GetBoekingenQuery (context));
+                return await mediator.ExecuteQuery<GetBoekingenQuery, Result<IList<Boeking>>> (new GetBoekingenQuery (context));
             }
         }
 
-        public async Task<Boeking?> GetBoekingMetIdAsync (int id)
+        public async Task<Result<Boeking>> GetBoekingMetIdAsync (int id)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetBoekingMetIdQuery, Boeking?> (new GetBoekingMetIdQuery (id, context)); 
+                return await mediator.ExecuteQuery<GetBoekingMetIdQuery, Result<Boeking>> (new GetBoekingMetIdQuery (id, context)); 
             }
         }
 

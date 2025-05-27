@@ -2,9 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Reizen.Data.Models;
-using Reizen.Domain.Services;
-using Reizen.Domain.Models;
+using Reizen.Data.Services;
 using Reis = Reizen.Data.Models.Reis;
+using Bestemming = Reizen.Data.Models.Bestemming;
+using Reizen.Domain.DTOs;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ReizenApi.Controllers
@@ -19,7 +20,7 @@ namespace ReizenApi.Controllers
     {
         // GET: api/<ReizenController>
         [HttpGet ("{code}")]
-        public async Task<ActionResult<ICollection<ReisDTO>>> Get (string code)
+        public async Task<ActionResult> Get (string code)
         {
             try
             {
@@ -29,12 +30,12 @@ namespace ReizenApi.Controllers
                     return BadRequest ();
                 }
                 var result = await _service.GetReizenMetBestemmingAsync (code);
-                if (result==null || !result.Any())
+                if (!result.IsSuccessful)
                 {
-                    _logger.LogInformation ("No trips found");
+                    _logger.LogInformation ($"No trips found: {result.Error}");
                     return NotFound ();
                 }
-                var dtos = _mapper.Map<ICollection<Reis>> (result);
+                var dtos = _mapper.Map<ICollection<Reis>> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex) 
@@ -46,7 +47,7 @@ namespace ReizenApi.Controllers
 
         // GET api/<ReizenController>/5
         [HttpGet ("{id:int}")]
-        public async Task<ActionResult<ReisDTO>> Get (int id)
+        public async Task<ActionResult> Get (int id)
         {
             try
             {
@@ -56,12 +57,12 @@ namespace ReizenApi.Controllers
                     return BadRequest ();
                 }
                 var result = await _service.GetReisMetIdAsync (id);
-                if (result is null)
+                if (!result.IsSuccessful)
                 {
-                    _logger.LogInformation ($"No trips found with id {id}");
+                    _logger.LogInformation ($"No trips found with id {id}: {result.Error}");
                     return NotFound ();
                 }
-                var dto = _mapper.Map<Reis> (result);
+                var dto = _mapper.Map<Reis> (result.Value);
                 return Ok (dto);
             }
             catch (Exception ex)
@@ -71,8 +72,8 @@ namespace ReizenApi.Controllers
             }
         }
 
-        // POST api/<ReizenController>
-        [HttpPost]
+        //POST api/<ReizenController>
+        //[HttpPost]
         //public async Task<ActionResult> Post ([FromBody] ReisDTO reisDto, BestemmingDTO bestemmingDto)
         //{
         //    try
@@ -87,12 +88,12 @@ namespace ReizenApi.Controllers
         //        var bestemming = _mapper.Map<Bestemming> (bestemmingDto);
         //        var result = await _service.AddReisToBestemmingAsync (reis, bestemming);
 
-        //        if (result is null)
+        //        if (!result.IsSuccessful)
         //        {
-        //            _logger.LogError ("Error occurred while adding trip");
+        //            _logger.LogError ($"Error occurred while adding trip: {result.Error}");
         //            return StatusCode (500, "An error occurred while processing your request");
         //        }
-        //        var dto = _mapper.Map<ReisDTO> (result);
+        //        var dto = _mapper.Map<ReisDTO> (result.Value);
         //        return Ok (dto);
         //    }
         //    catch (Exception ex)
@@ -120,19 +121,19 @@ namespace ReizenApi.Controllers
                     return BadRequest ();
                 }
                 var existingReis = await _service.GetReisMetIdAsync (id);
-                if (existingReis is null)
+                if (!existingReis.IsSuccessful)
                 {
-                    _logger.LogWarning ($"Trip with id={id} not found");
+                    _logger.LogWarning ($"Trip with id={id} not found: {existingReis.Error}");
                     return BadRequest ();
                 }
-                var result = _service.DeleteReisMetIdAsync (id);
+                var result = await _service.DeleteReisMetIdAsync (id);
 
-                if (result is null)
+                if (!result.IsSuccessful)
                 {
-                    _logger.LogError ("Error occurred while deleting trip");
+                    _logger.LogError ($"Error occurred while deleting trip: {result.Error}");
                     return StatusCode (500, "An error occurred while processing your request");
                 }
-                var dto = _mapper.Map<BoekingDTO> (result);
+                var dto = _mapper.Map<BoekingDTO> (result.Value);
                 return Ok (dto);
             }
             catch (Exception ex)

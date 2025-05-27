@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Reizen.Data.Models;
-using Reizen.Domain.Services;
-using Reizen.Domain.Models;
+using Reizen.Data.Services;
 using System.Runtime.CompilerServices;
 using Boeking = Reizen.Data.Models.Boeking;
+using Reizen.Domain.DTOs;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ReizenApi.Controllers
@@ -23,12 +23,12 @@ namespace ReizenApi.Controllers
             try
             {
                 var boekingen = await _service.GetBoekingenAsync ();
-                if (boekingen== null || !boekingen.Any ())
+                if (!boekingen.IsSuccessful)
                 {
-                    _logger.LogInformation ("No boekings found");
+                    _logger.LogInformation ($"No boekings found: {boekingen.Error}");
                     return NotFound ();
                 }
-                var dtos = _mapper.Map<ICollection<Boeking>> (boekingen);
+                var dtos = _mapper.Map<ICollection<Boeking>> (boekingen.Value);
                 return Ok (dtos);
             }
             catch (Exception ex) 
@@ -50,12 +50,12 @@ namespace ReizenApi.Controllers
                     return BadRequest ();
                 }
                 var boeking = await _service.GetBoekingMetIdAsync (id);
-                if (boeking is null)
+                if (!boeking.IsSuccessful)
                 {
-                    _logger.LogWarning ($"Boeking not found with id={id}"); 
+                    _logger.LogWarning ($"Error occurred: {boeking.Error}"); 
                     return NotFound ();
                 }
-                var dto = _mapper.Map<Boeking> (boeking);
+                var dto = _mapper.Map<Boeking> (boeking.Value);
                 return Ok (dto);
 
             }
@@ -79,12 +79,12 @@ namespace ReizenApi.Controllers
                 var boeking = _mapper.Map<Boeking> (boekingDto);
                 var result = await _service.AddBoekingAsync (boeking);
                 
-                if (result is null)
+                if (!result.IsSuccessful)
                 {
-                    _logger.LogError ("Error occurred while adding boeking");
+                    _logger.LogError ($"Error occurred while adding boeking: {result.Error}");
                     return StatusCode (500, "An error occurred while processing your request");
                 }
-                var dto = _mapper.Map <BoekingDTO> (result);
+                var dto = _mapper.Map <BoekingDTO> (result.Value);
                 return CreatedAtAction (nameof (Post), dto);
             }
             catch (Exception ex) 
@@ -106,20 +106,20 @@ namespace ReizenApi.Controllers
                     return BadRequest ();
                 }
                 var existingBoeking = await _service.GetBoekingMetIdAsync (id);
-                if (existingBoeking is null)
+                if (!existingBoeking.IsSuccessful)
                 {
-                    _logger.LogWarning ($"Boeking with id={id} not found");
+                    _logger.LogWarning ($"Boeking with id={id} not found: {existingBoeking.Error}");
                     return BadRequest ();
                 }
                 var boeking = _mapper.Map<Boeking> (boekingDto);
                 var result = await _service.UpdateBoekingAsync (boeking, id);
 
-                if (result is null)
+                if (!result.IsSuccessful)
                 {
-                    _logger.LogError ("Error occurred while updating boeking");
+                    _logger.LogError ($"Error occurred while updating boeking: {result.Error}");
                     return StatusCode (500, "An error occurred while processing your request");
                 }
-                var dto = _mapper.Map<BoekingDTO> (result);
+                var dto = _mapper.Map<BoekingDTO> (result.Value);
                 return Ok(dto);
             }
             catch (Exception ex)

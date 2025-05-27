@@ -2,7 +2,7 @@ using GoogleAccess.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Reizen.Data.Models.CQRS;
 using Reizen.Data.Repositories;
-using Reizen.Domain.Services;
+using Reizen.Data.Services;
 using ReizenApi;
 using System.Text.Json.Serialization;
 

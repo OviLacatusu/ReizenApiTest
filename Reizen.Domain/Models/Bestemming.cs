@@ -1,4 +1,4 @@
-﻿using Reizen.Data.Models;
+﻿//using Reizen.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,7 +10,7 @@ namespace Reizen.Domain.Models
 {
     public class Bestemming
     {
-        public string Name { get; private set; }
+        public string Plaats { get; private set; }
 
         public string Code { get; private set; }
 
@@ -35,7 +35,7 @@ namespace Reizen.Domain.Models
             
             Code = code;
             Land = land;
-            Name = name;
+            Plaats = name;
             
         }
 
@@ -46,7 +46,7 @@ namespace Reizen.Domain.Models
             if (land is null)
                 throw new ArgumentNullException ("Land cannot be null");
 
-            Name = name;
+            Plaats = name;
             Land = land;
         }
 
@@ -62,7 +62,7 @@ namespace Reizen.Domain.Models
 
         public IEnumerable<Reis> GetFutureTrips ()
         {
-            return _reizen.Where (r => r.VertrekDatum > DateOnly.FromDateTime (DateTime.Today)).ToList().AsReadOnly();
+            return _reizen.Where (r => r.Vertrek > DateOnly.FromDateTime (DateTime.Today)).ToList().AsReadOnly();
         }
     }
 }

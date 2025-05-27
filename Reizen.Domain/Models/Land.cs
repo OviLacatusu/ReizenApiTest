@@ -50,7 +50,5 @@ namespace Reizen.Domain.Models
 
             _bestemmingen.Add (bestemming);
         }
-
-        //public IEnumerable<Bestemming> GetBestemmingen
     }
 }

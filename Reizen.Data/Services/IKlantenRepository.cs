@@ -5,13 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Reizen.Domain.Services
+namespace Reizen.Data.Services
 {
     public interface IKlantenRepository
     {
-        Task<ICollection<Klant>?> GetKlantenAsync ();
-        Task<Klant?> GetKlantMetIdAsync (int id);
-        Task<ICollection<Klant>?> GetKlantenMetNaamAsync (string naam);
+        Task<Result<IList<Klant>>> GetKlantenAsync ();
+        Task<Result<Klant>> GetKlantMetIdAsync (int id);
+        Task<Result<IList<Klant>>> GetKlantenMetNaamAsync (string naam);
         Task<Result<Klant>> AddKlantAsync (Klant klant);
         Task<Result<Klant>> UpdateKlantAsync (int id, Klant klantDetails);
         Task<Result<Klant>> DeleteKlantAsync (int id);

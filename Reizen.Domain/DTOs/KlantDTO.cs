@@ -1,4 +1,4 @@
-﻿using Reizen.Data.Models;
+﻿
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Reizen.Domain.Models
+namespace Reizen.Domain.DTOs
 {
     public class KlantDTO
     {
@@ -15,10 +15,10 @@ namespace Reizen.Domain.Models
             get; set;
         }
         [Required (ErrorMessage = "Field is required")]
-        [StringLength(100)]
+        [StringLength (100)]
         public string Familienaam { get; set; } = null!;
         [Required (ErrorMessage = "Field is required")]
-        [StringLength(100)]
+        [StringLength (100)]
         public string Voornaam { get; set; } = null!;
 
         public string? Adres { get; set; } = null!;

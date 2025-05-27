@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Reizen.Data.Models;
-using Reizen.Domain.Services;
-using Reizen.Domain.Models;
-using Reizen.Domain.Services;
+using Reizen.Data.Services;
 using Klant = Reizen.Data.Models.Klant;
+using Reizen.Domain.DTOs;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ReizenApi.Controllers
@@ -19,17 +18,17 @@ namespace ReizenApi.Controllers
     {
         // GET: <ValuesController>
         [HttpGet]
-        public async Task<ActionResult<ICollection<KlantDTO>?>> GetKlantenAsync ()
+        public async Task<ActionResult> GetKlantenAsync ()
         {
             try
             {
                 var result = await _service.GetKlantenAsync ();
-                if (result == null || !result.Any ())
+                if (!result.IsSuccessful)
                 {
-                    _logger.LogInformation ("No clients found");
+                    _logger.LogInformation ($"No clients found: {result.Error}");
                     return NotFound ();
                 }
-                var dtos = _mapper.Map<ICollection<KlantDTO>> (result);
+                var dtos = _mapper.Map<ICollection<KlantDTO>> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex) 
@@ -40,7 +39,7 @@ namespace ReizenApi.Controllers
         }
         // GET: <ValuesController>/van
         [HttpGet ("{naam}")]
-        public async Task<ActionResult<ICollection<KlantDTO>?>> GetMetNaam (string naam)
+        public async Task<ActionResult> GetMetNaam (string naam)
         {
             try
             {
@@ -51,12 +50,12 @@ namespace ReizenApi.Controllers
                 }
                 var result = await _service.GetKlantenMetNaamAsync (naam);
 
-                if (result == null || !result.Any())
+                if (!result.IsSuccessful)
                 {
-                    _logger.LogInformation ("Clients not found");
+                    _logger.LogInformation ($"Clients not found: {result.Error}");
                     return NotFound ();
                 }
-                var dtos = _mapper.Map<ICollection<KlantDTO>> (result);
+                var dtos = _mapper.Map<ICollection<KlantDTO>> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex) 
@@ -68,7 +67,7 @@ namespace ReizenApi.Controllers
         }
         // GET <ValuesController>/5
         [HttpGet ("{id:int}")]
-        public async Task<ActionResult<KlantDTO?>> GetMetId (int id)
+        public async Task<ActionResult> GetMetId (int id)
         {
             try
             {
@@ -78,12 +77,12 @@ namespace ReizenApi.Controllers
                     return BadRequest ();
                 }
                 var result = await _service.GetKlantMetIdAsync (id);
-                if (result is null)
+                if (!result.IsSuccessful)
                 {
-                    _logger.LogInformation ("Client not found");
+                    _logger.LogInformation ($"Client not found {result.Error}");
                     return NotFound ();
                 }
-                var dto = _mapper.Map<KlantDTO> (result);
+                var dto = _mapper.Map<KlantDTO> (result.Value);
                 return Ok (dto);
             }
             catch (Exception ex) 
@@ -107,9 +106,9 @@ namespace ReizenApi.Controllers
                 var klant = _mapper.Map<Klant> (klantDto);
                 var result = await _service.AddKlantAsync (klant);
 
-                if (result is null)
+                if (!result.IsSuccessful)
                 {
-                    _logger.LogError ("Error while trying to add Client");
+                    _logger.LogError ($"Error while trying to add Client: {result.Error}");
                     return StatusCode (500, "An error occurred while processing your request");
                 }
                 var dto = _mapper.Map<KlantDTO> (klant);
@@ -136,15 +135,15 @@ namespace ReizenApi.Controllers
                 var klant = _mapper.Map<Klant> (klantDto);
                 var existingKlant = await _service.GetKlantMetIdAsync (id);
                 
-                if (existingKlant is null)
+                if (!existingKlant.IsSuccessful)
                 {
-                    _logger.LogWarning ("Invalid data provided - client does not exist");
+                    _logger.LogWarning ($"Invalid data provided - client does not exist: {existingKlant.Error}");
                     return BadRequest ();
                 }
                 var result = await _service.UpdateKlantAsync (id, klant);
-                if (result is null)
+                if (!result.IsSuccessful)
                 {
-                    _logger.LogError ("Error while trying to update Client");
+                    _logger.LogError ($"Error while trying to update Client: {result.Error}");
                     return StatusCode (500, "An error occurred while processing your request");
                 }
                 var dto = _mapper.Map<KlantDTO> (klant);
@@ -170,18 +169,18 @@ namespace ReizenApi.Controllers
                 }
                 var existingKlant = await _service.GetKlantMetIdAsync (id);
 
-                if (existingKlant is null)
+                if (!existingKlant.IsSuccessful)
                 {
-                    _logger.LogWarning ("Invalid data - client does not exist");
+                    _logger.LogWarning ($"Invalid data - client does not exist: {existingKlant.Error}");
                     return BadRequest ();
                 }
                 var result = await _service.DeleteKlantAsync (id);
-                if (result is null)
+                if (!result.IsSuccessful)
                 {
-                    _logger.LogError ("Error while trying to delete Client");
+                    _logger.LogError ($"Error while trying to delete customer: {result.Error}");
                     return StatusCode (500, "An error occurred while processing your request");
                 }
-                var dto = _mapper.Map<KlantDTO> (existingKlant);
+                var dto = _mapper.Map<KlantDTO> (existingKlant.Value);
                 return Ok (dto);
             }
             catch (Exception ex) 

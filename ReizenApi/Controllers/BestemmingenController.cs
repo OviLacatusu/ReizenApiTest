@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Reizen.Data.Models;
-using Reizen.Domain.Services;
-using Reizen.Domain.Models;
+using Reizen.Data.Services;
 using Bestemming = Reizen.Data.Models.Bestemming;
+using Reizen.Domain.DTOs;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ReizenApi.Controllers
@@ -17,18 +17,18 @@ namespace ReizenApi.Controllers
         ILogger<BestemmingenController> _logger) : ControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<ICollection<Bestemming>>> GetAll ()
+        public async Task<ActionResult> GetAll ()
         {
             try
             {
                 var result = await _service.GetBestemmingenAsync ();
 
-                if (result == null || !result.Any())
+                if (!result.IsSuccessful)
                 {
                     _logger.LogInformation ("No destinations found");
                     return NotFound ();
                 }
-                var dtos = _mapper.Map<ICollection<Bestemming>> (result);
+                var dtos = _mapper.Map<ICollection<Bestemming>> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex) {
@@ -38,7 +38,7 @@ namespace ReizenApi.Controllers
         }
         // GET: <BestemmingenController>
         [HttpGet ("{landNaam}")]
-        public async Task<ActionResult<ICollection<Bestemming>>> GetByCountry (string landNaam)
+        public async Task<ActionResult> GetByCountry (string landNaam)
         {
             try
             {
@@ -49,12 +49,12 @@ namespace ReizenApi.Controllers
                 }
                 var result = await _service.GetBestemmingenVanLandAsync (landNaam);
 
-                if (result == null || !result.Any())
+                if (!result.IsSuccessful)
                 {
                     _logger.LogInformation ("No destinations found for country: {CountryName}", landNaam);
                     return NotFound ();
                 }
-                var dtos = _mapper.Map<ICollection<Bestemming>> (result);
+                var dtos = _mapper.Map<ICollection<Bestemming>> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex)
@@ -78,12 +78,12 @@ namespace ReizenApi.Controllers
                 var bestemming = _mapper.Map<Bestemming> (bestemmingDto);
                 var result = await _service.AddBestemmingAsync (bestemming);
 
-                if (result == null)
+                if (!result.IsSuccessful)
                 {
                     _logger.LogError ("Error while trying to add destination");
                     return StatusCode (500, "An error occurred while processing your request");
                 }
-                var createdDto = _mapper.Map<BestemmingDTO> (result);
+                var createdDto = _mapper.Map<BestemmingDTO> (result.Value);
                 return CreatedAtAction (nameof (GetByCountry), new { landNaam = createdDto.Land.Naam  }, createdDto);
             }
             catch (Exception ex) 

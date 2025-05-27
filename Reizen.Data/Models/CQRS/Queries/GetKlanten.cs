@@ -10,13 +10,21 @@ namespace Reizen.Data.Models.CQRS.Queries
 {
     public sealed class GetKlanten 
     {
-        public record GetKlantenQuery(ReizenContext context): IQuery<IList<Klant>>;
+        public record GetKlantenQuery(ReizenContext context): IQuery<Result<IList<Klant>>>;
 
-        public class GetKlantenQueryHandler : IQueryHandler<GetKlantenQuery, IList<Klant>> 
+        public class GetKlantenQueryHandler : IQueryHandler<GetKlantenQuery, Result<IList<Klant>>>
         {
-            public async Task<IList<Klant>?> Handle (GetKlantenQuery query)
+            public async Task<Result<IList<Klant>>> Handle (GetKlantenQuery query)
             {
-                return await query.context.Klanten.ToListAsync();
+                try
+                {
+                    var klanten = await query.context.Klanten.ToListAsync ();
+                    return Result<IList<Klant>>.Success (klanten);
+                }
+                catch (Exception ex)
+                {
+                    return Result<IList<Klant>>.Failure ($"Error retrieving customers: {ex.Message}");
+                }
             }
         }
     }

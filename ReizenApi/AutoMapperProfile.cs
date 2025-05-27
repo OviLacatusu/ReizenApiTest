@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 //using Reizen.Data.Models;
-using Reizen.Domain.Models;
+using Reizen.Data.Models;
+using Reizen.Domain.DTOs;
 
 namespace ReizenApi
 {

@@ -1,4 +1,4 @@
-﻿@using Reizen.Domain.Models
+﻿@using Reizen.Domain.DTOs
 @using Microsoft.AspNetCore.Authorization
 
 @page "/landen/{NaamLand}"
@@ -29,7 +29,7 @@ else
     [Parameter]
     public string? NaamLand { get; set; }
 
-    private IEnumerable<Reizen.Domain.Models.BestemmingDTO> bestemmingen;
+    private IEnumerable<BestemmingDTO> bestemmingen;
 
     protected override async Task OnInitializedAsync()
     {

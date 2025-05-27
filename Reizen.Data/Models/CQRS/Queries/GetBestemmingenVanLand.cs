@@ -10,19 +10,32 @@ namespace Reizen.Data.Models.CQRS.Queries
 {
     public sealed class GetBestemmingenVanLand
     {
-        public record GetBestemmingenVanLandQuery(string land, ReizenContext context): IQuery<IList<Bestemming>>;
+        public record GetBestemmingenVanLandQuery(string land, ReizenContext context): IQuery<Result<IList<Bestemming>>>;
 
-        public class GetBestemmingenVanLandQueryHandler : IQueryHandler<GetBestemmingenVanLandQuery, IList<Bestemming>>
+        public class GetBestemmingenVanLandQueryHandler : IQueryHandler<GetBestemmingenVanLandQuery, Result<IList<Bestemming>>>
         {
-            public async Task<IList<Bestemming>?> Handle (GetBestemmingenVanLandQuery query)
+            public async Task<Result<IList<Bestemming>>?> Handle (GetBestemmingenVanLandQuery query)
             {
-                if (string.IsNullOrEmpty (query.land))
+                try
                 {
-                    return null;
+
+                    if (string.IsNullOrEmpty (query.land))
+                    {
+                        return Result<IList<Bestemming>>.Failure ($"Name of country cannot be empty or null");
+                    }
+                    var land = (await query.context.Landen.ToListAsync ()).Where (l => l.Naam.Contains (query.land, StringComparison.OrdinalIgnoreCase)).FirstOrDefault ();
+                    if (land is null)
+                    {
+                        return Result<IList<Bestemming>>.Failure ($"Could not find country");
+                    }
+                    var result = (await query.context.Bestemmingen.ToListAsync ()).Where (b => b.Landid == land.Id);
+
+                    return result.Count () == 0 ? Result<IList<Bestemming>>.Failure ("No destinations found")
+                                               : Result<IList<Bestemming>>.Success (result.ToList ());
                 }
-                var land = (await query.context.Landen.ToListAsync()).Where (l => l.Naam.Contains(query.land, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-                var result = (await query.context.Bestemmingen.ToListAsync()).Where(b => b.Landid == land.Id);
-                return result.Count() == 0 ? null : result.ToList ();
+                catch (Exception ex) {
+                    return Result<IList<Bestemming>>.Failure ($"Error retrieving destinations");
+                }
             }
         }
     }

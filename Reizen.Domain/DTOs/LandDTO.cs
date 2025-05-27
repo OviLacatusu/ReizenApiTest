@@ -5,15 +5,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Reizen.Domain.Models
+namespace Reizen.Domain.DTOs
 {
     public class LandDTO
     {
-        public int? Id { get; set; }
+        public int? Id
+        {
+            get; set;
+        }
         [Required (ErrorMessage = "Field is required")]
-        [StringLength(100)]
+        [StringLength (100)]
         public string Naam { get; set; } = null!;
-        public WerelddeelDTO? Werelddeel { get; set;} = null!;
+        public WerelddeelDTO? Werelddeel { get; set; } = null!;
 
         //public LandDTO(string naam, int? id) 
         //{ 
