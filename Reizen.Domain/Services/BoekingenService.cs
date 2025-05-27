@@ -17,19 +17,19 @@ namespace Reizen.Domain.Services
 {
     public class BoekingenService (IMediator mediator, IDbContextFactory<ReizenContext> factory) : IBoekingenRepository
     {
-        public async Task<Boeking?> AddBoekingAsync (Boeking? boeking)
+        public async Task<Result<Boeking>> AddBoekingAsync (Boeking? boeking)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<AddBoekingCommand, Boeking?> (new AddBoekingCommand (boeking, context));
+                return await mediator.ExecuteCommand<AddBoekingCommand, Result<Boeking>> (new AddBoekingCommand (boeking, context));
             }
         }
 
-        public async Task<Boeking?> DeleteBoekingAsync (int id)
+        public async Task<Result<Boeking>> DeleteBoekingAsync (int id)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<DeleteBoekingCommand, Boeking?> (new DeleteBoekingCommand (id, context));
+                return await mediator.ExecuteCommand<DeleteBoekingCommand, Result<Boeking>> (new DeleteBoekingCommand (id, context));
             }
         }
 
@@ -49,11 +49,11 @@ namespace Reizen.Domain.Services
             }
         }
 
-        public async Task<Boeking?> UpdateBoekingAsync (Boeking? boeking, int id)
+        public async Task<Result<Boeking>> UpdateBoekingAsync (Boeking? boeking, int id)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<UpdateBoekingCommand, Boeking?> (new UpdateBoekingCommand (boeking, id, context));
+                return await mediator.ExecuteCommand<UpdateBoekingCommand, Result<Boeking>> (new UpdateBoekingCommand (boeking, id, context));
             }
         }
     }

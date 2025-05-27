@@ -16,6 +16,7 @@ using static Reizen.Data.Models.CQRS.Commands.UpdateKlant;
 using static Reizen.Data.Models.CQRS.Queries.GetKlanten;
 using static Reizen.Data.Models.CQRS.Queries.GetKlantMetID;
 using static Reizen.Data.Models.CQRS.Queries.GetKlantMetNaam;
+using Klant = Reizen.Data.Models.Klant;
 
 namespace Reizen.Domain.Services
 {
@@ -43,27 +44,27 @@ namespace Reizen.Domain.Services
             }
         }
 
-        public async Task<Klant?> AddKlantAsync (Klant klant)
+        public async Task<Result<Klant>> AddKlantAsync (Klant klant)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<AddKlantCommand, Klant?> (new AddKlantCommand (klant, context));
+                return await mediator.ExecuteCommand<AddKlantCommand, Result<Klant>> (new AddKlantCommand (klant, context));
             }
         }
 
-        public async Task<Klant?> UpdateKlantAsync (int id, Klant klantDetails)
+        public async Task<Result<Klant>> UpdateKlantAsync (int id, Klant klantDetails)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<UpdateKlantCommand, Klant> (new UpdateKlantCommand (klantDetails, id, context));
+                return await mediator.ExecuteCommand<UpdateKlantCommand, Result<Klant>> (new UpdateKlantCommand (klantDetails, id, context));
             }
         }
 
-        public async Task<Klant?> DeleteKlantAsync (int id)
+        public async Task<Result<Klant>> DeleteKlantAsync (int id)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<DeleteKlantCommand, Klant?> (new DeleteKlantCommand (id, context));
+                return await mediator.ExecuteCommand<DeleteKlantCommand, Result<Klant>> (new DeleteKlantCommand (id, context));
             }
         }
     }

@@ -14,12 +14,14 @@ namespace Reizen.Domain.Models
         {
             get; set;
         }
-        [Required]
+        [Required (ErrorMessage = "Field is required")]
+        [StringLength(100)]
         public string Familienaam { get; set; } = null!;
-        [Required]
+        [Required (ErrorMessage = "Field is required")]
+        [StringLength(100)]
         public string Voornaam { get; set; } = null!;
-        [Required]
-        public string Adres { get; set; } = null!;
+
+        public string? Adres { get; set; } = null!;
 
         //private KlantDTO (string voornaam, string familienaam, string adres, int? id)
         //{

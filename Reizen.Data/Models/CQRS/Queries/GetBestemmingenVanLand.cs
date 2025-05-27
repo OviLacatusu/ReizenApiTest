@@ -14,7 +14,7 @@ namespace Reizen.Data.Models.CQRS.Queries
 
         public class GetBestemmingenVanLandQueryHandler : IQueryHandler<GetBestemmingenVanLandQuery, IList<Bestemming>>
         {
-            public async Task<IList<Bestemming>?> Execute (GetBestemmingenVanLandQuery query)
+            public async Task<IList<Bestemming>?> Handle (GetBestemmingenVanLandQuery query)
             {
                 if (string.IsNullOrEmpty (query.land))
                 {

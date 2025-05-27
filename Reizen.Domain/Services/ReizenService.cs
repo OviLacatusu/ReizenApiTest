@@ -26,11 +26,11 @@ namespace Reizen.Domain.Services
             }
         }
 
-        public async Task<Reis?> AddReisToBestemmingAsync (Reis reis, Bestemming bestemming)
+        public async Task<Result<Reis>> AddReisToBestemmingAsync (Reis reis, Bestemming bestemming)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<AddReisToBestemmingCommand, Reis?> (new AddReisToBestemmingCommand (reis, bestemming, context));
+                return await mediator.ExecuteCommand<AddReisToBestemmingCommand, Result<Reis>> (new AddReisToBestemmingCommand (reis, bestemming, context));
             }
         }
 
@@ -42,11 +42,11 @@ namespace Reizen.Domain.Services
             }
         }
 
-        public async Task<Reis?> DeleteReisMetIdAsync (int id)
+        public async Task<Result<Reis>> DeleteReisMetIdAsync (int id)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<DeleteReisCommand, Reis?> (new DeleteReisCommand (id, context));
+                return await mediator.ExecuteCommand<DeleteReisCommand, Result<Reis>> (new DeleteReisCommand (id, context));
             }
         }
     }

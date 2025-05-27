@@ -14,7 +14,7 @@ namespace Reizen.Data.Models.CQRS.Queries
 
         public class GetKlantMetNaamQueryHandler : IQueryHandler<GetKlantMetNaamQuery, IList<Klant>>
         {
-            public async Task<IList<Klant>?> Execute (GetKlantMetNaamQuery query)
+            public async Task<IList<Klant>?> Handle (GetKlantMetNaamQuery query)
             {
                 return (await query.context.Klanten.ToListAsync()).Where (k => k.Voornaam.Contains (query.naam, StringComparison.OrdinalIgnoreCase) || k.Familienaam.Contains(query.naam, StringComparison.OrdinalIgnoreCase)).ToList();
             }

@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Reizen.Data.Models;
+using Reizen.Data.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Reizen.Data.Repositories
+namespace Reizen.Domain.Services
 {
     public class SQLKlantenRepository : IKlantenRepository
     {
@@ -42,17 +43,17 @@ namespace Reizen.Data.Repositories
             throw new NotImplementedException ();
         }
 
-        Task<Klant?> IKlantenRepository.AddKlantAsync (Klant klant)
+        Task<Result<Klant>> IKlantenRepository.AddKlantAsync (Klant klant)
         {
             throw new NotImplementedException ();
         }
 
-        Task<Klant?> IKlantenRepository.UpdateKlantAsync (int id, Klant klantDetails)
+        Task<Result<Klant>> IKlantenRepository.UpdateKlantAsync (int id, Klant klantDetails)
         {
             throw new NotImplementedException ();
         }
 
-        public Task<Klant?> DeleteKlantAsync (int id)
+        public Task<Result<Klant>> DeleteKlantAsync (int id)
         {
             throw new NotImplementedException ();
         }

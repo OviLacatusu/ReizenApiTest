@@ -10,7 +10,8 @@ namespace Reizen.Domain.Models
     public class WerelddeelDTO
     {
         public int? Id { get; set; }
-        [Required]
+        [Required (ErrorMessage = "Field is required")]
+        [StringLength(100)]
         public string Naam { get; set; } = null!;
 
         //public WerelddeelDTO(string naam, int? id) 

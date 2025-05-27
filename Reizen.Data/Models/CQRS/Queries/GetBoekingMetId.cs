@@ -14,7 +14,7 @@ namespace Reizen.Data.Models.CQRS.Queries
 
         public class GetBoekingMetIdQueryHandler : IQueryHandler<GetBoekingMetIdQuery, Boeking?>
         {
-            public async Task<Boeking?> Execute (GetBoekingMetIdQuery query)
+            public async Task<Boeking?> Handle (GetBoekingMetIdQuery query)
             {
                 var boeking = await query.context.Boekingen.FirstOrDefaultAsync (el => el.Id == query.id);
                 return boeking;

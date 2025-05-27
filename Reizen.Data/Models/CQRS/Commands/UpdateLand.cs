@@ -11,24 +11,44 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class UpdateLand
     {
-        public record UpdateLandCommand (int id, Land landData, ReizenContext context ) : ICommand<Land?>;
+        public record UpdateLandCommand (int id, Land landData, ReizenContext context ) : ICommand<Result<Land>>;
 
-        public class UpdateClassCommandHandler : ICommandHandler<UpdateLandCommand, Land?>
+        public class UpdateClassCommandHandler : ICommandHandler<UpdateLandCommand, Result<Land>>
         {
-            public async Task<Land?> Execute (UpdateLandCommand command)
+            public async Task<Result<Land>> Handle (UpdateLandCommand command)
             {
-                using (var transaction = await command.context.Database.BeginTransactionAsync ())
+                try
                 {
-                    var land = await command.context.Landen.FindAsync (command.id);
-                    if (land != null)
+                    using (var transaction = await command.context.Database.BeginTransactionAsync ())
                     {
-                        land.Werelddeel = command.landData.Werelddeel;
-                        land.Naam = command.landData.Naam;
-                        land.Bestemmingen = land.Bestemmingen;
+                        try
+                        {
+                            var land = await command.context.Landen.FindAsync (command.id);
+                            if (land == null)
+                            {
+                                return Result<Land>.Failure ($"Cannot find land with ID");
+                            }
+                            land.Werelddeel = command.landData.Werelddeel;
+                            land.Naam = command.landData.Naam;
+                            land.Bestemmingen = land.Bestemmingen;
+
+                            await transaction.CommitAsync ();
+
+                            return Result<Land>.Success (land);
+                        }
+                        catch
+                        {
+                            await transaction.RollbackAsync ();
+                            throw;
+                        }
                     }
-                    transaction.Commit ();
-                    return land;
                 }
+                catch (Exception ex)
+                {
+                    return Result<Land>.Failure ($"Error while updating country");
+                }
+                
+                  
             }
         }
     }

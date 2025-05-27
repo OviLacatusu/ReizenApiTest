@@ -10,23 +10,43 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class AddLandToWerelddeel
     {
-        public record AddLandToWerelddeelCommand(Land land, Werelddeel deel, ReizenContext context): ICommand<Land>;
+        public record AddLandToWerelddeelCommand(Land land, Werelddeel deel, ReizenContext context): ICommand<Result<Land>>;
 
-        public class AddLandToWerelddeelCommandHandler : ICommandHandler<AddLandToWerelddeelCommand, Land>
+        public class AddLandToWerelddeelCommandHandler : ICommandHandler<AddLandToWerelddeelCommand, Result<Land>>
         {
-            public async Task<Land?> Execute (AddLandToWerelddeelCommand command)
+            public async Task<Result<Land>> Handle (AddLandToWerelddeelCommand command)
             {
-                using var transaction = await command.context.Database.BeginTransactionAsync ();
+                try
                 {
-
-                    var deelw = await command.context.Werelddelen.FindAsync (command.deel);
-                    Land result = null;
-                    if (deelw?.Landen.Where (l => command.land.Naam == l.Naam).Count () == 0)
+                    using var transaction = await command.context.Database.BeginTransactionAsync ();
                     {
-                        deelw.Landen.Add (command.land);
+                        try
+                        {
+
+                            var deelw = await command.context.Werelddelen.FindAsync (command.deel.Id);
+
+                            if (deelw == null)
+                            {
+                                return Result<Land>.Failure ($"Werelddeel with ID not found");
+                            }
+
+                            if (deelw?.Landen.Where (l => command.land.Naam == l.Naam).Count () > 0)
+                            {
+                                return Result<Land>.Failure ($"Country already exists on this continent");
+                            }
+                            deelw.Landen.Add (command.land);
+                            await transaction.CommitAsync ();
+                            return Result<Land>.Success(command.land);
+                        }
+                        catch
+                        {
+                            await transaction.RollbackAsync ();
+                            throw;
+                        }
                     }
-                    await transaction.CommitAsync ();
-                    return command.land;
+                }
+                catch (Exception ex) {
+                    return Result<Land>.Failure ($"Error adding land to continent: {ex.Message}");
                 }
             }
         }

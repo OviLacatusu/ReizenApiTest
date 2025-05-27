@@ -10,12 +10,14 @@ namespace Reizen.Domain.Models
 {
     public class BestemmingDTO
     {
-        [Required]
+        [Required (ErrorMessage = "Field is required")]
+        [StringLength(10)]
         public string Code { get; set; } = null!;
-        [Required]
+        [Required (ErrorMessage = "Field is required")]
+        [StringLength(100)]
         public string Plaats { get; set; } = null!;
-        [Required]
-        public LandDTO Land { get; set; }
+        
+        public LandDTO? Land { get; set; }
 
         //public BestemmingDTO (string plaats, string code, int? id)
         //{

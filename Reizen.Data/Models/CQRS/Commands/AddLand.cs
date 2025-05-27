@@ -3,6 +3,7 @@ using Reizen.Data.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,19 +11,37 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class AddLand
     {
-        public record AddLandCommand (Land land, ReizenContext context) : ICommand<Land>;
+        public record AddLandCommand (Land land, ReizenContext context) : ICommand<Result<Land>>;
 
-        public class AddLandCommandHandler : ICommandHandler<AddLandCommand, Land?> 
+        public class AddLandCommandHandler : ICommandHandler<AddLandCommand, Result<Land>> 
         {
-            public async Task<Land?> Execute (AddLandCommand command)
+            public async Task<Result<Land>> Handle (AddLandCommand command)
             {
-                var result = await command.context.Landen.FindAsync (command.land.Naam);
-                if (result == null)
+                try
                 {
-                    await command.context.Landen.AddAsync (command.land);
-                    await command.context.SaveChangesAsync ();
+                    using (var transaction = await command.context.Database.BeginTransactionAsync ())
+                    {
+                        try
+                        {
+                            var result = command.context.Landen.Where (l => String.Equals(command.land.Naam, l.Naam, StringComparison.OrdinalIgnoreCase));
+                            if (result != null)
+                            {
+                                return Result<Land>.Failure ($"Land already exists");
+                            }
+                            await command.context.Landen.AddAsync (command.land);
+                            await transaction.CommitAsync ();
+
+                            return Result<Land>.Success(command.land);
+                        }
+                        catch {
+                            transaction.Rollback ();
+                            throw;
+                        }
+                    } 
                 }
-                return command.land;
+                catch (Exception ex) {
+                    return Result<Land>.Failure ($"Error adding Land: {ex.Message}");
+                }
             }
         }
     }

@@ -9,23 +9,43 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class DeleteBestemming
     {
-        public record DeleteBestemmingCommand(string code, ReizenContext context) : ICommand<Bestemming?>;
+        public record DeleteBestemmingCommand(string code, ReizenContext context) : ICommand<Result<Bestemming>>;
 
-        public class DeleteBestemmingCommandHandler : ICommandHandler<DeleteBestemmingCommand, Bestemming?>
+        public class DeleteBestemmingCommandHandler : ICommandHandler<DeleteBestemmingCommand, Result<Bestemming>>
         {
-            public async Task<Bestemming?> Execute (DeleteBestemmingCommand command)
+            public async Task<Result<Bestemming>> Handle (DeleteBestemmingCommand command)
             {
-                using (var transaction = await command.context.Database.BeginTransactionAsync ())
+                try
                 {
-                    var bestemming = new Bestemming { Code = command.code };
-                    command.context.Attach (bestemming);
-                    command.context.Bestemmingen.Remove (bestemming);
+                    using var transaction = await command.context.Database.BeginTransactionAsync ();
+                    try
+                    {
+                        var bestemming = await command.context.Bestemmingen.FindAsync (command.code);
+                        if (bestemming == null)
+                            return Result<Bestemming>.Failure ($"Destination with code not found");
+                        if (bestemming.Reizen.Where (r => r.Vertrek > DateOnly.FromDateTime (DateTime.Today)).Any ())
+                            return Result<Bestemming>.Failure ($"Cannot delete destination with active trips");
 
-                    transaction.Commit ();
-                    
-                    return bestemming;
+                        var toDelete = new Bestemming { Code = command.code };
+                        command.context.Attach (toDelete);
+                        command.context.Bestemmingen.Remove (toDelete);
+
+                        await transaction.CommitAsync ();
+
+                        return Result<Bestemming>.Success (toDelete);
+                    }
+                    catch
+                    {
+                        await transaction.RollbackAsync ();
+                        throw;
+                    }
                 }
+                catch (Exception ex)
+                {
+                    return Result<Bestemming>.Failure ($"Error deleting customer: {ex.Message}");
+                }
+            }
             }
         }
     }
-}
+

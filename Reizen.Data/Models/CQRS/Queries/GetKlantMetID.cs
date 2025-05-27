@@ -13,7 +13,7 @@ namespace Reizen.Data.Models.CQRS.Queries
 
         public class GetKlantMetIDQueryHandler : IQueryHandler<GetKlantMetIDQuery, Klant> 
         {
-            public async Task<Klant?> Execute (GetKlantMetIDQuery query) 
+            public async Task<Klant?> Handle (GetKlantMetIDQuery query) 
             {
                 return await query.context.Klanten.FindAsync (query.id);
             } 

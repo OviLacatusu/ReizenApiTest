@@ -15,32 +15,36 @@ namespace Reizen.Domain.Models
         }
 
         public string BestemmingsCode { get; set; } = null!;
-        [Required]
+        [Required (ErrorMessage = "Field is required")]
         public DateOnly Vertrek
         {
             get; set;
         }
-        [Required]
+        [Required (ErrorMessage = "Field is required")]
+        [Range(0,365)]
         public int AantalDagen
         {
             get; set;
         }
-        [Required]
+        [Required (ErrorMessage = "Field is required")]
+        [Range(0,1000000)]
         public decimal PrijsPerPersoon
         {
             get; set;
         }
-        [Required]
+        [Required (ErrorMessage = "Field is required")]
+        [Range (0,100)]
         public int AantalVolwassenen
         {
             get; set;
         }
-        [Required]
+        [Required (ErrorMessage = "Field is required")]
+        [Range(0, 100)]
         public int AantalKinderen
         {
             get; set;
         }
-        [Required]
+        //[Required]
         public BestemmingDTO Bestemming { get; set; } = null;
         //public ReisDTO (DateOnly date, int aantalDagen, decimal prijsPP, int aantalVolwassenen, int aantalKinderen, string bestemmingCode, int? id)
         //{

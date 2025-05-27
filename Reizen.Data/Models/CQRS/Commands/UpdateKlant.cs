@@ -10,22 +10,40 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class UpdateKlant
     {
-        public record UpdateKlantCommand (Klant klantData, int klantId, ReizenContext context) : ICommand<Klant>;
+        public record UpdateKlantCommand (Klant klantData, int klantId, ReizenContext context) : ICommand<Result<Klant>>;
 
-        public class UpdateKlantCommandHandler : ICommandHandler<UpdateKlantCommand, Klant>
+        public class UpdateKlantCommandHandler : ICommandHandler<UpdateKlantCommand, Result<Klant>>
         {
-            public async Task<Klant> Execute (UpdateKlantCommand command)
+            public async Task<Result<Klant>> Handle (UpdateKlantCommand command)
             {
-                var klant = await command.context.Klanten.FindAsync (command.klantId);
-                if (klant == null)
-                    return null;
-                klant.Voornaam = command.klantData.Voornaam;
-                klant.Familienaam = command.klantData.Familienaam;
-                klant.Adres = command.klantData.Adres;
-                
-                await command.context.SaveChangesAsync ();
+                try
+                {
+                    using (var transaction = await command.context.Database.BeginTransactionAsync ())
+                    {
+                        try
+                        {
 
-                return klant;
+                            var klant = await command.context.Klanten.FindAsync (command.klantId);
+                            if (klant == null)
+                                return Result<Klant>.Failure ($"Cannot find customer with ID");
+
+                            klant.Voornaam = command.klantData.Voornaam;
+                            klant.Familienaam = command.klantData.Familienaam;
+                            klant.Adres = command.klantData.Adres;
+
+                            await transaction.CommitAsync ();
+
+                            return Result<Klant>.Success(klant);
+                        }
+                        catch {
+                            await transaction.RollbackAsync ();
+                            throw;
+                        }
+                    }
+                }
+                catch (Exception ex) {
+                    return Result<Klant>.Failure ($"Error while updating customer");
+                }
             }
         }
         

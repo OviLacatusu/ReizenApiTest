@@ -9,26 +9,41 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class UpdateBoeking
     {
-        public record UpdateBoekingCommand(Boeking boeking, int id, ReizenContext context): ICommand<Boeking?>;
+        public record UpdateBoekingCommand(Boeking boeking, int id, ReizenContext context): ICommand<Result<Boeking>>;
 
-        public class UpdateBoekingCommandHandler : ICommandHandler<UpdateBoekingCommand, Boeking?>
+        public class UpdateBoekingCommandHandler : ICommandHandler<UpdateBoekingCommand, Result<Boeking>>
         {
-            public async Task<Boeking?> Execute (UpdateBoekingCommand command)
+            public async Task<Result<Boeking>> Handle (UpdateBoekingCommand command)
             {
-                using (var transaction = command.context.Database.BeginTransaction ())
+                try
                 {
-                    var existingBoeking = await command.context.Boekingen.FindAsync (command.id);
-                    if (existingBoeking != null)
+                    using (var transaction = await command.context.Database.BeginTransactionAsync ())
                     {
-                        existingBoeking.AantalKinderen = command.boeking.AantalKinderen;
-                        existingBoeking.AantalVolwassenen = command.boeking.AantalVolwassenen;
-                        existingBoeking.Reisid = command.boeking.Reisid;
-                        existingBoeking.AnnulatieVerzekering = command.boeking.AnnulatieVerzekering;
+                        try
+                        {
+                            var existingBoeking = await command.context.Boekingen.FindAsync (command.id);
+                            if (existingBoeking == null)
+                            {
+                                return Result<Boeking>.Failure ($"Cannot find booking with ID");
+                            }
 
-                        transaction.Commit ();
-                        return command.boeking;
+                            existingBoeking.AantalKinderen = command.boeking.AantalKinderen;
+                            existingBoeking.AantalVolwassenen = command.boeking.AantalVolwassenen;
+                            existingBoeking.AnnulatieVerzekering = command.boeking.AnnulatieVerzekering;
+
+                            await transaction.CommitAsync ();
+                            return Result<Boeking>.Success(command.boeking);
+                            
+                        }
+                        catch 
+                        {
+                            await transaction.RollbackAsync ();
+                            throw;
+                        }
                     }
-                    return null;
+                }
+                catch (Exception ex) {
+                    return Result<Boeking>.Failure ($"Error updating booking: {ex.Message}");
                 }
                 
             }

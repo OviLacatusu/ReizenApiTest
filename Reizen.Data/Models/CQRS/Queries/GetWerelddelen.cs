@@ -14,7 +14,7 @@ namespace Reizen.Data.Models.CQRS.Queries
 
         public class GetWerelddelenQueryHandler : IQueryHandler<GetWerelddelenQuery, IList<Werelddeel>>
         {
-            public async Task<IList<Werelddeel>?> Execute (GetWerelddelenQuery query)
+            public async Task<IList<Werelddeel>?> Handle (GetWerelddelenQuery query)
             {
                 return await query.context.Werelddelen.ToListAsync();
             }

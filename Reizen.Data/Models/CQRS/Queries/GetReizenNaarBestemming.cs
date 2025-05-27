@@ -14,7 +14,7 @@ namespace Reizen.Data.Models.CQRS.Queries
 
         public class GetReizenNaarBestemmingQueryHandler : IQueryHandler<GetReizenNaarBestemmingQuery, IList<Reis>>
         {
-            public async Task<IList<Reis>?> Execute (GetReizenNaarBestemmingQuery query)
+            public async Task<IList<Reis>?> Handle (GetReizenNaarBestemmingQuery query)
             {
                 return (await query.context.Reizen.Include( r => r.Bestemming).ToListAsync ()).Where (r => r.Bestemmingscode == query.bestemmingscode).ToList();
             }

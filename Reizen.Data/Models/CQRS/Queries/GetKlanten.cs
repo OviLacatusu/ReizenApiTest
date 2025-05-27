@@ -14,7 +14,7 @@ namespace Reizen.Data.Models.CQRS.Queries
 
         public class GetKlantenQueryHandler : IQueryHandler<GetKlantenQuery, IList<Klant>> 
         {
-            public async Task<IList<Klant>?> Execute (GetKlantenQuery query)
+            public async Task<IList<Klant>?> Handle (GetKlantenQuery query)
             {
                 return await query.context.Klanten.ToListAsync();
             }

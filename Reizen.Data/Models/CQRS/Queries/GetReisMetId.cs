@@ -14,9 +14,10 @@ namespace Reizen.Data.Models.CQRS.Queries
 
         public class GetReisMetIdQueryHandler : IQueryHandler<GetReisMetIdQuery, Reis>
         {
-            public async Task<Reis?> Execute (GetReisMetIdQuery query)
+            public async Task<Reis?> Handle (GetReisMetIdQuery query)
             {
-                return (await query.context.Reizen.Include(r => r.Bestemming).ToListAsync()).Where (r => r.Id == query.id).FirstOrDefault();
+                var reis = (await query.context.Reizen.Include(r => r.Bestemming).ToListAsync()).Where (r => r.Id == query.id).FirstOrDefault();
+                return reis;
             }
         }
     }

@@ -10,23 +10,39 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class AddBoeking
     {
-        public record AddBoekingCommand(Boeking boeking, ReizenContext context) : ICommand<Boeking?>;
+        public record AddBoekingCommand(Boeking boeking, ReizenContext context) : ICommand<Result<Boeking>>;
 
-        public class AddBoekingCommandHandler : ICommandHandler<AddBoekingCommand, Boeking?>
+        public class AddBoekingCommandHandler : ICommandHandler<AddBoekingCommand, Result<Boeking>>
         {
-            public async Task<Boeking?> Execute (AddBoekingCommand command)
+            public async Task<Result<Boeking>> Handle (AddBoekingCommand command)
             {
-                using (var transaction = command.context.Database.BeginTransaction ())
+                try
                 {
-                    var boeking = await command.context.Boekingen.Where (b => b.Klantid == command.boeking.Klantid && b.Reisid == command.boeking.Klantid).ToListAsync();
-                    if (!boeking.Any ())
+                    using (var transaction = await command.context.Database.BeginTransactionAsync ())
                     {
-                        var result = await command.context.Boekingen.AddAsync (command.boeking);
-                        transaction.Commit ();
-                        return command.boeking;
+                        try
+                        {
+                            var boeking = await command.context.Boekingen.Where (b => b.Klantid == command.boeking.Klantid && b.Reisid == command.boeking.Klantid).ToListAsync ();
+
+                            if (boeking.Any ())
+                            {
+                               return Result<Boeking>.Failure ("Boeking already exists for this client");
+                            }
+                            var result = await command.context.Boekingen.AddAsync (command.boeking);
+                            await transaction.CommitAsync ();
+                            return Result<Boeking>.Success(command.boeking);
+                        }
+                        catch
+                        {
+                            await transaction.RollbackAsync ();
+                            throw;
+                        }
                     }
                 }
-                return null;
+                catch (Exception ex) 
+                {
+                    return Result<Boeking>.Failure ($"Error adding booking: {ex.Message}");
+                }
                 
             }
         }

@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Reizen.Data.Models;
-using Reizen.Data.Repositories;
+using Reizen.Domain.Services;
 using Reizen.Domain.Models;
 using System.Runtime.CompilerServices;
-
+using Boeking = Reizen.Data.Models.Boeking;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ReizenApi.Controllers

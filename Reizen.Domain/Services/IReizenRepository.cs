@@ -5,16 +5,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Reizen.Data.Repositories
+namespace Reizen.Domain.Services
 {
     public interface IReizenRepository
     {
         Task<ICollection<Reis>?> GetReizenMetBestemmingAsync (string bestemming);
 
-        Task<Reis?> AddReisToBestemmingAsync (Reis reis, Bestemming bestemming);
+        Task<Result<Reis>> AddReisToBestemmingAsync (Reis reis, Bestemming bestemming);
 
         Task<Reis?> GetReisMetIdAsync (int id);
 
-        Task<Reis?> DeleteReisMetIdAsync (int id);
+        Task<Result<Reis>> DeleteReisMetIdAsync (int id);
     }
 }

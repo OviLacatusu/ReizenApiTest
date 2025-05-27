@@ -14,7 +14,7 @@ namespace Reizen.Data.Models.CQRS.Queries
 
         public class GetLandenVanWerelddeelQueryHandler : IQueryHandler<GetLandenVanWerelddeelQuery, IList<Land>>
         {
-            public async Task<IList<Land>?> Execute (GetLandenVanWerelddeelQuery query)
+            public async Task<IList<Land>?> Handle (GetLandenVanWerelddeelQuery query)
             {
                 var werelddeel = (await query.context.Werelddelen.ToListAsync()).Where (w => w.Naam.Contains (query.werelddeel, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
                 var result = (await query.context.Landen.ToListAsync ()).Where (l => l.Werelddeelid == werelddeel?.Id ).ToList();

@@ -14,9 +14,9 @@ namespace Reizen.Data.Models.CQRS.Queries
 
         public class GetBoekingenQueryHandler : IQueryHandler<GetBoekingenQuery, IList<Boeking>?>
         {
-            public async Task<IList<Boeking>?> Execute (GetBoekingenQuery query)
+            public async Task<IList<Boeking>?> Handle (GetBoekingenQuery query)
             {
-                var boekingen = await query.context.Boekingen?.ToListAsync ();
+                var boekingen = await query.context.Boekingen.ToListAsync ();
                 return boekingen;
             }
         }

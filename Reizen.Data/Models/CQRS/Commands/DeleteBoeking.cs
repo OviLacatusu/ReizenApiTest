@@ -9,26 +9,44 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class DeleteBoeking
     {
-        public record DeleteBoekingCommand(int id, ReizenContext context) : ICommand<Boeking?>;
+        public record DeleteBoekingCommand(int id, ReizenContext context) : ICommand<Result<Boeking>>;
 
-        public class DeleteBoekingCommandHandler : ICommandHandler<DeleteBoekingCommand, Boeking?>
+        public class DeleteBoekingCommandHandler : ICommandHandler<DeleteBoekingCommand, Result<Boeking>>
         {
-            public async Task<Boeking?> Execute (DeleteBoekingCommand command)
+            public async Task<Result<Boeking>> Handle (DeleteBoekingCommand command)
             {
-                using (var transaction = await command.context.Database.BeginTransactionAsync ())
+                try
                 {
-                    var existingBoeking = command.context.Boekingen.FirstOrDefault (el => el.Id == command.id);
-                    if (existingBoeking != null)
+                    using (var transaction = await command.context.Database.BeginTransactionAsync ())
                     {
-                        var boeking = new Boeking { Id = command.id };
-                        command.context.Attach (boeking);
-                        command.context.Boekingen.Remove (boeking);
-                        await transaction.CommitAsync ();
+                        try
+                        {
+                            if (command.id < 0)
+                                return Result<Boeking>.Failure ($"Id of booking cannot be negative");
+                            var existingBoeking = command.context.Boekingen.FirstOrDefault (el => el.Id == command.id);
+                            if (existingBoeking == null)
+                            {
+                                return Result<Boeking>.Failure ($"Boeking does not exist");
+                            }
+                            
+                            var boeking = new Boeking { Id = command.id };
+                            command.context.Attach (boeking);
+                            command.context.Boekingen.Remove (boeking);
+                            await transaction.CommitAsync ();
 
-                        return boeking;
+                            return Result<Boeking>.Success(boeking);
+                        }
+                        catch
+                        {
+                            await transaction.RollbackAsync ();
+                            throw;
+                        }
                     }
                 }
-                return null;
+                catch (Exception ex)
+                {
+                    return Result<Boeking>.Failure ($"Error deleting booking: {ex.Message}");
+                }
             }
         }
     }

@@ -9,20 +9,44 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class DeleteReis
     {
-        public record DeleteReisCommand(int id, ReizenContext context):ICommand<Reis?>;
+        public record DeleteReisCommand(int id, ReizenContext context):ICommand<Result<Reis>>;
 
-        public class DeleteReisCommandHandler : ICommandHandler<DeleteReisCommand, Reis?>
+        public class DeleteReisCommandHandler : ICommandHandler<DeleteReisCommand, Result<Reis>>
         {
-            public async Task<Reis?> Execute (DeleteReisCommand command)
+            public async Task<Result<Reis>> Handle (DeleteReisCommand command)
             {
-                using (var transaction = await command.context.Database.BeginTransactionAsync ())
+                try
                 {
-                    var reis = new Reis { Id = command.id };
-                    command.context.Attach (reis);
-                    command.context.Reizen.Remove (reis);
+                    using (var transaction = await command.context.Database.BeginTransactionAsync ())
+                    {
+                        try
+                        {
+                            var existingReis = await command.context.Klanten.FindAsync (command.id);
+                            if (existingReis == null)
+                            {
+                                return Result<Reis>.Failure ($"Reis with ID not found");
+                            }
+                            if (existingReis.Boekingen.Where (b => b.Reis.Vertrek > DateOnly.FromDateTime (DateTime.Today)).Any ())
+                            {
+                                return Result<Reis>.Failure ($"Cannot delete trip with active bookings");
+                            }
+                            Reis? reis = new Reis { Id = command.id };
+                            command.context.Attach (reis);
+                            command.context.Reizen.Remove (reis);
 
-                    await transaction.CommitAsync ();
-                    return reis;
+                            await transaction.CommitAsync ();
+                            return Result<Reis>.Success (reis);
+                        }
+                        catch
+                        {
+                            await transaction.RollbackAsync ();
+                            throw;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return Result<Reis>.Failure ($"Error deleting trip: {ex.Message}");
                 }
             }
         }

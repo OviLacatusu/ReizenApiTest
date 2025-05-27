@@ -14,7 +14,7 @@ namespace Reizen.Data.Models.CQRS.Queries
 
         public class GetLandMetIdQueryHandler : IQueryHandler<GetLandMetIdQuery, Land>
         {
-            public async Task<Land?> Execute (GetLandMetIdQuery query)
+            public async Task<Land?> Handle (GetLandMetIdQuery query)
             {
                 var result = (await query.context.Landen.FindAsync (query.id));
                 return result;
