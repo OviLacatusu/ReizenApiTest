@@ -32,7 +32,7 @@ namespace ReizenApi.Controllers
                 if (!result.IsSuccessful)
                 {
                     _logger.LogInformation ($"No countries found: {result.Error}");
-                    return NotFound ();
+                    return NotFound (result.Error);
                 }
                 var dtos = _mapper.Map<ICollection<Land>> (result.Value);
                 return Ok (dtos);
@@ -58,15 +58,15 @@ namespace ReizenApi.Controllers
                 if (!result.IsSuccessful)
                 {
                     _logger.LogInformation ($"No countries with an id = {id} found: {result.Error}");
-                    return NotFound ();
+                    return NotFound (result.Error);
                 }
                 var dtos = _mapper.Map<Land?> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex)
             {
-                _logger.LogError (ex, "Error while fetching country");
-                return StatusCode (500, "An error occurred while processing your request");
+                _logger.LogError (ex, $"Error while fetching country: {ex.Message}");
+                return StatusCode (500, $"An error occurred while processing your request: {ex.Message}");
             }
         }
 
@@ -86,8 +86,8 @@ namespace ReizenApi.Controllers
 
                 if (!result.IsSuccessful)
                 {
-                    _logger.LogError ($"Error while trying to add Land: {result.Error}");
-                    return StatusCode (500, "An error occurred while processing your request");
+                    _logger.LogError ($"Error while trying to add land: {result.Error}");
+                    return StatusCode (500, $"An error occurred while processing your request");
                 }
                 var dto = _mapper.Map<LandDTO> (land);
                 return CreatedAtAction (nameof (Post), new 
@@ -98,8 +98,8 @@ namespace ReizenApi.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError ("Error while trying to add Land");
-                return StatusCode (500, "An error occurred while processing your request");
+                _logger.LogError ($"Error while trying to add land: {ex.Message}");
+                return StatusCode (500, $"An error occurred while processing your request: {ex.Message}");
             }
         }
 
@@ -118,14 +118,14 @@ namespace ReizenApi.Controllers
                 if (!existingLand.IsSuccessful)
                 {
                     _logger.LogWarning ($"Invalid data provided - land with id={id} was not found: {existingLand.Error}");
-                    return BadRequest ();
+                    return NotFound (existingLand.Error);
                 }
                 var land = _mapper.Map<Land> (landDto);
                 var result = await _service.UpdateLandMetIdAsync (id, land);
 
                 if (!result.IsSuccessful)
                 {
-                    _logger.LogError ($"Error while updating Land: {result.Error}");
+                    _logger.LogError ($"Error while updating land: {result.Error}");
                     return StatusCode (500, "An error occurred while processing your request");
                 }
                 var dto = _mapper.Map<LandDTO> (land);
@@ -133,8 +133,8 @@ namespace ReizenApi.Controllers
             }
             catch (Exception ex) 
             {
-                _logger.LogError ("Error while trying to update Land");
-                return StatusCode (500, "An error occurred while processing your request");
+                _logger.LogError ($"Error while trying to update land: {ex.Message}");
+                return StatusCode (500, $"An error occurred while processing your request: {ex.Message}");
             }
         }
 
@@ -153,13 +153,13 @@ namespace ReizenApi.Controllers
                 if (!existingLand.IsSuccessful)
                 {
                     _logger.LogWarning ($"Invalid data provided - land with id={id} was not found: {existingLand.Error}");
-                    return BadRequest () ;
+                    return NotFound (existingLand.Error) ;
                 }
                 var result = await _service.DeleteLandMetIdAsync (id);
 
                 if (!result.IsSuccessful)
                 {
-                    _logger.LogError ($"Error while deleting Land: {result.Error}");
+                    _logger.LogError ($"Error while trying to delete land: {result.Error}");
                     return StatusCode (500, "An error occurred while processiong your request");
                 }
                 var dto = _mapper.Map<LandDTO> (result.Value);
@@ -167,8 +167,8 @@ namespace ReizenApi.Controllers
             }
             catch (Exception ex) 
             {
-                _logger.LogError ("Error while trying to delete Land");
-                return StatusCode (500, "An error occurred while processing your request");
+                _logger.LogError ($"Error while trying to delete land: {ex.Message}");
+                return StatusCode (500, $"An error occurred while processing your request: {ex.Message}");
             }
         }
     }

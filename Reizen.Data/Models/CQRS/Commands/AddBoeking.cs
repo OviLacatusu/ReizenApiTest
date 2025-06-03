@@ -22,7 +22,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                     {
                         try
                         {
-                            var boeking = await command.context.Boekingen.Where (b => b.Klantid == command.boeking.Klantid && b.Reisid == command.boeking.Klantid).ToListAsync ();
+                            var boeking = await command.context.Boekingen.Where (b => b.Klantid == command.boeking.Klantid && b.Reisid == command.boeking.Reisid).ToListAsync ();
 
                             if (boeking.Any ())
                             {

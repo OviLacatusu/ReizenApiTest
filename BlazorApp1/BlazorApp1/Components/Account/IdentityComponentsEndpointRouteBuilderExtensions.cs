@@ -9,6 +9,8 @@ using BlazorApp1.Components.Account.Pages;
 using BlazorApp1.Components.Account.Pages.Manage;
 using System.Security.Claims;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Google.Apis.Auth.AspNetCore3;
 
 namespace Microsoft.AspNetCore.Routing
 {
@@ -40,13 +42,16 @@ namespace Microsoft.AspNetCore.Routing
                 return TypedResults.Challenge (properties, [provider]);
             });
 
-            accountGroup.MapPost ("/Logout", async (
+            accountGroup.MapPost ("/Account/Logout", async (
                 ClaimsPrincipal user,
                 [FromServices] SignInManager<ApplicationUser> signInManager,
                 [FromForm] string returnUrl) =>
             {
+                //await signInManager.Context.SignOutAsync ();
                 await signInManager.SignOutAsync ();
+                //await signInManager.Context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme).ConfigureAwait (false);
                 return TypedResults.LocalRedirect ($"~/{returnUrl}");
+
             });
 
             var manageGroup = accountGroup.MapGroup ("/Manage").RequireAuthorization ();

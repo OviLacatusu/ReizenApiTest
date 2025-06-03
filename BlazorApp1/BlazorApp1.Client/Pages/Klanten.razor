@@ -8,30 +8,52 @@
 @attribute [Authorize]
 
 <PageTitle>Klanten</PageTitle>
-
-<h1>Hello, world!</h1>
-@if (klanten != null)
-{
-    @foreach (var klant in klanten)
+<div class="container">
+    <h1>Hello, world!</h1>
+    @if (klanten != null)
     {
-        <p>@klant.Familienaam @klant.Voornaam @klant.Id</p>
+        @foreach (var klant in klanten)
+        {
+            <p>@klant.Familienaam @klant.Voornaam @klant.Id</p>
+        }
     }
-}
-else
-{
-    <p>Waiting for data...</p>
-}
-
+    else
+    {
+        <p>Waiting for data...</p>
+    }
+    @if(Error != null)
+    {
+        <div class="alert alert-danger">@Error</div>
+    }
+</div>
 @code
 {
-    private ICollection<KlantDTO>? klanten;
+    private IEnumerable<KlantDTO>? klanten;
 
+    private string Error { get; set; }
     // [Inject]
     // public KlantenService KlantenService { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         using var httpClient = _httpFactory.CreateClient();
-        klanten = await httpClient.GetFromJsonAsync<ICollection<KlantDTO>>("api/klanten");
+        var result = await httpClient.GetAsync($"api/klanten");
+
+        if (result.IsSuccessStatusCode)
+        {
+            klanten = await result.Content.ReadFromJsonAsync<IEnumerable<KlantDTO>>();
+        }
+        else
+        {
+            var content = await result.Content.ReadAsStringAsync();
+            if (!String.IsNullOrEmpty(content))
+            {
+                Error = content;
+            }
+            else
+            {
+                Error = "Something went wrong.";
+            }
+        }
     }
 }

@@ -28,7 +28,6 @@ namespace Reizen.Domain.Models
         private Woonplaats ()
         {
         }
-
         public Woonplaats (string naam, int postcode)
         {
             if (string.IsNullOrEmpty (naam))

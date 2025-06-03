@@ -8,7 +8,7 @@ namespace ReizenApi
     public class AutoMapperProfile : Profile
     {
         public AutoMapperProfile() 
-        { 
+        {
             CreateMap<Klant, KlantDTO>();
             CreateMap<KlantDTO, Klant> ();
 

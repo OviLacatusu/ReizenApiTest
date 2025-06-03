@@ -1,7 +1,7 @@
 ﻿@using Reizen.Domain.DTOs
 @using Microsoft.AspNetCore.Authorization
 
-@page "/landen/{NaamLand}"
+@page "/landen/{Landnaam}"
 
 @inject IHttpClientFactory httpFactory
 
@@ -9,7 +9,7 @@
 
 <h3>Land</h3>
 
-<img src="/vlaggen/@(NaamLand).png" />
+<img src="/vlaggen/@(Landnaam).png" />
 
 @if (bestemmingen != null)
 {
@@ -24,19 +24,42 @@ else
 {
     <p>Waiting for data...</p>
 }
+@if (Error != null)
+{
+    <div class="alert alert-danger">@Error</div>
+}
 
 @code {
     [Parameter]
-    public string? NaamLand { get; set; }
+    public string? Landnaam { get; set; }
 
-    private IEnumerable<BestemmingDTO> bestemmingen;
+    private string Error { get; set; }
+
+    private IEnumerable<BestemmingDTO>? bestemmingen;
 
     protected override async Task OnInitializedAsync()
     {
-        if (NaamLand != null)
+        if (Landnaam != null)
         {
             using var httpClient = httpFactory.CreateClient();
-            bestemmingen = await httpClient.GetFromJsonAsync<IEnumerable<BestemmingDTO>>($"api/bestemmingen/{NaamLand}");
+            var result = await httpClient.GetAsync($"api/bestemmingen/{Landnaam}");
+
+            if (result.IsSuccessStatusCode)
+            {
+                bestemmingen = await result.Content.ReadFromJsonAsync<IEnumerable<BestemmingDTO>>();
+            }
+            else
+            {
+                var content = await result.Content.ReadAsStringAsync();
+                if (!String.IsNullOrEmpty(content))
+                {
+                    Error = content;
+                }
+                else
+                {
+                    Error = "Something went wrong.";
+                }
+            }
         }
     }
 }

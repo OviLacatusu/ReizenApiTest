@@ -36,52 +36,11 @@ namespace ReizenApi.Controllers
         public TestController (
 
             IHttpClientFactory _httpFactory,
-            ILogger<TestController> _logger,
-            GoogleAuthConfig _config,
-            GoogleAuthService _service
+            ILogger<TestController> _logger
         )
         {
-            this._config = _config ?? throw new ArgumentNullException (nameof(_config));
             this._httpFactory = _httpFactory ?? throw new ArgumentNullException (nameof(_httpFactory));
-            this._service = _service ?? throw new ArgumentNullException (nameof(_service));
-            //this._session = _session ?? throw new ArgumentNullException (nameof (_session));
             this._logger = _logger ?? throw new ArgumentNullException (nameof(_logger));
-        }
-
-        [HttpGet ("GetAuthLink")]
-        public async Task<ActionResult> GetLink (CancellationToken cancellationToken)
-        {
-            try
-            {
-                _logger.LogInformation ("Getting Google authorization link");
-                var link = _service.GetAuthenticationUri ();
-                var content = new IndexViewModel ();
-                content.Uri = link;
-
-                return Ok (content);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError ($"Error {ex.Message}");
-                return StatusCode (500, ex);
-            }
-        }
-        [HttpGet("HandleCallback")]
-        public async Task<ActionResult> HandleCallback(CancellationToken cancellationToken, [FromQuery] string code) 
-        {
-            var test = code;
-            try
-            {
-                _logger.LogInformation ("Handling callback serverside");
-                var responseContent = (await _service.ExchangeAuthorizationCodeAsync (code));
-
-                this.HttpContext.Session.Set<AuthResponse>("oauthResponse", responseContent);
-                return Ok(JsonConvert.SerializeObject(responseContent.AccessToken));
-            }
-            catch (Exception ex) {
-                _logger.LogError ($"Error {ex.Message}");
-                return StatusCode(500, ex);
-            }
         }
 
         [HttpGet ("GetOauthServerSettings")]
@@ -102,21 +61,21 @@ namespace ReizenApi.Controllers
             }
         }
         [HttpGet ("CopyPhoto/{id}")]
-        public async Task<ActionResult> CopyPhoto (string id, CancellationToken cancellationToken)
+        public async Task<ActionResult> CopyPhoto ([FromHeader] string Authorization, string id, CancellationToken cancellationToken)
         {
             try
             {
                 // restore AuthResponse state from session
-                var oauth = this.HttpContext.Session.Get<AuthResponse> ("oauthResponse");
-                if (oauth == null)
+                if (Authorization == null)
                     throw new OAuth2Exception ("Access token not found!");
                 if (String.IsNullOrEmpty (id))
                     throw new ArgumentException ("Provided id is null or the empty string!");
 
+                var accessToken = Authorization.Split (" ").Last ();
                 using (var client = _httpFactory.CreateClient ())
                 {
                     // setting the Authentication header necessary for the request
-                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue ("Bearer", oauth.AccessToken);
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue ("Bearer", accessToken);
                     
                     var result = await client.GetAsync ($"{GOOGLE_PHOTOS_API_URL}/{id}");
 
@@ -138,8 +97,6 @@ namespace ReizenApi.Controllers
         {
             try
             {
-                // restore AuthResponse state from session
-                //var oauth = this.HttpContext.Session.Get<AuthResponse> ("oauthResponse");
                 if (Authorization == null)
                     throw new OAuth2Exception ("Access token not found!");
                 var accessToken = Authorization.Split(" ").Last ();
@@ -214,9 +171,6 @@ namespace ReizenApi.Controllers
             try
             {
                 
-                // restore AuthResponse state from session
-                //var oauth = this.HttpContext.Session.Get<AuthResponse> ("oauthResponse");
-
                 if (Authorization == null)
                     throw new OAuth2Exception ("Access token not found! Session has probably expired.");
                 var accessToken = Authorization.Split (" ").Last ();
@@ -342,10 +296,9 @@ namespace ReizenApi.Controllers
         {
             try
             {
-                // restore AuthResponse state from session
-                //var oauth = this.HttpContext.Session.Get<AuthResponse> ("oauthResponse");
                 if (Authorization == null)
                     throw new OAuth2Exception ("Access token not found! Session has probably expired.");
+
                 var accessToken = Authorization.Split(" ").Last ();
 
                 var credentials = GoogleCredential.FromAccessToken (accessToken);

@@ -29,16 +29,9 @@
         </tbody>
     </table>
 }
-else
+@if(Error != null)
 {
-    @if (Error is null)
-    {
-        <p>Waiting for data...</p>
-    }
-    else 
-    { 
-        <p>@Error</p>
-    }
+    <div class="alert alert-danger">@Error</div>
 }
 
 @code 
@@ -48,24 +41,33 @@ else
 
     private IEnumerable<ReisDTO>? reizen;
 
-    private string Error;
+    private string Error { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         if (Bestemmingscode != null)
         {
-            try
+            
+            using var httpClient = _httpFactory.CreateClient();
+            var result = await httpClient.GetAsync($"api/reizen/{Bestemmingscode}");
+
+            if (result.IsSuccessStatusCode)
             {
-                using var httpClient = _httpFactory.CreateClient();
-                reizen = await httpClient.GetFromJsonAsync<IEnumerable<ReisDTO>>($"api/reizen/{Bestemmingscode}");
+                reizen = await result.Content.ReadFromJsonAsync<IEnumerable<ReisDTO>>();
             }
-            catch (HttpRequestException ex) 
+            else
             {
-                if(ex.StatusCode == HttpStatusCode.NotFound)
+                var content = await result.Content.ReadAsStringAsync();
+                if (!String.IsNullOrEmpty(content))
                 {
-                    Error = "No trips available";
+                    Error = content;
+                }
+                else
+                {
+                    Error = "Something went wrong.";
                 }
             }
+            
         }
     }
 }

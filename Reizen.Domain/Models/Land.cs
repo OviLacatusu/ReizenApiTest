@@ -10,12 +10,10 @@ namespace Reizen.Domain.Models
     public class Land
     {
         public int Id { get; private set; }
-        public string Name { get; private set; }
-
+        public string Naam { get; private set; }
         public Werelddeel Werelddeel { get; private set; }
 
         private readonly List<Bestemming> _bestemmingen = new List<Bestemming>();
-
         public ReadOnlyCollection<Bestemming> Bestemmingen => _bestemmingen.AsReadOnly();
         private Land() { }
 
@@ -26,7 +24,7 @@ namespace Reizen.Domain.Models
             if (werelddeel is null)
                 throw new ArgumentNullException ("Continent cannot be null");
 
-            Name = name;
+            Naam = name;
             Werelddeel = werelddeel;
         }
 
@@ -37,7 +35,7 @@ namespace Reizen.Domain.Models
             if (werelddeel is null)
                 throw new ArgumentNullException ("Continent cannot be null");
 
-            Name = name;
+            Naam = name;
             Werelddeel = werelddeel;
         }
 

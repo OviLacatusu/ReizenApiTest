@@ -64,5 +64,10 @@ namespace Reizen.Domain.Models
 
             _boekingen.Add (boeking);
         }
+
+        public IEnumerable<Boeking> GetActiveBoekingen ()
+        {
+            return _boekingen.Where (b => b.Reis.Vertrek > DateOnly.FromDateTime (DateTime.Today));
+        }
     }
 }

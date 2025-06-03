@@ -26,15 +26,15 @@ namespace ReizenApi.Controllers
                 if (!result.IsSuccessful)
                 {
                     _logger.LogInformation ($"No clients found: {result.Error}");
-                    return NotFound ();
+                    return NotFound (result.Error);
                 }
                 var dtos = _mapper.Map<ICollection<KlantDTO>> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex) 
             {
-                _logger.LogError (ex, "Error while fetching clients");
-                return StatusCode (500, ex);
+                _logger.LogError (ex, $"Error while fetching clients: {ex.Message}");
+                return StatusCode (500, $"An error occurred while processing your request: {ex.Message}");
             }
         }
         // GET: <ValuesController>/van
@@ -53,7 +53,7 @@ namespace ReizenApi.Controllers
                 if (!result.IsSuccessful)
                 {
                     _logger.LogInformation ($"Clients not found: {result.Error}");
-                    return NotFound ();
+                    return NotFound (result.Error);
                 }
                 var dtos = _mapper.Map<ICollection<KlantDTO>> (result.Value);
                 return Ok (dtos);
@@ -61,7 +61,7 @@ namespace ReizenApi.Controllers
             catch (Exception ex) 
             {
                 _logger.LogError (ex, $"Error while fetching clients with {naam}");
-                return StatusCode (500, ex);
+                return StatusCode (500, $"An error occurred while processing your request: {ex.Message}");
             }
             
         }
@@ -80,15 +80,15 @@ namespace ReizenApi.Controllers
                 if (!result.IsSuccessful)
                 {
                     _logger.LogInformation ($"Client not found {result.Error}");
-                    return NotFound ();
+                    return NotFound (result.Error);
                 }
                 var dto = _mapper.Map<KlantDTO> (result.Value);
                 return Ok (dto);
             }
             catch (Exception ex) 
             {
-                _logger.LogError (ex, $"Error while fetching client with id {id}");
-                return StatusCode (500, ex);
+                _logger.LogError (ex, $"Error while fetching client with id {id}: {ex.Message}");
+                return StatusCode (500, $"An error occurred while processing your request: {ex.Message}");
             }
         }
 
@@ -109,15 +109,15 @@ namespace ReizenApi.Controllers
                 if (!result.IsSuccessful)
                 {
                     _logger.LogError ($"Error while trying to add Client: {result.Error}");
-                    return StatusCode (500, "An error occurred while processing your request");
+                    return StatusCode (500, $"An error occurred while processing your request");
                 }
                 var dto = _mapper.Map<KlantDTO> (klant);
                 return CreatedAtAction(nameof(Post), new{ klantVoornaam = dto.Voornaam, klantFamilinaam = dto.Familienaam }, dto);
             }
             catch (Exception ex)
             {
-                _logger.LogError ("Error while trying to add Client");
-                return StatusCode (500, "An error occurred while processing your request");
+                _logger.LogError ($"Error while trying to add Client: {ex.Message}");
+                return StatusCode (500, $"An error occurred while processing your request: {ex.Message}");
             }
         }
 
@@ -138,21 +138,21 @@ namespace ReizenApi.Controllers
                 if (!existingKlant.IsSuccessful)
                 {
                     _logger.LogWarning ($"Invalid data provided - client does not exist: {existingKlant.Error}");
-                    return BadRequest ();
+                    return NotFound (existingKlant.Error);
                 }
                 var result = await _service.UpdateKlantAsync (id, klant);
                 if (!result.IsSuccessful)
                 {
                     _logger.LogError ($"Error while trying to update Client: {result.Error}");
-                    return StatusCode (500, "An error occurred while processing your request");
+                    return StatusCode (500, $"An error occurred while processing your request:");
                 }
                 var dto = _mapper.Map<KlantDTO> (klant);
                 return Ok (dto);
             }
             catch (Exception ex)
             {
-                _logger.LogError ("Error while trying to update Client");
-                return StatusCode (500, "An error occurred while processing request");
+                _logger.LogError ($"Error while trying to update Client: {ex.Message}");
+                return StatusCode (500, $"An error occurred while processing request: {ex.Message}");
             }
         }
 
@@ -172,7 +172,7 @@ namespace ReizenApi.Controllers
                 if (!existingKlant.IsSuccessful)
                 {
                     _logger.LogWarning ($"Invalid data - client does not exist: {existingKlant.Error}");
-                    return BadRequest ();
+                    return NotFound (existingKlant.Error);
                 }
                 var result = await _service.DeleteKlantAsync (id);
                 if (!result.IsSuccessful)
@@ -185,8 +185,8 @@ namespace ReizenApi.Controllers
             }
             catch (Exception ex) 
             {
-                _logger.LogError ("Error while trying to delete Client");
-                return StatusCode (500, "An error occured while processing your request");
+                _logger.LogError ($"Error while trying to delete client: {ex.Message}");
+                return StatusCode (500, $"An error occured while processing your request: {ex.Message}");
             }
         }
     }

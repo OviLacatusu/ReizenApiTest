@@ -33,15 +33,15 @@ namespace ReizenApi.Controllers
                 if (!result.IsSuccessful)
                 {
                     _logger.LogInformation ($"No trips found: {result.Error}");
-                    return NotFound ();
+                    return NotFound (result.Error);
                 }
                 var dtos = _mapper.Map<ICollection<Reis>> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex) 
             {
-                _logger.LogError (ex, "Error while fetching trips");
-                return StatusCode (500, "An error occurred while processing your request");
+                _logger.LogError (ex, $"Error while fetching trips: {ex.Message}");
+                return StatusCode (500, $"An error occurred while processing your request: {ex.Message}");
             }
         }
 
@@ -60,15 +60,15 @@ namespace ReizenApi.Controllers
                 if (!result.IsSuccessful)
                 {
                     _logger.LogInformation ($"No trips found with id {id}: {result.Error}");
-                    return NotFound ();
+                    return NotFound (result.Error);
                 }
                 var dto = _mapper.Map<Reis> (result.Value);
                 return Ok (dto);
             }
             catch (Exception ex)
             {
-                _logger.LogError (ex, "Error fetching trip");
-                return StatusCode (500, "An error occurred while processing your request");
+                _logger.LogError (ex, $"Error fetching trip: {ex.Message}");
+                return StatusCode (500, $"An error occurred while processing your request: {ex.Message}");
             }
         }
 
@@ -124,22 +124,22 @@ namespace ReizenApi.Controllers
                 if (!existingReis.IsSuccessful)
                 {
                     _logger.LogWarning ($"Trip with id={id} not found: {existingReis.Error}");
-                    return BadRequest ();
+                    return NotFound (existingReis.Error);
                 }
                 var result = await _service.DeleteReisMetIdAsync (id);
 
                 if (!result.IsSuccessful)
                 {
                     _logger.LogError ($"Error occurred while deleting trip: {result.Error}");
-                    return StatusCode (500, "An error occurred while processing your request");
+                    return StatusCode (500, $"An error occurred while processing your request");
                 }
                 var dto = _mapper.Map<BoekingDTO> (result.Value);
                 return Ok (dto);
             }
             catch (Exception ex)
             {
-                _logger.LogError ($"Error adding boeking");
-                return StatusCode (500, "An error occurred while processing your request");
+                _logger.LogError ($"Error adding booking: {ex.Message}");
+                return StatusCode (500, $"An error occurred while processing your request: {ex.Message}");
             }
         }
     }

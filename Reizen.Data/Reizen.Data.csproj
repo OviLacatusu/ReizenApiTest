@@ -16,8 +16,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Reizen.Domain\Reizen.Domain.csproj" />
-  </ItemGroup>
-
 </Project>

@@ -5,6 +5,7 @@
 
 @inject SignInManager<ApplicationUser> SignInManager
 @inject IdentityRedirectManager RedirectManager
+@inject NavigationManager NavigationManager
 
 @if (externalLogins.Length == 0)
 {
@@ -40,5 +41,10 @@ else
     protected override async Task OnInitializedAsync()
     {
         externalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).ToArray();
+    }
+    private void NavigateToGoogleLogin()
+    {
+        var returnUrl = string.IsNullOrEmpty(ReturnUrl) ? "/" : ReturnUrl;
+        NavigationManager.NavigateTo($"/api/auth/google-login?returnUrl={Uri.EscapeDataString(returnUrl)}");
     }
 }

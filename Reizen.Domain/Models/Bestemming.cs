@@ -36,7 +36,6 @@ namespace Reizen.Domain.Models
             Code = code;
             Land = land;
             Plaats = name;
-            
         }
 
         public void UpdateDetails (string name, Land land)
@@ -49,7 +48,6 @@ namespace Reizen.Domain.Models
             Plaats = name;
             Land = land;
         }
-
         public void AddReis (Reis reis)
         {
             if (reis is null)

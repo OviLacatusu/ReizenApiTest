@@ -21,7 +21,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                     {
                         try
                         {
-                            var existingReis = await command.context.Klanten.FindAsync (command.id);
+                            var existingReis = await command.context.Reizen.FindAsync (command.id);
                             if (existingReis == null)
                             {
                                 return Result<Reis>.Failure ($"Reis with ID not found");

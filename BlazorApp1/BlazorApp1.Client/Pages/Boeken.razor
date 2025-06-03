@@ -1,5 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Authorization
-@using Reizen.Domain.Models
+@using Reizen.Data.Models
 @using System.Text.Json;
 @using Reizen.Domain.DTOs
 
@@ -9,40 +9,49 @@
 @inject IHttpClientFactory _httpFactory
 
 @rendermode InteractiveServer
-@if (Reis is not null && Klant is not null)
-{
-    <h2>Reis</h2>
-    <p style="font:bold">Bestemming</p>
-    <p>@Reis.Bestemming.Plaats</p>
 
-    <p style="font:bold">Vertrek</p>
-    <p>@Reis.Vertrek</p>
+<div class="container" >
+    @if (Reis is not null && Klant is not null)
+    {
+        <h2>Reis</h2>
+        <p style="font:bold">Bestemming</p>
+        <p>@Reis.Bestemming.Plaats</p>
 
-    <p style="font:bold">Aantal dagen</p>
-    <p>@Reis.AantalDagen</p>
+        <p style="font:bold">Vertrek</p>
+        <p>@Reis.Vertrek</p>
 
-    <p style="font:bold">Prijs per persoon</p>
-    <p>@Reis.PrijsPerPersoon</p>
+        <p style="font:bold">Aantal dagen</p>
+        <p>@Reis.AantalDagen</p>
 
-    <h2>Klant</h2>
-    <p>@($"{Klant.Voornaam} {Klant.Familienaam}")</p>
-    <p>@Klant.Adres</p>
+        <p style="font:bold">Prijs per persoon</p>
+        <p>@Reis.PrijsPerPersoon</p>
 
-    <h2>Boeking</h2>
-    <label for="aantalV">Aantal volwassenen</label>
-    <InputNumber @bind-Value="Boeking.AantalVolwassenen" id="aantalV"></InputNumber>
+        <h2>Klant</h2>
+        <p>@($"{Klant.Voornaam} {Klant.Familienaam}")</p>
+        <p>@Klant.Adres</p>
 
-    <label for="aantalK">Aantal kinderen</label>
-    <InputNumber @bind-Value="Boeking.AantalKinderen" id="aantalK"></InputNumber>
+        <h2>Boeking</h2>
+        <label for="aantalV">Aantal volwassenen</label>
+        <InputNumber @bind-Value="Boeking.AantalVolwassenen" id="aantalV"></InputNumber><br />
 
-    <InputCheckbox id="annulatieV" @bind-Value="Boeking.AnnulatieVerzekering"></InputCheckbox>
-    <label>Annulatie verzekering</label>
+        <label for="aantalK">Aantal kinderen</label>
+        <InputNumber @bind-Value="Boeking.AantalKinderen" id="aantalK"></InputNumber><br />
+        <label>Annulatie verzekering</label>
+        <InputCheckbox id="annulatieV" @bind-Value="Boeking.AnnulatieVerzekering"></InputCheckbox><br />
 
-    <button class="btn btn-primary">Boeken</button>
-} else 
-{
-    <p>Waiting for data</p>
-}
+
+        <button class="btn btn-primary">Boeken</button>
+    } else 
+    {
+        <p>Waiting for data</p>
+    }
+    @if (Error != null)
+    {
+        <div class="alert alert-danger">@Error</div>
+    }
+</div>
+
+
 @code 
 {
     [Parameter]
@@ -56,6 +65,8 @@
     private ReisDTO? Reis { get; set; }
 
     private BoekingDTO? Boeking { get; set; } = new BoekingDTO();
+
+    private string Error { get; set; }
 
     protected override async Task OnInitializedAsync()
     {

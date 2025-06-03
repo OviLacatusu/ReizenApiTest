@@ -5,9 +5,13 @@
 @using System.Text
 @using System.Text.Encodings.Web
 @using BlazorApp1.Components.Account
+@using Microsoft.AspNetCore.Authentication.OpenIdConnect
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
 @using BlazorApp1.Data
+@using Google.Apis.Auth.AspNetCore3
+@using Google.Apis.Util.Store
+@using Microsoft.AspNetCore.Authentication
 
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
@@ -113,6 +117,12 @@
 
         if (result.Succeeded)
         {
+            // code added so that OAuth claims get stored 
+            if (externalLoginInfo.AuthenticationTokens?.Count() > 0)
+            {
+                await SignInManager.UpdateExternalAuthenticationTokensAsync(externalLoginInfo);
+            }
+            // ------------------------------
             Logger.LogInformation(
                 "{Name} logged in with {LoginProvider} provider.",
                 externalLoginInfo.Principal.Identity?.Name,
@@ -145,13 +155,14 @@
         await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
 
         var result = await UserManager.CreateAsync(user);
+
         if (result.Succeeded)
         {
             result = await UserManager.AddLoginAsync(user, externalLoginInfo);
             if (result.Succeeded)
             {
                 Logger.LogInformation("User created an account using {Name} provider.", externalLoginInfo.LoginProvider);
-
+               
                 var userId = await UserManager.GetUserIdAsync(user);
                 var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));

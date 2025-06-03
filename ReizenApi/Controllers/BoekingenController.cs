@@ -25,16 +25,16 @@ namespace ReizenApi.Controllers
                 var boekingen = await _service.GetBoekingenAsync ();
                 if (!boekingen.IsSuccessful)
                 {
-                    _logger.LogInformation ($"No boekings found: {boekingen.Error}");
-                    return NotFound ();
+                    _logger.LogInformation ($"No bookings found: {boekingen.Error}");
+                    return NotFound (boekingen.Error);
                 }
                 var dtos = _mapper.Map<ICollection<Boeking>> (boekingen.Value);
                 return Ok (dtos);
             }
             catch (Exception ex) 
             {
-                _logger.LogError ("Error fetching Boekingen");
-                return StatusCode (500, "An error occurred while processing your request");
+                _logger.LogError ($"Error fetching bookings: {ex.Message}");
+                return StatusCode (500, $"An error occurred while processing your request: {ex.Message}");
             }
         }
 
@@ -53,15 +53,14 @@ namespace ReizenApi.Controllers
                 if (!boeking.IsSuccessful)
                 {
                     _logger.LogWarning ($"Error occurred: {boeking.Error}"); 
-                    return NotFound ();
+                    return NotFound (boeking.Error);
                 }
                 var dto = _mapper.Map<Boeking> (boeking.Value);
                 return Ok (dto);
-
             }
             catch (Exception ex) {
-                _logger.LogError ($"Error fetching Boeking with id={id}");
-                return StatusCode (500, "An error occurred while processing your request");
+                _logger.LogError ($"Error fetching booking with id={id}: {ex.Message}");
+                return StatusCode (500, $"An error occurred while processing your request: {ex.Message}");
             }
         }
 
@@ -73,7 +72,7 @@ namespace ReizenApi.Controllers
             {
                 if (boekingDto is null)
                 {
-                    _logger.LogWarning ("Provided boeking is null");
+                    _logger.LogWarning ("Provided booking is null");
                     return BadRequest ();
                 }
                 var boeking = _mapper.Map<Boeking> (boekingDto);
@@ -89,8 +88,8 @@ namespace ReizenApi.Controllers
             }
             catch (Exception ex) 
             {
-                _logger.LogError ($"Error adding boeking");
-                return StatusCode (500, "An error occurred while processing your request");
+                _logger.LogError ($"Error adding booking: {ex.Message}");
+                return StatusCode (500, $"An error occurred while processing your request: {ex.Message}");
             }
         }
 
@@ -108,8 +107,8 @@ namespace ReizenApi.Controllers
                 var existingBoeking = await _service.GetBoekingMetIdAsync (id);
                 if (!existingBoeking.IsSuccessful)
                 {
-                    _logger.LogWarning ($"Boeking with id={id} not found: {existingBoeking.Error}");
-                    return BadRequest ();
+                    _logger.LogWarning ($"Booking with id={id} not found: {existingBoeking.Error}");
+                    return NotFound (existingBoeking.Error);
                 }
                 var boeking = _mapper.Map<Boeking> (boekingDto);
                 var result = await _service.UpdateBoekingAsync (boeking, id);
@@ -117,15 +116,15 @@ namespace ReizenApi.Controllers
                 if (!result.IsSuccessful)
                 {
                     _logger.LogError ($"Error occurred while updating boeking: {result.Error}");
-                    return StatusCode (500, "An error occurred while processing your request");
+                    return StatusCode (500, $"An error occurred while processing your request");
                 }
                 var dto = _mapper.Map<BoekingDTO> (result.Value);
                 return Ok(dto);
             }
             catch (Exception ex)
             {
-                _logger.LogError ($"Error adding boeking");
-                return StatusCode (500, "An error occurred while processing your request");
+                _logger.LogError ($"Error adding booking: {ex.Message}");
+                return StatusCode (500, $"An error occurred while processing your request: {ex.Message}");
             }
         }
 
@@ -143,23 +142,23 @@ namespace ReizenApi.Controllers
                 var existingBoeking = await _service.GetBoekingMetIdAsync (id);
                 if (existingBoeking is null)
                 {
-                    _logger.LogWarning ($"Boeking with id={id} not found");
-                    return BadRequest ();
+                    _logger.LogWarning ($"Booking with id={id} not found");
+                    return NotFound (existingBoeking.Error);
                 }
                 var result = await _service.DeleteBoekingAsync (id);
 
                 if (result is null)
                 {
-                    _logger.LogError ("Error occurred while updating boeking");
-                    return StatusCode (500, "An error occurred while processing your request");
+                    _logger.LogError ($"Error occurred while updating booking: {result.Error}");
+                    return StatusCode (500, $"An error occurred while processing your request");
                 }
                 var dto = _mapper.Map<BoekingDTO> (result);
                 return Ok (dto);
             }
             catch (Exception ex)
             {
-                _logger.LogError ($"Error adding boeking");
-                return StatusCode (500, "An error occurred while processing your request");
+                _logger.LogError ($"Error adding booking: {ex.Message}");
+                return StatusCode (500, $"An error occurred while processing your request: {ex.Message}");
             }
         }
     }

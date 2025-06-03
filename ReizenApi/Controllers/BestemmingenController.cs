@@ -26,14 +26,14 @@ namespace ReizenApi.Controllers
                 if (!result.IsSuccessful)
                 {
                     _logger.LogInformation ("No destinations found");
-                    return NotFound ();
+                    return NotFound (result.Error);
                 }
                 var dtos = _mapper.Map<ICollection<Bestemming>> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex) {
-                _logger.LogError (ex, "Error while fetching destinations");
-                return StatusCode (500, "An error occurred while processing your request");
+                _logger.LogError (ex, $"Error while fetching destinations: {ex.Message}");
+                return StatusCode (500, $"An error occurred while processing your request: {ex.Message}");
             }
         }
         // GET: <BestemmingenController>
@@ -60,7 +60,7 @@ namespace ReizenApi.Controllers
             catch (Exception ex)
             {
                 _logger.LogError (ex, "Error occurred while fetching destinations for country: {CountryName}", landNaam);
-                return StatusCode (500, "An error occurred while processing your request");
+                return StatusCode (500, $"An error occurred while processing your request");
             }
         }
 
@@ -80,8 +80,8 @@ namespace ReizenApi.Controllers
 
                 if (!result.IsSuccessful)
                 {
-                    _logger.LogError ("Error while trying to add destination");
-                    return StatusCode (500, "An error occurred while processing your request");
+                    _logger.LogError ($"Error while trying to add destination");
+                    return StatusCode (500, $"An error occurred while processing your request");
                 }
                 var createdDto = _mapper.Map<BestemmingDTO> (result.Value);
                 return CreatedAtAction (nameof (GetByCountry), new { landNaam = createdDto.Land.Naam  }, createdDto);

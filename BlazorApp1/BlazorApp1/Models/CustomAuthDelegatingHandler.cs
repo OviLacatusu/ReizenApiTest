@@ -1,15 +1,20 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using BlazorApp1.Data;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace BlazorApp1.Models
 {
     public class CustomAuthDelegatingHandler : DelegatingHandler
     {
-        IHttpContextAccessor _httpContextAccessor;
-        public CustomAuthDelegatingHandler (IHttpContextAccessor context)
+        private IHttpContextAccessor _httpContextAccessor;
+        private UserManager<ApplicationUser> _userManager;
+        public CustomAuthDelegatingHandler (IHttpContextAccessor context, UserManager<ApplicationUser> userManager)
         {
             InnerHandler = new HttpClientHandler ();
             _httpContextAccessor = context;
+            _userManager = userManager;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync (
@@ -17,15 +22,13 @@ namespace BlazorApp1.Models
         {
             if (request.RequestUri?.ToString().ToLower().Contains("/api/test") is true && _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated is true)
             {
-                var properties = _httpContextAccessor.HttpContext?.Features.Get<IAuthenticateResultFeature> ()?.AuthenticateResult?.Properties;
-                var test = properties?.GetTokens ();
-                var accessToken = test?.Where (e => e.Name.ToLower ().Contains ("access"))?.FirstOrDefault ()?.Value;
+                var currentUser = await _userManager.GetUserAsync (_httpContextAccessor.HttpContext.User);
+                var accessToken = await _userManager.GetAuthenticationTokenAsync (currentUser, "GoogleOpenIdConnect", "access_token");
 
                 if (accessToken is not null)
                 {
                     request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue ("Bearer", accessToken);
                 }
-                
             }
             return await base.SendAsync(request,cancellationToken);
         }

@@ -1,0 +1,33 @@
+﻿
+@using System.Security.Claims
+
+@using Microsoft.AspNetCore.Authentication
+@using Blazored.SessionStorage
+
+@inject IHttpClientFactory _httpFactory
+@inject ILogger<LoggedInWelcome> _logger;
+@inject IHttpContextAccessor _context;
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ISessionStorageService _sessionService;
+
+@if (!user.Identity?.IsAuthenticated == true)
+{ 
+    <p>Not yet logged in</p>
+}
+
+else { 
+    <p>Welcome @username</p>
+}
+
+@code {
+    public string? username;
+
+    public ClaimsPrincipal user;
+
+    protected override async Task OnInitializedAsync() 
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        user = authState.User;
+        username = authState.User.FindFirst(ClaimTypes.Email)?.Value;
+    }
+}

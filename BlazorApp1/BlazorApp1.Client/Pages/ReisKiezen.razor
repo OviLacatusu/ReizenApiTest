@@ -9,25 +9,30 @@
 
 @rendermode InteractiveServer
 
-
-<h3>Boeken</h3>
-@if(Reis is not null)
-{
-    <h4>Bestemming</h4>
-    <p>@Reis.Bestemming?.Plaats</p>
-    <h4>Vertrek</h4>
-    <p>@Reis.Vertrek</p>
-    <h4>Aantal dagen</h4>
-    <p>@Reis.PrijsPerPersoon</p>
-    <div >
-        <label for="familienaam">Familienaam bevat:</label>
-        <InputText @bind-value="familienaam" id="familienaam"></InputText>
-        <button type="button" @onclick="(async () => await GetKlanten())" class="btn btn-primary">Zoek</button>
-    </div>
-}else 
-{ 
-    <p>Waiting for data...</p>
-}
+<div class="container">
+    <h3>Boeken</h3>
+    @if(Reis is not null)
+    {
+        <h4>Bestemming</h4>
+        <p>@Reis.Bestemming?.Plaats</p>
+        <h4>Vertrek</h4>
+        <p>@Reis.Vertrek</p>
+        <h4>Aantal dagen</h4>
+        <p>@Reis.PrijsPerPersoon</p>
+        <div >
+            <label for="familienaam">Familienaam bevat:</label>
+            <InputText @bind-value="familienaam" id="familienaam"></InputText>
+            <button type="button" @onclick="(async () => await GetKlanten())" class="btn btn-primary">Zoek</button>
+        </div>
+    }else 
+    { 
+        <p>Waiting for data...</p>
+    }
+    @if(Error != null)
+    {
+        <div class="alert alert-danger">@Error</div>
+    }
+</div>
 @if (klanten is not null) {
     <table class="table table-striped" >
         <thead>
@@ -50,19 +55,38 @@
     [Parameter]
     public int ReisId { get; init; }
 
-    // private ReisDTO? reis;
+    private string? Error { get; set; }
+
     private ReisDTO? Reis { get; set; }
 
     private string? familienaam { get; set; }
 
-    private ICollection<KlantDTO>? klanten;
+    private IEnumerable<KlantDTO>? klanten;
 
     protected override async Task OnInitializedAsync() 
     {
         if (ReisId > 0) 
         {
             using var httpClient = _httpFactory.CreateClient();
-            Reis = await httpClient.GetFromJsonAsync<ReisDTO>($"api/reizen/{ReisId}");
+            var result = await httpClient.GetAsync($"api/reizen/{ReisId}");
+
+            if (result.IsSuccessStatusCode)
+            {
+                Reis = await result.Content.ReadFromJsonAsync<ReisDTO>();
+            }
+            else
+            {
+                var content = await result.Content.ReadAsStringAsync();
+                if (!String.IsNullOrEmpty(content))
+                {
+                    Error = content;
+                }
+                else
+                {
+                    Error = "Something went wrong.";
+                }
+            }
+            
         }
     }
 
@@ -72,7 +96,24 @@
         {
             using (var httpClient = _httpFactory.CreateClient())
             {
-                klanten = await httpClient.GetFromJsonAsync<ICollection<KlantDTO>>($"api/klanten/{familienaam}");
+                var result = await httpClient.GetAsync($"api/klanten/{familienaam}");
+
+                if (result.IsSuccessStatusCode)
+                {
+                    klanten = await result.Content.ReadFromJsonAsync<IEnumerable<KlantDTO>>();
+                }
+                else
+                {
+                    var content = await result.Content.ReadAsStringAsync();
+                    if (!String.IsNullOrEmpty(content))
+                    {
+                        Error = content;
+                    }
+                    else
+                    {
+                        Error = "Something went wrong.";
+                    }
+                }
             }
         }
     }

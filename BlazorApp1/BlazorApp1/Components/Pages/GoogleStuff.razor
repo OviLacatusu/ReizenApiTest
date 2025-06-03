@@ -6,6 +6,8 @@
 @using Microsoft.AspNetCore.Authentication
 @using System.Text.Json
 @using Models
+@using Microsoft.AspNetCore.Identity;
+@using Data
 
 @page "/GoogleAccess"
 
@@ -17,9 +19,8 @@
 @inject NavigationManager _navManager;
 @inject AuthenticationStateProvider _authStateProvider;
 @inject IHttpContextAccessor _httpContextAccessor;
-
+@inject UserManager<ApplicationUser> UserManager
 @inject Blazored.SessionStorage.ISessionStorageService _storage;
-
 <AuthorizeView>
 
     <button @onclick="OpenTabAndPollSession">Share Photos</button>
@@ -83,13 +84,12 @@
         if (!firstRender && SessionData != null)
         {
             _logger.LogInformation($"  Setting background state to: {SessionData.pickerUri}  ");
-            
         }
     }
 
     private async Task GetPickerSession()
     {
-        var client = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor));
+        var client = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager));
         client.BaseAddress = new Uri("https://localhost:7285/");
         var result = await client.GetFromJsonAsync<PickingSession>("/api/Test/GetPickerLink");
 
@@ -105,7 +105,7 @@
     {
         _logger.LogInformation($"Running PollRequest at {DateTime.UtcNow.ToShortTimeString()}");
 
-        using (var client = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor)))
+        using (var client = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager)))
         {
             client.BaseAddress = new Uri("https://localhost:7285/");
             var response = await client.GetAsync($"api/Test/GetPhotosWithPicker/{id}");

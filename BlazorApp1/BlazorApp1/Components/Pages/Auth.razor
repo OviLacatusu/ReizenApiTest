@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Authorization
-
+@using Google.Apis.Auth.AspNetCore3
+@using Microsoft.AspNetCore.Authentication.Cookies
 @page "/auth"
 
 @attribute [Authorize]
@@ -9,6 +10,6 @@
 
 <h1>You are authenticated</h1>
 
-<AuthorizeView>
-    Hello @context.User.Identity?.Name!
-</AuthorizeView>
+<AuthorizeView> 
+     Hello @context.User.Identity?.Name! 
+ </AuthorizeView>

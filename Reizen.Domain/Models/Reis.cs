@@ -14,7 +14,7 @@ namespace Reizen.Domain.Models
 
         public int AantalDagen { get; private set; }
         public decimal PrijsPerPersoon { get; private set; }
-
+        public int AantalPlaatsen { get; private set; }
         public Bestemming Bestemming { get; private set; }
         public DateOnly Vertrek { get; private set; }
 
@@ -23,7 +23,7 @@ namespace Reizen.Domain.Models
 
         private Reis() { }
 
-        public Reis (DateOnly vertrek, int aantalDagen, decimal prijsPerPersoon, Bestemming bestemming)
+        public Reis (DateOnly vertrek, int aantalDagen, int aantalPlaatsen, decimal prijsPerPersoon, Bestemming bestemming)
         {
             if (vertrek < DateOnly.FromDateTime (DateTime.Today))
                 throw new ArgumentException ("Date of trip cannot be null or in the past");
@@ -33,28 +33,30 @@ namespace Reizen.Domain.Models
                 throw new ArgumentException ("Price cannot be negative");
             if (bestemming is null)
                 throw new ArgumentNullException ("Destination cannot be null");
+            if (aantalPlaatsen <= 0)
+                throw new ArgumentException ("Number of available places must be greater than 0");
 
             Vertrek = vertrek;
             Bestemming = bestemming;
             AantalDagen = aantalDagen;
+            AantalPlaatsen = aantalPlaatsen;
             PrijsPerPersoon = prijsPerPersoon;
         }
 
-        public void UpdateDetails (DateOnly vertrek, int aantalDagen, decimal prijsPerPersoon, int aantalVolwassenen, int aantalKinderen)
+        public void UpdateDetails (DateOnly vertrek, int aantalDagen, decimal prijsPerPersoon, int aantalPlaatsen)
         {
             if (vertrek < DateOnly.FromDateTime (DateTime.Today))
                 throw new ArgumentException ("Date of trip cannot be null or in the past");
             if (aantalDagen <= 0)
                 throw new ArgumentException ("Number of days cannot be 0 or negative");
-            if (prijsPerPersoon < 0)
+            if (prijsPerPersoon <= 0)
                 throw new ArgumentException ("Price cannot be negative");
-            if (aantalVolwassenen <= 0)
+            if (aantalPlaatsen <= 0)
                 throw new ArgumentException ("Number of grownups cannot be 0 or negative");
-            if (aantalKinderen < 0)
-                throw new ArgumentException ("Number of kids cannot be negative");
 
             Vertrek = vertrek;
             AantalDagen = aantalDagen;
+            AantalPlaatsen = aantalPlaatsen ;
             PrijsPerPersoon = prijsPerPersoon;
         }
 
@@ -64,13 +66,19 @@ namespace Reizen.Domain.Models
                 throw new ArgumentNullException ("Boeking cannot be null");
             if (boeking.Reis != this)
                 throw new InvalidOperationException ("Boeking doesn't belong to this trip");
+            if (Boekingen.Sum (b => b.AantalKinderen + b.AantalVolwassenen) + boeking.AantalVolwassenen + boeking.AantalKinderen > AantalPlaatsen)
+                throw new NotSupportedException ("Number of places is exceeded");
 
             _boekingen.Add (boeking);
         }
-
+        // Prices are the same for adults and kids
         public decimal CalculatePrice ()
         {
-            return _boekingen.Select (b => new { b.AantalVolwassenen, b.AantalKinderen }).Sum (b => (b.AantalVolwassenen+b.AantalKinderen)*PrijsPerPersoon);
+            return Boekingen.Select (b => new { b.AantalVolwassenen, b.AantalKinderen }).Sum (b => (b.AantalVolwassenen+b.AantalKinderen)*PrijsPerPersoon);
+        }
+        public int AantalBeschikbarePlaatsen ()
+        {
+            return AantalPlaatsen - Boekingen.Sum (b => b.AantalVolwassenen + b.AantalKinderen);
         }
 
     }

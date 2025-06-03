@@ -12,7 +12,7 @@ namespace Reizen.Domain.Models
         public int Id { get; private set; }
         public Reis Reis { get; private set; }
         public Klant Klant { get; private set; }
-        public DateOnly BookedOn { get; private set; }
+        public DateOnly GeboektOp { get; private set; }
         public int AantalVolwassenen { get; private set; }
         public int AantalKinderen { get; private set; }
         public bool AnnulatieVerzekering { get; private set; }
@@ -32,7 +32,7 @@ namespace Reizen.Domain.Models
             if (klant is null)
                 throw new ArgumentNullException ("Client cannot be null");
 
-            BookedOn = bookedOn;
+            GeboektOp = bookedOn;
             AantalKinderen = aantalKinderen;
             AantalVolwassenen = aantalVolwassenen;
             AnnulatieVerzekering = annulatieVerzekering;

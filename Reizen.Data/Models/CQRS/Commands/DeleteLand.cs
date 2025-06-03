@@ -22,12 +22,12 @@ namespace Reizen.Data.Models.CQRS.Commands
                     {
                         try
                         {
-                            var existingLand = await command.context.Klanten.FindAsync (command.id);
+                            var existingLand = await command.context.Landen.FindAsync (command.id);
                             if (existingLand == null)
                             {
                                 return Result<Land>.Failure ($"Country with ID not found");
                             }
-                            if (existingLand.Boekingen.Where (b => b.Reis.Vertrek > DateOnly.FromDateTime (DateTime.Today)).Any ())
+                            if (existingLand.Bestemmingen.Where(b => b.Reizen.Where (b => b.Vertrek > DateOnly.FromDateTime (DateTime.Today)).Any()).Any ())
                             {
                                 return Result<Land>.Failure ($"Cannot delete country with active bookings");
                             }

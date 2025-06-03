@@ -26,14 +26,14 @@ namespace ReizenApi.Controllers
                 if (!result.IsSuccessful)
                 {
                     _logger.LogInformation ($"No continents found: {result.Error}");
-                    return NotFound ();
+                    return NotFound (result.Error);
                 }
                 var dtos = _mapper.Map<ICollection<WerelddeelDTO>> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex) {
-                _logger.LogError (ex, "Error while fetching destinations");
-                return StatusCode (500, "An error occurred while processing your request");
+                _logger.LogError (ex, $"Error while fetching destinationsc: {ex.Message}");
+                return StatusCode (500, $"An error occurred while processing your request");
             }
         }
 
