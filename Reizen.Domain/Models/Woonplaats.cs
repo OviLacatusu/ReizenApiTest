@@ -50,7 +50,7 @@ namespace Reizen.Domain.Models
             Postcode = postcode;
         }
 
-        public void VoegKlantToe (Klant klant)
+        public void AddClient (Klant klant)
         {
             if (klant == null)
                 throw new ArgumentNullException (nameof (klant));

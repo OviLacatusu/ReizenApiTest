@@ -6,9 +6,9 @@
 
 <h3>EditAvailableCountries</h3>
 
-@if(Lands.Count() > 0)
+@if(Landen != null)
 {
-    foreach (var land in Lands)
+    foreach (var land in Landen)
     {
     <div class="row">
         <div class="col-lg-1">
@@ -25,15 +25,14 @@
             </div>
         </div>
     }
-    
 }
-    @if (Error != null)
-    {
-        <div class="alert alert-danger">@Error</div>
-    }
+@if (!String.IsNullOrEmpty(Error))
+{
+    <div class="alert alert-danger">@Error</div>
+}
 
 @code {
-    private IEnumerable<LandDTO> Lands { get; set; } = new List<LandDTO>();
+    private IEnumerable<LandDTO> Landen { get; set; }
 
     private string? Error { get; set; }
 
@@ -45,23 +44,15 @@
     private async Task GetLands() 
     { 
         using var httpClient = _httpFactory.CreateClient();
-        var result = await httpClient.GetAsync($"api/landen");
 
-        if (result.IsSuccessStatusCode)
+        var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<LandDTO>>($"api/landen", httpClient);
+        if (result.IsSuccessful)
         {
-            Lands = await result.Content.ReadFromJsonAsync<IEnumerable<LandDTO>>();
+            Landen = result.Value;
         }
         else
         {
-            var content = await result.Content.ReadAsStringAsync();
-            if (!String.IsNullOrEmpty(content))
-            {
-                Error = content;
-            }
-            else
-            {
-                Error = "Something went wrong.";
-            }
+            Error = result.Error;
         }
     }
 }

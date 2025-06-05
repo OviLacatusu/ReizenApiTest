@@ -19,37 +19,28 @@
 @inject NavigationManager _navManager;
 @inject AuthenticationStateProvider _authStateProvider;
 @inject IHttpContextAccessor _httpContextAccessor;
-@inject UserManager<ApplicationUser> UserManager
+@inject UserManager<ApplicationUser> UserManager;
 @inject Blazored.SessionStorage.ISessionStorageService _storage;
-<AuthorizeView>
 
+
+<AuthorizeView>
     <button @onclick="OpenTabAndPollSession">Share Photos</button>
 
-    @if (mediaItems is not null && mediaItems.mediaItems.Count() > 0)
+    @if(MediaItems is not null && MediaItems.mediaItems.Count() > 0)
     {
-        foreach (var item in mediaItems.mediaItems)
+        foreach (var item in MediaItems.mediaItems)
         {
             <a href="@($"{item.mediaFile.baseUrl}=w{item.mediaFile.mediaFileMetadata.width}-h{item.mediaFile.mediaFileMetadata.height}")" >@item.mediaFile.filename</a>
         }
-        var last = mediaItems.mediaItems.Last();
-        @* DownloadFileFromUrl(last.mediaFile.filename, last.mediaFile.baseUrl+"=d"); *@
+        /*var last = MediaItems.mediaItems.Last();*/
     }
-    @* <script> *@
-    @*     window.triggerFileDownload = (fileName, url) => { *@
-    @*     const anchorElement = document.createElement('a'); *@
-    @*     anchorElement.href = url; *@
-    @*     anchorElement.download = fileName ?? ''; *@
-    @*     anchorElement.click(); *@
-    @*     anchorElement.remove(); *@
-
-    @*     } *@
-    @* </script> *@
-
 </AuthorizeView>
-@if (Error != null)
+
+@if (!String.IsNullOrEmpty(Error))
 {
     <div class="alert alert-danger">@Error</div>
 }
+
 @code
 {
     private string? Error { get; set; }
@@ -62,13 +53,7 @@
     [Parameter]
     public string? AccessToken { get; set; }
 
-    public DetailsFiles? mediaItems { get; set; }
-
-    // Test method
-    private async Task DownloadFileFromUrl(string filename, string fileURL) 
-    {
-        await JSRuntime.InvokeVoidAsync("triggerFileDownload", filename, fileURL);
-    }
+    public DetailsFiles? MediaItems { get; set; }
 
     // Checking wether user is authenticated. If so we assume there is a access token to request a Picker session
     protected override async Task OnInitializedAsync()
@@ -78,8 +63,9 @@
         {
             await GetPickerSession();
         }
-        else {
-            Error = "Please authenticate";
+        else 
+        {
+            Error = "Not authorized. Please log in";
         }
     }
 
@@ -91,11 +77,6 @@
     protected override void OnAfterRender(bool firstRender)
     {
         _logger.LogInformation($"** OnAfterRender called with firstrender = {firstRender} **");
-
-        if (!firstRender && SessionData != null)
-        {
-            _logger.LogInformation($"  Setting background state to: {SessionData.pickerUri}  ");
-        }
     }
 
     // Requesting the Picker session
@@ -103,6 +84,7 @@
     {
         var httpClient = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager));
         httpClient.BaseAddress = new Uri("https://localhost:7285/");
+
         var result = await httpClient.GetAsync("/api/Test/GetPickerLink");
         if (result.IsSuccessStatusCode)
         {
@@ -121,7 +103,7 @@
             }
         }
     }
-    // method to have a new tab opened for the picker session
+    // method that opens the picker session in a new tab and starts a Web API call for polling the session
     public async Task OpenTabAndPollSession()
     {
         await JSRuntime.InvokeVoidAsync("open", $"{SessionData.pickerUri}", "_blank");
@@ -139,7 +121,7 @@
             var response = await client.GetAsync($"api/Test/GetPhotosWithPicker/{id}");
             if (response.IsSuccessStatusCode)
             {
-                mediaItems = await JsonSerializer.DeserializeAsync<DetailsFiles>(await response.Content?.ReadAsStreamAsync());
+                MediaItems = await JsonSerializer.DeserializeAsync<DetailsFiles>(await response.Content?.ReadAsStreamAsync());
             }
             else
             {
@@ -151,8 +133,7 @@
                 else
                 {
                     Error = "Something went wrong.";
-                }
-                //StateHasChanged();
+                };
             }
         }
         _logger.LogInformation($"Exiting PollRequest at {DateTime.UtcNow.ToShortTimeString()}");

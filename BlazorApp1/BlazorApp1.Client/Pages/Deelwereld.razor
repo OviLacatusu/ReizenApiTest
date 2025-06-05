@@ -7,7 +7,7 @@
 
 @attribute [Authorize]
 
-<h3>Landen</h3>
+<h2>Choose the country:</h2>
 @if (Landen != null)
 {
     <ul>
@@ -21,7 +21,7 @@ else
 {
     <p>Waiting for data...</p>
 }
-@if (Error != null)
+@if (!String.IsNullOrEmpty(Error))
 {
     <div class="alert alert-danger">@Error</div>
 }
@@ -39,25 +39,8 @@ else
         if (!String.IsNullOrEmpty(Naam))
         {
             using var httpClient = _httpFactory.CreateClient();
-            // var result = await httpClient.GetAsync($"api/landen/{Naam}");
 
-            // if (result.IsSuccessStatusCode)
-            // {
-            //     Landen = await result.Content.ReadFromJsonAsync<IEnumerable<LandDTO>>();
-            // }
-            // else
-            // {
-            //     var content = await result.Content.ReadAsStringAsync();
-            //     if (!String.IsNullOrEmpty(content))
-            //     {
-            //         Error = content;
-            //     }
-            //     else
-            //     {
-            //         Error = "Something went wrong.";
-            //     }
-            // }
-            var result = await HelperRequest<IEnumerable<LandDTO>>.SendGetRequestAsync($"api/landen/{Naam}", httpClient);
+            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<LandDTO>>($"api/landen/{Naam}", httpClient);
             if (result.IsSuccessful)
             {
                 Landen = result.Value;

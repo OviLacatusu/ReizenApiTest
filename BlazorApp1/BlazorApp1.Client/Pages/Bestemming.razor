@@ -9,10 +9,10 @@
 
 @attribute [Authorize]
 
-@if (reizen != null)
+@if (Reizen != null)
 {
-    <h3>@reizen.FirstOrDefault()?.Bestemming.Plaats</h3>
-    <img src="/bestemmingen/@(reizen.FirstOrDefault()?.Bestemming.Plaats).jpg"/>
+    <h3>@Reizen.FirstOrDefault()?.Bestemming.Plaats</h3>
+    <img src="/bestemmingen/@(Reizen.FirstOrDefault()?.Bestemming.Plaats).jpg"/>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -20,7 +20,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var reis in reizen)
+            @foreach (var reis in Reizen)
             {
                 <tr>
                     <td>@reis.Vertrek.ToString()</td><td>@reis.PrijsPerPersoon</td><td>@reis.AantalDagen</td><td><a href="/reisKiezen/@reis.Id">Boeken</a></td>
@@ -29,7 +29,7 @@
         </tbody>
     </table>
 }
-@if(Error != null)
+@if (!String.IsNullOrEmpty(Error))
 {
     <div class="alert alert-danger">@Error</div>
 }
@@ -39,7 +39,7 @@
     [Parameter]
     public string Bestemmingscode { get; init; }
 
-    private IEnumerable<ReisDTO>? reizen;
+    private IEnumerable<ReisDTO>? Reizen;
 
     private string Error { get; set; }
 
@@ -48,28 +48,11 @@
         if (!String.IsNullOrEmpty(Bestemmingscode))
         {
             using var httpClient = _httpFactory.CreateClient();
-            // var result = await httpClient.GetAsync($"api/reizen/{Bestemmingscode}");
 
-            // if (result.IsSuccessStatusCode)
-            // {
-            //     reizen = await result.Content.ReadFromJsonAsync<IEnumerable<ReisDTO>>();
-            // }
-            // else
-            // {
-            //     var content = await result.Content.ReadAsStringAsync();
-            //     if (!String.IsNullOrEmpty(content))
-            //     {
-            //         Error = content;
-            //     }
-            //     else
-            //     {
-            //         Error = "Something went wrong.";
-            //     }
-            // }
-            var result = await HelperRequest<IEnumerable<ReisDTO>>.SendGetRequestAsync($"api/reizen/{Bestemmingscode}", httpClient);
+            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<ReisDTO>> ($"api/reizen/{Bestemmingscode}", httpClient);
             if (result.IsSuccessful)
             {
-                reizen = result.Value;
+                Reizen = result.Value;
             }
             else
             {

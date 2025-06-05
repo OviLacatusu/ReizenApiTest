@@ -10,9 +10,9 @@
 <PageTitle>Klanten</PageTitle>
 <div class="container">
     <h1>Hello, world!</h1>
-    @if (klanten != null)
+    @if (Klanten_ != null)
     {
-        @foreach (var klant in klanten)
+        @foreach (var klant in Klanten_)
         {
             <p>@klant.Familienaam @klant.Voornaam @klant.Id</p>
         }
@@ -21,39 +21,29 @@
     {
         <p>Waiting for data...</p>
     }
-    @if(Error != null)
+    @if (!String.IsNullOrEmpty(Error))
     {
         <div class="alert alert-danger">@Error</div>
     }
 </div>
 @code
 {
-    private IEnumerable<KlantDTO>? klanten;
+    private IEnumerable<KlantDTO>? Klanten_;
 
     private string Error { get; set; }
-    // [Inject]
-    // public KlantenService KlantenService { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         using var httpClient = _httpFactory.CreateClient();
-        var result = await httpClient.GetAsync($"api/klanten");
 
-        if (result.IsSuccessStatusCode)
+        var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<KlantDTO>>($"api/klanten", httpClient);
+        if (result.IsSuccessful)
         {
-            klanten = await result.Content.ReadFromJsonAsync<IEnumerable<KlantDTO>>();
+            Klanten_ = result.Value;
         }
         else
         {
-            var content = await result.Content.ReadAsStringAsync();
-            if (!String.IsNullOrEmpty(content))
-            {
-                Error = content;
-            }
-            else
-            {
-                Error = "Something went wrong.";
-            }
+            Error = result.Error;
         }
     }
 }

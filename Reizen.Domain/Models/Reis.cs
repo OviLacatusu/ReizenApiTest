@@ -60,7 +60,7 @@ namespace Reizen.Domain.Models
             PrijsPerPersoon = prijsPerPersoon;
         }
 
-        public void AddBoeking (Boeking boeking)
+        public void AddBooking (Boeking boeking)
         {
             if (boeking is null)
                 throw new ArgumentNullException ("Boeking cannot be null");

@@ -53,5 +53,6 @@ namespace Reizen.Domain.Models
             AnnulatieVerzekering = annulatieVerzekering ;
             Reis = reis;
         }
+        //TO DO: Calculating total price of booking
     }
 }

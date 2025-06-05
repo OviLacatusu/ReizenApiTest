@@ -1,20 +1,20 @@
 ﻿@using Reizen.Domain.DTOs
 @using Microsoft.AspNetCore.Authorization
 
-@page "/landen/{Landnaam}"
+@page "/landen/{NaamLand}"
 
 @inject IHttpClientFactory httpFactory
 
 @attribute [Authorize]
 
-<h3>Land</h3>
+<h2>Choose the destination:</h2>
 
-<img src="/vlaggen/@(Landnaam).png" />
+<img src="/vlaggen/@(NaamLand).png" />
 
-@if (bestemmingen != null)
+@if (Bestemmingen != null)
 {
     <ul>
-        @foreach (var bestemming in bestemmingen)
+        @foreach (var bestemming in Bestemmingen)
         {
             <li><a href="/bestemmingen/@bestemming.Code">@bestemming.Plaats </a></li>
         }
@@ -24,41 +24,33 @@ else
 {
     <p>Waiting for data...</p>
 }
-@if (Error != null)
+@if (!String.IsNullOrEmpty(Error))
 {
     <div class="alert alert-danger">@Error</div>
 }
 
 @code {
     [Parameter]
-    public string? Landnaam { get; set; }
+    public string? NaamLand { get; set; }
 
     private string Error { get; set; }
 
-    private IEnumerable<BestemmingDTO>? bestemmingen;
+    private IEnumerable<BestemmingDTO>? Bestemmingen;
 
     protected override async Task OnInitializedAsync()
     {
-        if (!String.IsNullOrEmpty(Landnaam))
+        if (!String.IsNullOrEmpty(NaamLand))
         {
             using var httpClient = httpFactory.CreateClient();
-            var result = await httpClient.GetAsync($"api/bestemmingen/{Landnaam}");
 
-            if (result.IsSuccessStatusCode)
+            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<BestemmingDTO>>($"api/bestemmingen/{NaamLand}", httpClient);
+            if (result.IsSuccessful)
             {
-                bestemmingen = await result.Content.ReadFromJsonAsync<IEnumerable<BestemmingDTO>>();
+                Bestemmingen = result.Value;
             }
             else
             {
-                var content = await result.Content.ReadAsStringAsync();
-                if (!String.IsNullOrEmpty(content))
-                {
-                    Error = content;
-                }
-                else
-                {
-                    Error = "Something went wrong.";
-                }
+                Error = result.Error;
             }
         }
     }

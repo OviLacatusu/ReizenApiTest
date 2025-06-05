@@ -39,7 +39,7 @@ namespace Reizen.Domain.Models
             Werelddeel = werelddeel;
         }
 
-        public void AddBestemming (Bestemming bestemming)
+        public void AddDestination (Bestemming bestemming)
         {
             if (bestemming is null)
                 throw new ArgumentNullException ("Destination cannot be null");

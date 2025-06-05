@@ -48,7 +48,7 @@ namespace Reizen.Domain.Models
             Plaats = name;
             Land = land;
         }
-        public void AddReis (Reis reis)
+        public void AddTrip (Reis reis)
         {
             if (reis is null)
                 throw new ArgumentNullException ("Reis cannot be null");

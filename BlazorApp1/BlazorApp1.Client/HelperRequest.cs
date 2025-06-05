@@ -2,29 +2,29 @@
 
 namespace BlazorApp1.Client
 {
-    public class HelperRequest<T2>
+    public class HelperRequest
     {
-        public static async Task<Result<T2?>> SendGetRequestAsync (string uri, HttpClient httpClient)
+        public static async Task<Result<T?>> SendGetRequestAndParseJsonAsync<T> (string uri, HttpClient httpClient) 
         {
             try
             {
                 var result = await httpClient.GetAsync (uri);
                 if (result.IsSuccessStatusCode)
                 {
-                    var content = await result.Content.ReadFromJsonAsync<T2> ();
-                    return Result<T2>.Success (content);
+                    var content = await result.Content.ReadFromJsonAsync<T> ();
+                    return Result<T>.Success (content);
                 }
                 else
                 {
                     var message = result?.RequestMessage;
                     var statusCode = result?.StatusCode;
 
-                    return Result<T2>.Failure ($"{statusCode}:  {message}");
+                    return Result<T>.Failure ($"{statusCode}:  {message}");
                 }
             }
             catch (Exception ex) 
             {
-                return Result<T2>.Failure ("Something went wrong");
+                return Result<T>.Failure ("Something went wrong");
             }
         }
 

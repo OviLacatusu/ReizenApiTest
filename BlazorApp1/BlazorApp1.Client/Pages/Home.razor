@@ -6,18 +6,16 @@
 @inject IHttpClientFactory _httpFactory
 @inject ILogger<Home> _logger;
 
-@rendermode InteractiveServer
-
 @attribute [Authorize]
 <AuthorizeView>
     <div class="container">
     <PageTitle>Werelddelen</PageTitle>
 
-    <h1>Choose the continent</h1>
-    @if(werelddelen != null)
+    <h2>Choose the continent:</h2>
+    @if(Werelddelen != null)
         {
             <ul>
-                @foreach (var werelddeel in werelddelen)   
+                @foreach (var werelddeel in Werelddelen)   
                 {
                     @* _logger.LogInformation(context?.User?.Identity?.Name); *@
                     <li><a href="/werelddelen/@werelddeel.Naam">@werelddeel.Naam  </a></li>
@@ -28,7 +26,7 @@
         {
             <p>Waiting for data...</p>
         }
-        @if(Error != null)
+        @if(!String.IsNullOrEmpty(Error))
         {
             <div class="alert alert-danger">@Error</div>
         }
@@ -38,39 +36,21 @@
 {
     private string Error { get; set; }
 
-    private IEnumerable<WerelddeelDTO>? werelddelen;
+    private IEnumerable<WerelddeelDTO>? Werelddelen;
 
     protected override async Task OnInitializedAsync( )
     {
         using var httpClient = _httpFactory.CreateClient();
         {
-            // var result = await httpClient.GetAsync("api/werelddelen");
-            // if (result.IsSuccessStatusCode)
-            // {
-            //     werelddelen = await result.Content.ReadFromJsonAsync<IEnumerable<WerelddeelDTO>>();
-            // }
-            // else 
-            // {
-            //     var content = await result.Content.ReadAsStringAsync();
-            //     if (!String.IsNullOrEmpty(content))
-            //     {
-            //         Error = content;
-            //     }
-            //     else {
-            //         Error = "Something went wrong.";
-            //     }
-            // }
-            var result = await HelperRequest<IEnumerable<WerelddeelDTO>>.SendGetRequestAsync("api/werelddelen", httpClient);
+            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<WerelddeelDTO>>("api/werelddelen", httpClient);
             if (result.IsSuccessful)
             {
-                werelddelen = result.Value;
+                Werelddelen = result.Value;
             }
             else 
             {
                 Error = result.Error;
             }
         }
-            
-        
     }
 }

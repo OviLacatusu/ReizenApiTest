@@ -11,7 +11,6 @@ namespace ReizenApi.Controllers
     [Route ("api/[controller]")]
     [ApiController]
     public class BestemmingenController (
-
         ILandenWerelddelenRepository _service, 
         IMapper _mapper,
         ILogger<BestemmingenController> _logger) : ControllerBase

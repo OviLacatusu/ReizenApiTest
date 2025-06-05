@@ -7,44 +7,44 @@
 @inject ILogger<ReisKiezen> _logger;
 @inject IHttpClientFactory _httpFactory
 
-@rendermode InteractiveServer
-
 <div class="container">
-    <h3>Boeken</h3>
+    <h2>Chosen trip:</h2>
     @if(Reis is not null)
     {
-        <h4>Bestemming</h4>
+        <h4>Destination</h4>
         <p>@Reis.Bestemming?.Plaats</p>
-        <h4>Vertrek</h4>
+        <h4>Departure date</h4>
         <p>@Reis.Vertrek</p>
-        <h4>Aantal dagen</h4>
+        <h4>Number of days</h4>
+        <p>@Reis.AantalDagen</p>
+        <h4>Price</h4>
         <p>@Reis.PrijsPerPersoon</p>
         <div >
-            <label for="familienaam">Familienaam bevat:</label>
-            <InputText @bind-value="familienaam" id="familienaam"></InputText>
-            <button type="button" @onclick="(async () => await GetKlanten())" class="btn btn-primary">Zoek</button>
+            <label for="Familienaam">Family name lookup:</label>
+            <InputText @bind-value="Familienaam" id="Familienaam"></InputText>
+            <button type="button" @onclick="(async () => await GetCustomers())" class="btn btn-primary">Zoek</button>
         </div>
     }else 
     { 
         <p>Waiting for data...</p>
     }
-    @if(Error != null)
+    @if (!String.IsNullOrEmpty(Error))
     {
         <div class="alert alert-danger">@Error</div>
     }
 </div>
-@if (klanten is not null) {
+@if (Klanten is not null) {
     <table class="table table-striped" >
         <thead>
             <tr>
-                <th>Familienaam</th><th>Voornaam</th><th>Woonplaats</th><th>Boeken</th>
+                <th>Family name</th><th>First name</th><th>City of residence</th><th>Book Trip</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var klant in klanten)
+            @foreach (var klant in Klanten)
             {
                 <tr>
-                    <td>@klant.Familienaam</td><td>@klant.Voornaam</td><td>@klant.Adres</td><td><a href="/boeken/@ReisId/@klant.Id">Boeken</a></td>
+                    <td>@klant.Familienaam</td><td>@klant.Voornaam</td><td>@klant.Adres</td><td><a href="/boeken/@ReisId/@klant.Id">Book trip</a></td>
                 </tr>
             }
         </tbody>
@@ -59,60 +59,42 @@
 
     private ReisDTO? Reis { get; set; }
 
-    private string? familienaam { get; set; }
+    private string? Familienaam { get; set; }
 
-    private IEnumerable<KlantDTO>? klanten;
+    private IEnumerable<KlantDTO>? Klanten;
 
     protected override async Task OnInitializedAsync() 
     {
         if (ReisId > 0) 
         {
             using var httpClient = _httpFactory.CreateClient();
-            var result = await httpClient.GetAsync($"api/reizen/{ReisId}");
 
-            if (result.IsSuccessStatusCode)
+            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<ReisDTO>($"api/reizen/{ReisId}", httpClient);
+            if (result.IsSuccessful)
             {
-                Reis = await result.Content.ReadFromJsonAsync<ReisDTO>();
+                Reis = result.Value;
             }
             else
             {
-                var content = await result.Content.ReadAsStringAsync();
-                if (!String.IsNullOrEmpty(content))
-                {
-                    Error = content;
-                }
-                else
-                {
-                    Error = "Something went wrong.";
-                }
+                Error = result.Error;
             }
-            
         }
     }
 
-    private async Task GetKlanten() 
+    private async Task GetCustomers() 
     {
-        if (familienaam is not null)
+        if (Familienaam is not null)
         {
             using (var httpClient = _httpFactory.CreateClient())
             {
-                var result = await httpClient.GetAsync($"api/klanten/{familienaam}");
-
-                if (result.IsSuccessStatusCode)
+                var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<KlantDTO>>($"api/klanten/{Familienaam}", httpClient);
+                if (result.IsSuccessful)
                 {
-                    klanten = await result.Content.ReadFromJsonAsync<IEnumerable<KlantDTO>>();
+                    Klanten = result.Value;
                 }
                 else
                 {
-                    var content = await result.Content.ReadAsStringAsync();
-                    if (!String.IsNullOrEmpty(content))
-                    {
-                        Error = content;
-                    }
-                    else
-                    {
-                        Error = "Something went wrong.";
-                    }
+                    Error = result.Error;
                 }
             }
         }

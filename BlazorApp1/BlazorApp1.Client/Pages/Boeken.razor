@@ -9,16 +9,14 @@
 @inject ILogger<Boeken> _logger;
 @inject IHttpClientFactory _httpFactory
 
-@rendermode InteractiveServer
-
 <div class="container">
     @if (Reis is not null && Klant is not null)
     {
-    <h2>Reis</h2>
+    <h2>Trip</h2>
     <div class="row">
 
         <div class="col-lg-3">   
-            <p style="font:bold">Bestemming:</p>
+            <p style="font:bold">Destination:</p>
         </div>
         <div class="col-lg-1">
             <p>@Reis.Bestemming.Plaats</p>
@@ -26,7 +24,7 @@
     </div>
     <div class="row">
         <div class="col-lg-3">
-            <p style="font:bold">Vertrek:</p>
+            <p style="font:bold">Departure:</p>
         </div>
         <div class="col-lg-1"> 
             <p>@Reis.Vertrek</p>
@@ -34,7 +32,7 @@
     </div>
     <div class="row">
         <div class="col-lg-3">
-            <p style="font:bold">Aantal dagen:</p>
+            <p style="font:bold">Number days:</p>
         </div>
         <div class="col-lg-1">
             <p>@Reis.AantalDagen</p>
@@ -42,7 +40,7 @@
     </div>
     <div class="row">
         <div class="col-lg-3">
-            <p style="font:bold">Prijs per persoon:</p>
+            <p style="font:bold">Price person:</p>
         </div>
         <div class="col-lg-1">
             <p>@Reis.PrijsPerPersoon</p>
@@ -62,7 +60,7 @@
 
     <div class="row">
             <div class="col-lg-3">
-                <label for="aantalV">Aantal volwassenen</label>
+                <label for="aantalV">Number of adults</label>
             </div>
         <div class="col-lg-1">
             <InputNumber @bind-Value:get="(Boeking.AantalVolwassenen)" @bind-Value:set="((value) => Boeking.AantalVolwassenen=value)" id="aantalV"></InputNumber>
@@ -70,7 +68,7 @@
     </div>
     <div class="row">
             <div class="col-lg-3">
-                <label for="aantalK">Aantal kinderen</label>
+                <label for="aantalK">Number of kids</label>
             </div>
             <div class="col-lg-1">
                 <InputNumber @bind-Value:get="(Boeking.AantalKinderen)" @bind-Value:set="((value)=>{Boeking.AantalKinderen=value;})" id="aantalK"></InputNumber>
@@ -90,16 +88,16 @@
 
         </div>
             <div class="col-lg-1">
-                <button class="btn btn-primary" @onclick="AddNewBooking">Boeken</button>
+                <button type="submit" class="btn btn-primary" data-toggle="modal" @onclick=" () => Modal.Open()">Book trip</button>
             </div>
-        
+            <ModalComponent @ref="Modal" Message="Are you sure?" Callback="@( () => AddNewBooking())"></ModalComponent>
     </div>
   
     } else 
     {
         <p>Waiting for data</p>
     }
-    @if (Error != null)
+    @if (!String.IsNullOrEmpty(Error))
     {
         <div class="alert alert-danger">@Error</div>
     } else if (IsSuccessful)
@@ -110,6 +108,8 @@
 
 @code 
 {
+    private ModalComponent Modal { get; set; }
+
     [Parameter]
     public int ReisId { get; init; }
 
@@ -199,7 +199,6 @@
             else {
                 IsSuccessful = true;
             }
-            StateHasChanged();
         }
     }
 }

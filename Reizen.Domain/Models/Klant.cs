@@ -55,7 +55,7 @@ namespace Reizen.Domain.Models
             Woonplaats = woonplaats;
         }
 
-        public void AddBoeking (Boeking boeking)
+        public void AddBooking (Boeking boeking)
         {
             if (boeking is null)
                 throw new ArgumentNullException ("Booking cannot be null");
@@ -65,7 +65,7 @@ namespace Reizen.Domain.Models
             _boekingen.Add (boeking);
         }
 
-        public IEnumerable<Boeking> GetActiveBoekingen ()
+        public IEnumerable<Boeking> GetActiveBookings ()
         {
             return _boekingen.Where (b => b.Reis.Vertrek > DateOnly.FromDateTime (DateTime.Today));
         }

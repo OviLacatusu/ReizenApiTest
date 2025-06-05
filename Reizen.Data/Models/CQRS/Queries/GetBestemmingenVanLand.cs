@@ -18,7 +18,6 @@ namespace Reizen.Data.Models.CQRS.Queries
             {
                 try
                 {
-
                     if (string.IsNullOrEmpty (query.land))
                     {
                         return Result<IList<BestemmingDAL>>.Failure ($"Name of country cannot be empty or null");
