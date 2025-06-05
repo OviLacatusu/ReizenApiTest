@@ -10,17 +10,17 @@ namespace Reizen.Data.Models.CQRS.Queries
 {
     public sealed class GetKlantMetNaam
     {
-        public record GetKlantMetNaamQuery(ReizenContext context, string naam) : IQuery<Result<IList<Klant>>>;
+        public record GetKlantMetNaamQuery(ReizenContext context, string naam) : IQuery<Result<IList<KlantDAL>>>;
 
-        public class GetKlantMetNaamQueryHandler : IQueryHandler<GetKlantMetNaamQuery, Result<IList<Klant>>>
+        public class GetKlantMetNaamQueryHandler : IQueryHandler<GetKlantMetNaamQuery, Result<IList<KlantDAL>>>
         {
-            public async Task<Result<IList<Klant>>> Handle (GetKlantMetNaamQuery query)
+            public async Task<Result<IList<KlantDAL>>> Handle (GetKlantMetNaamQuery query)
             {
                 try
                 {
                     if (string.IsNullOrEmpty (query.naam))
                     {
-                        return Result<IList<Klant>>.Failure ("Name cannot be empty");
+                        return Result<IList<KlantDAL>>.Failure ("Name cannot be empty");
                     }
 
                     var result = (await query.context.Klanten.ToListAsync ())
@@ -29,12 +29,12 @@ namespace Reizen.Data.Models.CQRS.Queries
                         .ToList ();
 
                     return result.Count == 0
-                        ? Result<IList<Klant>>.Failure ($"No customers found with name containing '{query.naam}'")
-                        : Result<IList<Klant>>.Success (result);
+                        ? Result<IList<KlantDAL>>.Failure ($"No customers found with name containing '{query.naam}'")
+                        : Result<IList<KlantDAL>>.Success (result);
                 }
                 catch (Exception ex)
                 {
-                    return Result<IList<Klant>>.Failure ($"Error retrieving customers: {ex.Message}");
+                    return Result<IList<KlantDAL>>.Failure ($"Error retrieving customers: {ex.Message}");
                 }
             }
         }

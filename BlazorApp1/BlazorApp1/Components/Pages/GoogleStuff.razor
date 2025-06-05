@@ -44,12 +44,12 @@
 
     @*     } *@
     @* </script> *@
-    @if (Error != null)
-    {
-        <div class="alert alert-danger">@Error</div>
-    }
-</AuthorizeView>
 
+</AuthorizeView>
+@if (Error != null)
+{
+    <div class="alert alert-danger">@Error</div>
+}
 @code
 {
     private string? Error { get; set; }
@@ -78,6 +78,9 @@
         {
             await GetPickerSession();
         }
+        else {
+            Error = "Please authenticate";
+        }
     }
 
     protected override void OnParametersSet()
@@ -98,11 +101,25 @@
     // Requesting the Picker session
     private async Task GetPickerSession()
     {
-        var client = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager));
-        client.BaseAddress = new Uri("https://localhost:7285/");
-        var result = await client.GetFromJsonAsync<PickingSession>("/api/Test/GetPickerLink");
-
-        SessionData = result;
+        var httpClient = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager));
+        httpClient.BaseAddress = new Uri("https://localhost:7285/");
+        var result = await httpClient.GetAsync("/api/Test/GetPickerLink");
+        if (result.IsSuccessStatusCode)
+        {
+            SessionData = await JsonSerializer.DeserializeAsync<PickingSession>(await result.Content?.ReadAsStreamAsync());
+        }
+        else
+        {
+            var content = await result.Content.ReadAsStringAsync();
+            if (!String.IsNullOrEmpty(content))
+            {
+                Error = content;
+            }
+            else
+            {
+                Error = "Something went wrong.";
+            }
+        }
     }
     // method to have a new tab opened for the picker session
     public async Task OpenTabAndPollSession()
@@ -135,8 +152,8 @@
                 {
                     Error = "Something went wrong.";
                 }
+                //StateHasChanged();
             }
-            
         }
         _logger.LogInformation($"Exiting PollRequest at {DateTime.UtcNow.ToShortTimeString()}");
         StateHasChanged();

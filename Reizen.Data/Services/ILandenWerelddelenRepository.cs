@@ -1,4 +1,5 @@
 ﻿using Reizen.Data.Models;
+using Reizen.Data.Models.CQRS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,16 +10,16 @@ namespace Reizen.Data.Services
 {
     public interface ILandenWerelddelenRepository
     {
-        Task<Result<IList<Werelddeel>>> GetWerelddelenAsync ();
-        Task<Result<IList<Land>>> GetLandenVanWerelddeelAsync (string? werelddeelNaam);
-        Task<Result<IList<Land>>> GetLandenAsync();
-        Task<Result<IList<Bestemming>>> GetBestemmingenVanLandAsync (string? landnaam);
-        Task<Result<IList<Bestemming>>> GetBestemmingenAsync ();
-        Task<Result<Bestemming>> AddBestemmingAsync (Bestemming bestemming);
-        Task<Result<Land>> GetLandMetIdAsync (int id);
-        Task<Result<Land>> AddLandAsync (Land land);
-        Task<Result<Land>> UpdateLandMetIdAsync (int id, Land land);
-        Task<Result<Land>> DeleteLandMetIdAsync (int id);
-        Task<Result<Bestemming>> DeleteBestemmingMetIdAsync (string code);
+        Task<Result<IList<WerelddeelDAL>>> GetWerelddelenAsync ();
+        Task<Result<IList<LandDAL>>> GetLandenVanWerelddeelAsync (string? werelddeelNaam);
+        Task<Result<IList<LandDAL>>> GetLandenAsync();
+        Task<Result<IList<BestemmingDAL>>> GetBestemmingenVanLandAsync (string? landnaam);
+        Task<Result<IList<BestemmingDAL>>> GetBestemmingenAsync ();
+        Task<Result<BestemmingDAL>> AddBestemmingAsync (BestemmingDAL bestemming);
+        Task<Result<LandDAL>> GetLandMetIdAsync (int id);
+        Task<Result<LandDAL>> AddLandAsync (LandDAL land);
+        Task<Result<LandDAL>> UpdateLandMetIdAsync (int id, LandDAL land);
+        Task<Result<LandDAL>> DeleteLandMetIdAsync (int id);
+        Task<Result<BestemmingDAL>> DeleteBestemmingMetIdAsync (string code);
     }
 }

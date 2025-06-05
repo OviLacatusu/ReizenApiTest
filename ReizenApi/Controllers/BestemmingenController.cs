@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Reizen.Data.Models;
 using Reizen.Data.Services;
-using Bestemming = Reizen.Data.Models.Bestemming;
+using BestemmingDAL = Reizen.Data.Models.BestemmingDAL;
 using Reizen.Domain.DTOs;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -28,7 +28,7 @@ namespace ReizenApi.Controllers
                     _logger.LogInformation ("No destinations found");
                     return NotFound (result.Error);
                 }
-                var dtos = _mapper.Map<ICollection<Bestemming>> (result.Value);
+                var dtos = _mapper.Map<ICollection<BestemmingDAL>> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex) {
@@ -54,7 +54,7 @@ namespace ReizenApi.Controllers
                     _logger.LogInformation ("No destinations found for country: {CountryName}", landNaam);
                     return NotFound ();
                 }
-                var dtos = _mapper.Map<ICollection<Bestemming>> (result.Value);
+                var dtos = _mapper.Map<ICollection<BestemmingDAL>> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex)
@@ -75,7 +75,7 @@ namespace ReizenApi.Controllers
                     _logger.LogWarning ("Invalid data provided");
                     return BadRequest ("Invalid data");
                 }
-                var bestemming = _mapper.Map<Bestemming> (bestemmingDto);
+                var bestemming = _mapper.Map<BestemmingDAL> (bestemmingDto);
                 var result = await _service.AddBestemmingAsync (bestemming);
 
                 if (!result.IsSuccessful)

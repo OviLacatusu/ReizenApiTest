@@ -10,17 +10,17 @@ namespace Reizen.Data.Models.CQRS.Queries
 {
     public sealed class GetLandenVanWerelddeel
     {
-        public record GetLandenVanWerelddeelQuery(string werelddeel, ReizenContext context):IQuery<Result<IList<Land>>>;
+        public record GetLandenVanWerelddeelQuery(string werelddeel, ReizenContext context):IQuery<Result<IList<LandDAL>>>;
 
-        public class GetLandenVanWerelddeelQueryHandler : IQueryHandler<GetLandenVanWerelddeelQuery, Result<IList<Land>>>
+        public class GetLandenVanWerelddeelQueryHandler : IQueryHandler<GetLandenVanWerelddeelQuery, Result<IList<LandDAL>>>
         {
-            public async Task<Result<IList<Land>>> Handle (GetLandenVanWerelddeelQuery query)
+            public async Task<Result<IList<LandDAL>>> Handle (GetLandenVanWerelddeelQuery query)
             {
                 try
                 {
                     if (string.IsNullOrEmpty (query.werelddeel))
                     {
-                        return Result<IList<Land>>.Failure ("Werelddeel name cannot be empty");
+                        return Result<IList<LandDAL>>.Failure ("Werelddeel name cannot be empty");
                     }
 
                     var werelddeel = (await query.context.Werelddelen.ToListAsync ())
@@ -29,7 +29,7 @@ namespace Reizen.Data.Models.CQRS.Queries
 
                     if (werelddeel == null)
                     {
-                        return Result<IList<Land>>.Failure ($"Werelddeel with name '{query.werelddeel}' not found");
+                        return Result<IList<LandDAL>>.Failure ($"Werelddeel with name '{query.werelddeel}' not found");
                     }
 
                     var result = (await query.context.Landen.ToListAsync ())
@@ -37,12 +37,12 @@ namespace Reizen.Data.Models.CQRS.Queries
                         .ToList ();
 
                     return result.Count == 0
-                        ? Result<IList<Land>>.Failure ("No countries found for this werelddeel")
-                        : Result<IList<Land>>.Success (result);
+                        ? Result<IList<LandDAL>>.Failure ("No countries found for this werelddeel")
+                        : Result<IList<LandDAL>>.Success (result);
                 }
                 catch (Exception ex)
                 {
-                    return Result<IList<Land>>.Failure ($"Error retrieving countries: {ex.Message}");
+                    return Result<IList<LandDAL>>.Failure ($"Error retrieving countries: {ex.Message}");
                 }
             }
         }

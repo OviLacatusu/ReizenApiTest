@@ -10,11 +10,11 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class AddLandToWerelddeel
     {
-        public record AddLandToWerelddeelCommand(Land land, Werelddeel deel, ReizenContext context): ICommand<Result<Land>>;
+        public record AddLandToWerelddeelCommand(LandDAL land, WerelddeelDAL deel, ReizenContext context): ICommand<Result<LandDAL>>;
 
-        public class AddLandToWerelddeelCommandHandler : ICommandHandler<AddLandToWerelddeelCommand, Result<Land>>
+        public class AddLandToWerelddeelCommandHandler : ICommandHandler<AddLandToWerelddeelCommand, Result<LandDAL>>
         {
-            public async Task<Result<Land>> Handle (AddLandToWerelddeelCommand command)
+            public async Task<Result<LandDAL>> Handle (AddLandToWerelddeelCommand command)
             {
                 try
                 {
@@ -27,18 +27,18 @@ namespace Reizen.Data.Models.CQRS.Commands
 
                             if (deelw == null)
                             {
-                                return Result<Land>.Failure ($"Werelddeel with ID not found");
+                                return Result<LandDAL>.Failure ($"Werelddeel with ID not found");
                             }
 
                             if (deelw?.Landen.Where (l => command.land.Naam == l.Naam).Count () > 0)
                             {
-                                return Result<Land>.Failure ($"Country already exists on this continent");
+                                return Result<LandDAL>.Failure ($"Country already exists on this continent");
                             }
 
                             deelw.Landen.Add (command.land);
                             await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
-                            return Result<Land>.Success(command.land);
+                            return Result<LandDAL>.Success(command.land);
                         }
                         catch
                         {
@@ -48,7 +48,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                     }
                 }
                 catch (Exception ex) {
-                    return Result<Land>.Failure ($"Error adding land to continent: {ex.Message}");
+                    return Result<LandDAL>.Failure ($"Error adding land to continent: {ex.Message}");
                 }
             }
         }

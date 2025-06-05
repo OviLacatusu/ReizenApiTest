@@ -17,43 +17,43 @@ namespace Reizen.Data.Services
 {
     public class BoekingenService (IMediator mediator, IDbContextFactory<ReizenContext> factory) : IBoekingenRepository
     {
-        public async Task<Result<Boeking>> AddBoekingAsync (Boeking? boeking)
+        public async Task<Result<BoekingDAL>> AddBoekingAsync (BoekingDAL? boeking)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<AddBoekingCommand, Result<Boeking>> (new AddBoekingCommand (boeking, context));
+                return await mediator.ExecuteCommand<AddBoekingCommand, Result<BoekingDAL>> (new AddBoekingCommand (boeking, context));
             }
         }
 
-        public async Task<Result<Boeking>> DeleteBoekingAsync (int id)
+        public async Task<Result<BoekingDAL>> DeleteBoekingAsync (int id)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<DeleteBoekingCommand, Result<Boeking>> (new DeleteBoekingCommand (id, context));
+                return await mediator.ExecuteCommand<DeleteBoekingCommand, Result<BoekingDAL>> (new DeleteBoekingCommand (id, context));
             }
         }
 
-        public async Task<Result<IList<Boeking>>> GetBoekingenAsync ()
+        public async Task<Result<IList<BoekingDAL>>> GetBoekingenAsync ()
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetBoekingenQuery, Result<IList<Boeking>>> (new GetBoekingenQuery (context));
+                return await mediator.ExecuteQuery<GetBoekingenQuery, Result<IList<BoekingDAL>>> (new GetBoekingenQuery (context));
             }
         }
 
-        public async Task<Result<Boeking>> GetBoekingMetIdAsync (int id)
+        public async Task<Result<BoekingDAL>> GetBoekingMetIdAsync (int id)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetBoekingMetIdQuery, Result<Boeking>> (new GetBoekingMetIdQuery (id, context)); 
+                return await mediator.ExecuteQuery<GetBoekingMetIdQuery, Result<BoekingDAL>> (new GetBoekingMetIdQuery (id, context)); 
             }
         }
 
-        public async Task<Result<Boeking>> UpdateBoekingAsync (Boeking? boeking, int id)
+        public async Task<Result<BoekingDAL>> UpdateBoekingAsync (BoekingDAL? boeking, int id)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<UpdateBoekingCommand, Result<Boeking>> (new UpdateBoekingCommand (boeking, id, context));
+                return await mediator.ExecuteCommand<UpdateBoekingCommand, Result<BoekingDAL>> (new UpdateBoekingCommand (boeking, id, context));
             }
         }
     }

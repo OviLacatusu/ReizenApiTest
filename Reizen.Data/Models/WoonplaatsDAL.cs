@@ -3,14 +3,17 @@ using System.Collections.Generic;
 
 namespace Reizen.Data.Models;
 
-public partial class Werelddeel
+public partial class WoonplaatsDAL
 {
     public int Id
     {
         get; set;
     }
-
+    public int Postcode
+    {
+        get; set;
+    }
     public string Naam { get; set; } = null!;
 
-    public virtual ICollection<Land> Landen { get; set; } = new List<Land> ();
+    public virtual ICollection<KlantDAL> Klanten { get; set; } = new List<KlantDAL> ();
 }

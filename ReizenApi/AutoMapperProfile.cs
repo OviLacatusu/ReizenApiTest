@@ -9,26 +9,26 @@ namespace ReizenApi
     {
         public AutoMapperProfile() 
         {
-            CreateMap<Klant, KlantDTO>();
-            CreateMap<KlantDTO, Klant> ();
+            CreateMap<KlantDAL, KlantDTO>();
+            CreateMap<KlantDTO, KlantDAL> ();
 
-            CreateMap<Land, LandDTO> ();
-            CreateMap<LandDTO, Land> ();
+            CreateMap<LandDAL, LandDTO> ();
+            CreateMap<LandDTO, LandDAL> ();
 
-            CreateMap<Bestemming, BestemmingDTO> ();
-            CreateMap<BestemmingDTO, Bestemming> ();
+            CreateMap<BestemmingDAL, BestemmingDTO> ();
+            CreateMap<BestemmingDTO, BestemmingDAL> ();
 
-            CreateMap<Werelddeel, WerelddeelDTO> ();
-            CreateMap<WerelddeelDTO, Werelddeel> ();
+            CreateMap<WerelddeelDAL, WerelddeelDTO> ();
+            CreateMap<WerelddeelDTO, WerelddeelDAL> ();
 
-            CreateMap<Boeking, BoekingDTO> ();
-            CreateMap<BoekingDTO, Boeking> ();
+            CreateMap<BoekingDAL, BoekingDTO> ();
+            CreateMap<BoekingDTO, BoekingDAL> ();
 
-            CreateMap<Reis, ReisDTO> ();
-            CreateMap<ReisDTO, Reis> ();
+            CreateMap<ReisDAL, ReisDTO> ();
+            CreateMap<ReisDTO, ReisDAL> ();
 
-            CreateMap<Woonplaats, WoonplaatsDTO> ();
-            CreateMap<WoonplaatsDTO, Woonplaats> ();
+            CreateMap<WoonplaatsDAL, WoonplaatsDTO> ();
+            CreateMap<WoonplaatsDTO, WoonplaatsDAL> ();
         }
     }
 }

@@ -86,22 +86,22 @@ namespace Reizen.Data.Models.CQRS
         {
             var mediator = new Mediator ();
 
-            mediator.Register<GetBestemmingenVanLandQuery, Result<IList<Bestemming>>> (new GetBestemmingenVanLandQueryHandler());
-            mediator.Register<GetKlantenQuery, Result<IList<Klant>>> (new GetKlantenQueryHandler ());
-            mediator.Register<GetKlantMetIDQuery, Result<Klant>> (new GetKlantMetIDQueryHandler());
-            mediator.Register<GetKlantMetNaamQuery, Result<IList<Klant>>> (new GetKlantMetNaamQueryHandler ());
-            mediator.Register<GetLandenVanWerelddeelQuery, Result<IList<Land>>> (new GetLandenVanWerelddeelQueryHandler());
-            mediator.Register<GetWerelddelenQuery, Result<IList<Werelddeel>>> (new GetWerelddelenQueryHandler());
-            mediator.Register<AddBestemmingToLandCommand, Result<Bestemming>> (new AddBestemmingToLandCommandHandler ());
-            mediator.Register<AddKlantCommand, Result<Klant>> (new AddKlantCommandHandler ());
-            mediator.Register<AddLandToWerelddeelCommand, Result<Land>> (new AddLandToWerelddeelCommandHandler ());
-            mediator.Register<AddReisToBestemmingCommand, Result<Reis>> (new AddReisToBestemmingCommandHandler ());
-            mediator.Register<AddBoekingCommand, Result<Boeking>> (new AddBoekingCommandHandler ());
-            mediator.Register<DeleteKlantCommand, Result<Klant>> (new DeleteKlantCommandHandler ());
-            mediator.Register<UpdateKlantCommand, Result<Klant>> (new UpdateKlantCommandHandler ());
-            mediator.Register<GetReisMetIdQuery, Result<Reis>> (new GetReisMetIdQueryHandler ());
-            mediator.Register<GetLandenQuery, Result<IList<Land>>> (new GetLandenQueryHandler ());
-            mediator.Register<GetReizenNaarBestemmingQuery, Result<IList<Reis>>> (new GetReizenNaarBestemmingQueryHandler());
+            mediator.Register<GetBestemmingenVanLandQuery, Result<IList<BestemmingDAL>>> (new GetBestemmingenVanLandQueryHandler());
+            mediator.Register<GetKlantenQuery, Result<IList<KlantDAL>>> (new GetKlantenQueryHandler ());
+            mediator.Register<GetKlantMetIDQuery, Result<KlantDAL>> (new GetKlantMetIDQueryHandler());
+            mediator.Register<GetKlantMetNaamQuery, Result<IList<KlantDAL>>> (new GetKlantMetNaamQueryHandler ());
+            mediator.Register<GetLandenVanWerelddeelQuery, Result<IList<LandDAL>>> (new GetLandenVanWerelddeelQueryHandler());
+            mediator.Register<GetWerelddelenQuery, Result<IList<WerelddeelDAL>>> (new GetWerelddelenQueryHandler());
+            mediator.Register<AddBestemmingToLandCommand, Result<BestemmingDAL>> (new AddBestemmingToLandCommandHandler ());
+            mediator.Register<AddKlantCommand, Result<KlantDAL>> (new AddKlantCommandHandler ());
+            mediator.Register<AddLandToWerelddeelCommand, Result<LandDAL>> (new AddLandToWerelddeelCommandHandler ());
+            mediator.Register<AddReisToBestemmingCommand, Result<ReisDAL>> (new AddReisToBestemmingCommandHandler ());
+            mediator.Register<AddBoekingCommand, Result<BoekingDAL>> (new AddBoekingCommandHandler ());
+            mediator.Register<DeleteKlantCommand, Result<KlantDAL>> (new DeleteKlantCommandHandler ());
+            mediator.Register<UpdateKlantCommand, Result<KlantDAL>> (new UpdateKlantCommandHandler ());
+            mediator.Register<GetReisMetIdQuery, Result<ReisDAL>> (new GetReisMetIdQueryHandler ());
+            mediator.Register<GetLandenQuery, Result<IList<LandDAL>>> (new GetLandenQueryHandler ());
+            mediator.Register<GetReizenNaarBestemmingQuery, Result<IList<ReisDAL>>> (new GetReizenNaarBestemmingQueryHandler());
 
             //Console.WriteLine (mediator.GetHashCode());
 

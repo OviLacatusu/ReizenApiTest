@@ -9,11 +9,11 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class DeleteBoeking
     {
-        public record DeleteBoekingCommand(int id, ReizenContext context) : ICommand<Result<Boeking>>;
+        public record DeleteBoekingCommand(int id, ReizenContext context) : ICommand<Result<BoekingDAL>>;
 
-        public class DeleteBoekingCommandHandler : ICommandHandler<DeleteBoekingCommand, Result<Boeking>>
+        public class DeleteBoekingCommandHandler : ICommandHandler<DeleteBoekingCommand, Result<BoekingDAL>>
         {
-            public async Task<Result<Boeking>> Handle (DeleteBoekingCommand command)
+            public async Task<Result<BoekingDAL>> Handle (DeleteBoekingCommand command)
             {
                 try
                 {
@@ -22,21 +22,21 @@ namespace Reizen.Data.Models.CQRS.Commands
                         try
                         {
                             if (command.id < 0)
-                                return Result<Boeking>.Failure ($"Id of booking cannot be negative");
+                                return Result<BoekingDAL>.Failure ($"Id of booking cannot be negative");
                             var existingBoeking = command.context.Boekingen.FirstOrDefault (el => el.Id == command.id);
                             if (existingBoeking == null)
                             {
-                                return Result<Boeking>.Failure ($"Boeking does not exist");
+                                return Result<BoekingDAL>.Failure ($"Boeking does not exist");
                             }
                             
-                            var boeking = new Boeking { Id = command.id };
+                            var boeking = new BoekingDAL { Id = command.id };
 
                             command.context.Attach (boeking);
                             command.context.Boekingen.Remove (boeking);
                             await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
 
-                            return Result<Boeking>.Success(boeking);
+                            return Result<BoekingDAL>.Success(boeking);
                         }
                         catch
                         {
@@ -47,7 +47,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                 }
                 catch (Exception ex)
                 {
-                    return Result<Boeking>.Failure ($"Error deleting booking: {ex.Message}");
+                    return Result<BoekingDAL>.Failure ($"Error deleting booking: {ex.Message}");
                 }
             }
         }

@@ -10,28 +10,28 @@ namespace Reizen.Data.Models.CQRS.Queries
 {
     public sealed class GetLandMetId
     {
-        public record GetLandMetIdQuery (int id, ReizenContext context) : IQuery<Result<Land>>;
+        public record GetLandMetIdQuery (int id, ReizenContext context) : IQuery<Result<LandDAL>>;
 
-        public class GetLandMetIdQueryHandler : IQueryHandler<GetLandMetIdQuery, Result<Land>>
+        public class GetLandMetIdQueryHandler : IQueryHandler<GetLandMetIdQuery, Result<LandDAL>>
         {
-            public async Task<Result<Land>> Handle (GetLandMetIdQuery query)
+            public async Task<Result<LandDAL>> Handle (GetLandMetIdQuery query)
             {
                 try
                 {
                     if (query.id <= 0)
                     {
-                        return Result<Land>.Failure ("Invalid land ID");
+                        return Result<LandDAL>.Failure ("Invalid land ID");
                     }
 
                     var result = await query.context.Landen.FindAsync (query.id);
 
                     return result == null
-                        ? Result<Land>.Failure ($"Land with ID {query.id} not found")
-                        : Result<Land>.Success (result);
+                        ? Result<LandDAL>.Failure ($"Land with ID {query.id} not found")
+                        : Result<LandDAL>.Success (result);
                 }
                 catch (Exception ex)
                 {
-                    return Result<Land>.Failure ($"Error retrieving land: {ex.Message}");
+                    return Result<LandDAL>.Failure ($"Error retrieving land: {ex.Message}");
                 }
             }
         }

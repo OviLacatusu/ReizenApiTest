@@ -10,11 +10,11 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class UpdateKlant
     {
-        public record UpdateKlantCommand (Klant klantData, int klantId, ReizenContext context) : ICommand<Result<Klant>>;
+        public record UpdateKlantCommand (KlantDAL klantData, int klantId, ReizenContext context) : ICommand<Result<KlantDAL>>;
 
-        public class UpdateKlantCommandHandler : ICommandHandler<UpdateKlantCommand, Result<Klant>>
+        public class UpdateKlantCommandHandler : ICommandHandler<UpdateKlantCommand, Result<KlantDAL>>
         {
-            public async Task<Result<Klant>> Handle (UpdateKlantCommand command)
+            public async Task<Result<KlantDAL>> Handle (UpdateKlantCommand command)
             {
                 try
                 {
@@ -25,7 +25,7 @@ namespace Reizen.Data.Models.CQRS.Commands
 
                             var klant = await command.context.Klanten.FindAsync (command.klantId);
                             if (klant == null)
-                                return Result<Klant>.Failure ($"Cannot find customer with ID");
+                                return Result<KlantDAL>.Failure ($"Cannot find customer with ID");
 
                             klant.Voornaam = command.klantData.Voornaam;
                             klant.Familienaam = command.klantData.Familienaam;
@@ -34,7 +34,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                             await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
 
-                            return Result<Klant>.Success(klant);
+                            return Result<KlantDAL>.Success(klant);
                         }
                         catch {
                             await transaction.RollbackAsync ();
@@ -43,7 +43,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                     }
                 }
                 catch (Exception ex) {
-                    return Result<Klant>.Failure ($"Error while updating customer");
+                    return Result<KlantDAL>.Failure ($"Error while updating customer");
                 }
             }
         }

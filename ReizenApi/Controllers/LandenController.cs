@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Reizen.Data.Models;
 using Reizen.Data.Services;
-using Land = Reizen.Data.Models.Land;
+using LandDAL = Reizen.Data.Models.LandDAL;
 using Reizen.Domain.DTOs;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -28,7 +28,7 @@ namespace ReizenApi.Controllers
                     _logger.LogInformation ($"No countries found: {result.Error}");
                     return NotFound (result.Error);
                 }
-                var dtos = _mapper.Map<ICollection<Land>> (result.Value);
+                var dtos = _mapper.Map<ICollection<LandDAL>> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex)
@@ -55,7 +55,7 @@ namespace ReizenApi.Controllers
                     _logger.LogInformation ($"No countries found: {result.Error}");
                     return NotFound (result.Error);
                 }
-                var dtos = _mapper.Map<ICollection<Land>> (result.Value);
+                var dtos = _mapper.Map<ICollection<LandDAL>> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex) {
@@ -81,7 +81,7 @@ namespace ReizenApi.Controllers
                     _logger.LogInformation ($"No countries with an id = {id} found: {result.Error}");
                     return NotFound (result.Error);
                 }
-                var dtos = _mapper.Map<Land?> (result.Value);
+                var dtos = _mapper.Map<LandDAL?> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex)
@@ -102,7 +102,7 @@ namespace ReizenApi.Controllers
                     _logger.LogWarning ("Invalid data provided");
                     return BadRequest ();
                 }
-                var land = _mapper.Map<Land> (landDto);
+                var land = _mapper.Map<LandDAL> (landDto);
                 var result = await _service.AddLandAsync (land);
 
                 if (!result.IsSuccessful)
@@ -141,7 +141,7 @@ namespace ReizenApi.Controllers
                     _logger.LogWarning ($"Invalid data provided - land with id={id} was not found: {existingLand.Error}");
                     return NotFound (existingLand.Error);
                 }
-                var land = _mapper.Map<Land> (landDto);
+                var land = _mapper.Map<LandDAL> (landDto);
                 var result = await _service.UpdateLandMetIdAsync (id, land);
 
                 if (!result.IsSuccessful)

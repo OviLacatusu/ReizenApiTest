@@ -11,11 +11,11 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class UpdateLand
     {
-        public record UpdateLandCommand (int id, Land landData, ReizenContext context ) : ICommand<Result<Land>>;
+        public record UpdateLandCommand (int id, LandDAL landData, ReizenContext context ) : ICommand<Result<LandDAL>>;
 
-        public class UpdateClassCommandHandler : ICommandHandler<UpdateLandCommand, Result<Land>>
+        public class UpdateClassCommandHandler : ICommandHandler<UpdateLandCommand, Result<LandDAL>>
         {
-            public async Task<Result<Land>> Handle (UpdateLandCommand command)
+            public async Task<Result<LandDAL>> Handle (UpdateLandCommand command)
             {
                 try
                 {
@@ -26,7 +26,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                             var land = await command.context.Landen.FindAsync (command.id);
                             if (land == null)
                             {
-                                return Result<Land>.Failure ($"Cannot find land with ID");
+                                return Result<LandDAL>.Failure ($"Cannot find land with ID");
                             }
                             land.Werelddeel = command.landData.Werelddeel;
                             land.Naam = command.landData.Naam;
@@ -35,7 +35,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                             await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
 
-                            return Result<Land>.Success (land);
+                            return Result<LandDAL>.Success (land);
                         }
                         catch
                         {
@@ -46,7 +46,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                 }
                 catch (Exception ex)
                 {
-                    return Result<Land>.Failure ($"Error while updating country");
+                    return Result<LandDAL>.Failure ($"Error while updating country");
                 }
                 
                   

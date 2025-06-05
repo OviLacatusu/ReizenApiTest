@@ -1,4 +1,5 @@
 ﻿using Reizen.Data.Models;
+using Reizen.Data.Models.CQRS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ namespace Reizen.Data.Services
 {
     public interface IBoekingenRepository
     {
-        Task<Result<IList<Boeking>>> GetBoekingenAsync ();
-        Task<Result<Boeking>> GetBoekingMetIdAsync (int id);
-        Task <Result<Boeking>> AddBoekingAsync (Boeking? boeking);
-        Task <Result<Boeking>> UpdateBoekingAsync (Boeking? boeking, int id);
-        Task <Result<Boeking>> DeleteBoekingAsync (int id);
+        Task<Result<IList<BoekingDAL>>> GetBoekingenAsync ();
+        Task<Result<BoekingDAL>> GetBoekingMetIdAsync (int id);
+        Task <Result<BoekingDAL>> AddBoekingAsync (BoekingDAL? boeking);
+        Task <Result<BoekingDAL>> UpdateBoekingAsync (BoekingDAL? boeking, int id);
+        Task <Result<BoekingDAL>> DeleteBoekingAsync (int id);
     }
 }

@@ -9,11 +9,11 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class DeleteBestemming
     {
-        public record DeleteBestemmingCommand(string code, ReizenContext context) : ICommand<Result<Bestemming>>;
+        public record DeleteBestemmingCommand(string code, ReizenContext context) : ICommand<Result<BestemmingDAL>>;
 
-        public class DeleteBestemmingCommandHandler : ICommandHandler<DeleteBestemmingCommand, Result<Bestemming>>
+        public class DeleteBestemmingCommandHandler : ICommandHandler<DeleteBestemmingCommand, Result<BestemmingDAL>>
         {
-            public async Task<Result<Bestemming>> Handle (DeleteBestemmingCommand command)
+            public async Task<Result<BestemmingDAL>> Handle (DeleteBestemmingCommand command)
             {
                 try
                 {
@@ -22,18 +22,18 @@ namespace Reizen.Data.Models.CQRS.Commands
                     {
                         var bestemming = await command.context.Bestemmingen.FindAsync (command.code);
                         if (bestemming == null)
-                            return Result<Bestemming>.Failure ($"Destination with code not found");
+                            return Result<BestemmingDAL>.Failure ($"Destination with code not found");
                         if (bestemming.Reizen.Where (r => r.Vertrek > DateOnly.FromDateTime (DateTime.Today)).Any ())
-                            return Result<Bestemming>.Failure ($"Cannot delete destination with active trips");
+                            return Result<BestemmingDAL>.Failure ($"Cannot delete destination with active trips");
 
-                        var toDelete = new Bestemming { Code = command.code };
+                        var toDelete = new BestemmingDAL { Code = command.code };
 
                         command.context.Attach (toDelete);
                         command.context.Bestemmingen.Remove (toDelete);
                         await command.context.SaveChangesAsync ();
                         await transaction.CommitAsync ();
 
-                        return Result<Bestemming>.Success (toDelete);
+                        return Result<BestemmingDAL>.Success (toDelete);
                     }
                     catch
                     {
@@ -43,7 +43,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                 }
                 catch (Exception ex)
                 {
-                    return Result<Bestemming>.Failure ($"Error deleting customer: {ex.Message}");
+                    return Result<BestemmingDAL>.Failure ($"Error deleting customer: {ex.Message}");
                 }
             }
             }

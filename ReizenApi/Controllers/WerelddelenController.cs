@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Reizen.Data.Models;
 using Reizen.Data.Services;
-using Werelddeel = Reizen.Data.Models.Werelddeel;
+using Werelddeel = Reizen.Data.Models.WerelddeelDAL;
 using Reizen.Domain.DTOs;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 

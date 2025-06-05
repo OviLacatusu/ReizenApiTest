@@ -48,23 +48,32 @@
         if (!String.IsNullOrEmpty(Bestemmingscode))
         {
             using var httpClient = _httpFactory.CreateClient();
-            var result = await httpClient.GetAsync($"api/reizen/{Bestemmingscode}");
+            // var result = await httpClient.GetAsync($"api/reizen/{Bestemmingscode}");
 
-            if (result.IsSuccessStatusCode)
+            // if (result.IsSuccessStatusCode)
+            // {
+            //     reizen = await result.Content.ReadFromJsonAsync<IEnumerable<ReisDTO>>();
+            // }
+            // else
+            // {
+            //     var content = await result.Content.ReadAsStringAsync();
+            //     if (!String.IsNullOrEmpty(content))
+            //     {
+            //         Error = content;
+            //     }
+            //     else
+            //     {
+            //         Error = "Something went wrong.";
+            //     }
+            // }
+            var result = await HelperRequest<IEnumerable<ReisDTO>>.SendGetRequestAsync($"api/reizen/{Bestemmingscode}", httpClient);
+            if (result.IsSuccessful)
             {
-                reizen = await result.Content.ReadFromJsonAsync<IEnumerable<ReisDTO>>();
+                reizen = result.Value;
             }
             else
             {
-                var content = await result.Content.ReadAsStringAsync();
-                if (!String.IsNullOrEmpty(content))
-                {
-                    Error = content;
-                }
-                else
-                {
-                    Error = "Something went wrong.";
-                }
+                Error = result.Error;
             }
             
         }

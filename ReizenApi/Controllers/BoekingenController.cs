@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Reizen.Data.Models;
 using Reizen.Data.Services;
 using System.Runtime.CompilerServices;
-using Boeking = Reizen.Data.Models.Boeking;
+using BoekingDAL = Reizen.Data.Models.BoekingDAL;
 using Reizen.Domain.DTOs;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -28,7 +28,7 @@ namespace ReizenApi.Controllers
                     _logger.LogInformation ($"No bookings found: {boekingen.Error}");
                     return NotFound (boekingen.Error);
                 }
-                var dtos = _mapper.Map<ICollection<Boeking>> (boekingen.Value);
+                var dtos = _mapper.Map<ICollection<BoekingDAL>> (boekingen.Value);
                 return Ok (dtos);
             }
             catch (Exception ex) 
@@ -55,7 +55,7 @@ namespace ReizenApi.Controllers
                     _logger.LogWarning ($"Error occurred: {boeking.Error}"); 
                     return NotFound (boeking.Error);
                 }
-                var dto = _mapper.Map<Boeking> (boeking.Value);
+                var dto = _mapper.Map<BoekingDAL> (boeking.Value);
                 return Ok (dto);
             }
             catch (Exception ex) {
@@ -80,7 +80,7 @@ namespace ReizenApi.Controllers
                     _logger.LogWarning ("Provided booking is null");
                     return BadRequest ("Please enter the number of persons");
                 }
-                var boeking = _mapper.Map<Boeking> (boekingDto);
+                var boeking = _mapper.Map<BoekingDAL> (boekingDto);
                 var result = await _service.AddBoekingAsync (boeking);
                 
                 if (!result.IsSuccessful)
@@ -115,7 +115,7 @@ namespace ReizenApi.Controllers
                     _logger.LogWarning ($"Booking with id={id} not found: {existingBoeking.Error}");
                     return NotFound (existingBoeking.Error);
                 }
-                var boeking = _mapper.Map<Boeking> (boekingDto);
+                var boeking = _mapper.Map<BoekingDAL> (boekingDto);
                 var result = await _service.UpdateBoekingAsync (boeking, id);
 
                 if (!result.IsSuccessful)

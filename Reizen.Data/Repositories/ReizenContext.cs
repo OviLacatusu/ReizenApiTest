@@ -16,37 +16,37 @@ public partial class ReizenContext : DbContext
     {
     }
 
-    public virtual DbSet<Bestemming> Bestemmingen
+    public virtual DbSet<BestemmingDAL> Bestemmingen
     {
         get; set;
     }
 
-    public virtual DbSet<Boeking> Boekingen
+    public virtual DbSet<BoekingDAL> Boekingen
     {
         get; set;
     }
 
-    public virtual DbSet<Klant> Klanten
+    public virtual DbSet<KlantDAL> Klanten
     {
         get; set;
     }
 
-    public virtual DbSet<Land> Landen
+    public virtual DbSet<LandDAL> Landen
     {
         get; set;
     }
 
-    public virtual DbSet<Reis> Reizen
+    public virtual DbSet<ReisDAL> Reizen
     {
         get; set;
     }
 
-    public virtual DbSet<Werelddeel> Werelddelen
+    public virtual DbSet<WerelddeelDAL> Werelddelen
     {
         get; set;
     }
 
-    public virtual DbSet<Woonplaats> Woonplaatsen
+    public virtual DbSet<WoonplaatsDAL> Woonplaatsen
     {
         get; set;
     }
@@ -57,7 +57,7 @@ public partial class ReizenContext : DbContext
 
     protected override void OnModelCreating (ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Bestemming> (entity =>
+        modelBuilder.Entity<BestemmingDAL> (entity =>
         {
             entity.HasKey (e => e.Code).HasName ("PK__bestemmingen__357D4CF8ABF0313B");
 
@@ -80,7 +80,7 @@ public partial class ReizenContext : DbContext
                 .HasConstraintName ("bestemmingen_landen");
         });
 
-        modelBuilder.Entity<Boeking> (entity =>
+        modelBuilder.Entity<BoekingDAL> (entity =>
         {
             entity.HasKey (e => e.Id).HasName ("PK__boekingen__3213E83FE0274BF8");
 
@@ -105,7 +105,7 @@ public partial class ReizenContext : DbContext
                 .HasConstraintName ("boekingen_reizen");
         });
 
-        modelBuilder.Entity<Klant> (entity =>
+        modelBuilder.Entity<KlantDAL> (entity =>
         {
             entity.HasKey (e => e.Id).HasName ("PK__klanten__3213E83F8BE1A164");
 
@@ -132,7 +132,7 @@ public partial class ReizenContext : DbContext
                 .HasConstraintName ("klanten_woonplaatsen");
         });
 
-        modelBuilder.Entity<Land> (entity =>
+        modelBuilder.Entity<LandDAL> (entity =>
         {
             entity.HasKey (e => e.Id).HasName ("PK__landen__3213E83FF994C39E");
 
@@ -153,7 +153,7 @@ public partial class ReizenContext : DbContext
                 .HasConstraintName ("landen_werelddelen");
         });
 
-        modelBuilder.Entity<Reis> (entity =>
+        modelBuilder.Entity<ReisDAL> (entity =>
         {
             entity.HasKey (e => e.Id).HasName ("PK__reizen__3213E83F18B8A173");
 
@@ -179,7 +179,7 @@ public partial class ReizenContext : DbContext
                 .HasConstraintName ("reizen_bestemmingen");
         });
 
-        modelBuilder.Entity<Werelddeel> (entity =>
+        modelBuilder.Entity<WerelddeelDAL> (entity =>
         {
             entity.HasKey (e => e.Id).HasName ("PK__werelddelen__3213E83FCC03D392");
 
@@ -194,7 +194,7 @@ public partial class ReizenContext : DbContext
                 .HasColumnName ("naam");
         });
 
-        modelBuilder.Entity<Woonplaats> (entity =>
+        modelBuilder.Entity<WoonplaatsDAL> (entity =>
         {
             entity.HasKey (e => e.Id).HasName ("PK__woonplaa__3213E83F42709BCC");
 

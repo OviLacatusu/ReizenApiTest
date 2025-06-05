@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Reizen.Data.Models;
 
-public partial class Boeking
+public partial class BoekingDAL
 {
     public int Id
     {
@@ -40,7 +40,7 @@ public partial class Boeking
         get; set;
     }
 
-    public virtual Klant Klant { get; set; } = null!;
+    public virtual KlantDAL Klant { get; set; } = null!;
 
-    public virtual Reis Reis { get; set; } = null!;
+    public virtual ReisDAL Reis { get; set; } = null!;
 }

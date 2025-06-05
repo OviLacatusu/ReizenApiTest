@@ -10,17 +10,17 @@ namespace Reizen.Data.Models.CQRS.Queries
 {
     public sealed class GetReisMetId
     {
-        public record GetReisMetIdQuery(ReizenContext context, int id): IQuery<Result<Reis>>;
+        public record GetReisMetIdQuery(ReizenContext context, int id): IQuery<Result<ReisDAL>>;
 
-        public class GetReisMetIdQueryHandler : IQueryHandler<GetReisMetIdQuery, Result<Reis>>
+        public class GetReisMetIdQueryHandler : IQueryHandler<GetReisMetIdQuery, Result<ReisDAL>>
         {
-            public async Task<Result<Reis>> Handle (GetReisMetIdQuery query)
+            public async Task<Result<ReisDAL>> Handle (GetReisMetIdQuery query)
             {
                 try
                 {
                     if (query.id <= 0)
                     {
-                        return Result<Reis>.Failure ("Invalid trip ID");
+                        return Result<ReisDAL>.Failure ("Invalid trip ID");
                     }
 
                     var reis = (await query.context.Reizen
@@ -29,12 +29,12 @@ namespace Reizen.Data.Models.CQRS.Queries
                         .FirstOrDefault (r => r.Id == query.id);
 
                     return reis == null
-                        ? Result<Reis>.Failure ($"Trip with ID {query.id} not found")
-                        : Result<Reis>.Success (reis);
+                        ? Result<ReisDAL>.Failure ($"Trip with ID {query.id} not found")
+                        : Result<ReisDAL>.Success (reis);
                 }
                 catch (Exception ex)
                 {
-                    return Result<Reis>.Failure ($"Error retrieving trip: {ex.Message}");
+                    return Result<ReisDAL>.Failure ($"Error retrieving trip: {ex.Message}");
                 }
             }
         }

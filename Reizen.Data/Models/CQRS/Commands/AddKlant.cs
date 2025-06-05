@@ -9,11 +9,11 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class AddKlant
     {
-        public record AddKlantCommand(Klant klant, ReizenContext context) : ICommand<Result<Klant>>;
+        public record AddKlantCommand(KlantDAL klant, ReizenContext context) : ICommand<Result<KlantDAL>>;
 
-        public class AddKlantCommandHandler : ICommandHandler<AddKlantCommand, Result<Klant>>
+        public class AddKlantCommandHandler : ICommandHandler<AddKlantCommand, Result<KlantDAL>>
         {
-            public async Task<Result<Klant>> Handle (AddKlantCommand command)
+            public async Task<Result<KlantDAL>> Handle (AddKlantCommand command)
             { 
                 try
                 {
@@ -22,13 +22,13 @@ namespace Reizen.Data.Models.CQRS.Commands
                         try
                         {
                             if (command.klant is null)
-                                return Result<Klant>.Failure ("Klant cannot be null");
+                                return Result<KlantDAL>.Failure ("Klant cannot be null");
 
                             var result = await command.context.Klanten.AddAsync (command.klant);
                             await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
 
-                            return Result<Klant>.Success(result.Entity);
+                            return Result<KlantDAL>.Success(result.Entity);
                         }
                         catch { 
                             await transaction.RollbackAsync ();
@@ -37,7 +37,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                     }
                 }
                 catch (Exception ex) {
-                    return Result<Klant>.Failure ($"Error adding klant: {ex.Message}");
+                    return Result<KlantDAL>.Failure ($"Error adding klant: {ex.Message}");
                 }
             }
         }

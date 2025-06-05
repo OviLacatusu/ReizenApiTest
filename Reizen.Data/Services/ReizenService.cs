@@ -18,35 +18,35 @@ namespace Reizen.Data.Services
 {
     public class ReizenService (IMediator mediator, IDbContextFactory<ReizenContext> factory) : IReizenRepository
     {
-        public async Task<Result<IList<Reis>>> GetReizenMetBestemmingAsync (string bestemmingscode)
+        public async Task<Result<IList<ReisDAL>>> GetReizenMetBestemmingAsync (string bestemmingscode)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetReizenNaarBestemmingQuery, Result<IList<Reis>>> (new GetReizenNaarBestemmingQuery (context, bestemmingscode));
+                return await mediator.ExecuteQuery<GetReizenNaarBestemmingQuery, Result<IList<ReisDAL>>> (new GetReizenNaarBestemmingQuery (context, bestemmingscode));
             }
         }
 
-        public async Task<Result<Reis>> AddReisToBestemmingAsync (Reis reis, Bestemming bestemming)
+        public async Task<Result<ReisDAL>> AddReisToBestemmingAsync (ReisDAL reis, BestemmingDAL bestemming)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<AddReisToBestemmingCommand, Result<Reis>> (new AddReisToBestemmingCommand (reis, bestemming, context));
+                return await mediator.ExecuteCommand<AddReisToBestemmingCommand, Result<ReisDAL>> (new AddReisToBestemmingCommand (reis, bestemming, context));
             }
         }
 
-        public async Task<Result<Reis>> GetReisMetIdAsync (int id)
+        public async Task<Result<ReisDAL>> GetReisMetIdAsync (int id)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetReisMetIdQuery, Result<Reis>> (new GetReisMetIdQuery (context, id));
+                return await mediator.ExecuteQuery<GetReisMetIdQuery, Result<ReisDAL>> (new GetReisMetIdQuery (context, id));
             }
         }
 
-        public async Task<Result<Reis>> DeleteReisMetIdAsync (int id)
+        public async Task<Result<ReisDAL>> DeleteReisMetIdAsync (int id)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<DeleteReisCommand, Result<Reis>> (new DeleteReisCommand (id, context));
+                return await mediator.ExecuteCommand<DeleteReisCommand, Result<ReisDAL>> (new DeleteReisCommand (id, context));
             }
         }
     }

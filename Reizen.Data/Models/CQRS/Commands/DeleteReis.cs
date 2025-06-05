@@ -9,11 +9,11 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class DeleteReis
     {
-        public record DeleteReisCommand(int id, ReizenContext context):ICommand<Result<Reis>>;
+        public record DeleteReisCommand(int id, ReizenContext context):ICommand<Result<ReisDAL>>;
 
-        public class DeleteReisCommandHandler : ICommandHandler<DeleteReisCommand, Result<Reis>>
+        public class DeleteReisCommandHandler : ICommandHandler<DeleteReisCommand, Result<ReisDAL>>
         {
-            public async Task<Result<Reis>> Handle (DeleteReisCommand command)
+            public async Task<Result<ReisDAL>> Handle (DeleteReisCommand command)
             {
                 try
                 {
@@ -24,19 +24,19 @@ namespace Reizen.Data.Models.CQRS.Commands
                             var existingReis = await command.context.Reizen.FindAsync (command.id);
                             if (existingReis == null)
                             {
-                                return Result<Reis>.Failure ($"Reis with ID not found");
+                                return Result<ReisDAL>.Failure ($"Reis with ID not found");
                             }
                             if (existingReis.Boekingen.Where (b => b.Reis.Vertrek > DateOnly.FromDateTime (DateTime.Today)).Any ())
                             {
-                                return Result<Reis>.Failure ($"Cannot delete trip with active bookings");
+                                return Result<ReisDAL>.Failure ($"Cannot delete trip with active bookings");
                             }
-                            Reis? reis = new Reis { Id = command.id };
+                            ReisDAL? reis = new ReisDAL { Id = command.id };
 
                             command.context.Attach (reis);
                             command.context.Reizen.Remove (reis);
                             await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
-                            return Result<Reis>.Success (reis);
+                            return Result<ReisDAL>.Success (reis);
                         }
                         catch
                         {
@@ -47,7 +47,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                 }
                 catch (Exception ex)
                 {
-                    return Result<Reis>.Failure ($"Error deleting trip: {ex.Message}");
+                    return Result<ReisDAL>.Failure ($"Error deleting trip: {ex.Message}");
                 }
             }
         }

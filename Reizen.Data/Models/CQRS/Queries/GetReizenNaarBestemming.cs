@@ -10,17 +10,17 @@ namespace Reizen.Data.Models.CQRS.Queries
 {
     public sealed class GetReizenNaarBestemming
     {
-        public record GetReizenNaarBestemmingQuery(ReizenContext context, string bestemmingscode): IQuery<Result<IList<Reis>>>;
+        public record GetReizenNaarBestemmingQuery(ReizenContext context, string bestemmingscode): IQuery<Result<IList<ReisDAL>>>;
 
-        public class GetReizenNaarBestemmingQueryHandler : IQueryHandler<GetReizenNaarBestemmingQuery, Result<IList<Reis>>>
+        public class GetReizenNaarBestemmingQueryHandler : IQueryHandler<GetReizenNaarBestemmingQuery, Result<IList<ReisDAL>>>
         {
-            public async Task<Result<IList<Reis>>> Handle (GetReizenNaarBestemmingQuery query)
+            public async Task<Result<IList<ReisDAL>>> Handle (GetReizenNaarBestemmingQuery query)
             {
                 try
                 {
                     if (string.IsNullOrEmpty (query.bestemmingscode))
                     {
-                        return Result<IList<Reis>>.Failure ("Destination code cannot be empty");
+                        return Result<IList<ReisDAL>>.Failure ("Destination code cannot be empty");
                     }
 
                     var result = (await query.context.Reizen
@@ -30,12 +30,12 @@ namespace Reizen.Data.Models.CQRS.Queries
                         .ToList ();
 
                     return result.Count == 0
-                        ? Result<IList<Reis>>.Failure ($"No trips found for destination code '{query.bestemmingscode}'")
-                        : Result<IList<Reis>>.Success (result);
+                        ? Result<IList<ReisDAL>>.Failure ($"No trips found for destination code '{query.bestemmingscode}'")
+                        : Result<IList<ReisDAL>>.Success (result);
                 }
                 catch (Exception ex)
                 {
-                    return Result<IList<Reis>>.Failure ($"Error retrieving trips: {ex.Message}");
+                    return Result<IList<ReisDAL>>.Failure ($"Error retrieving trips: {ex.Message}");
                 }
             }
         }

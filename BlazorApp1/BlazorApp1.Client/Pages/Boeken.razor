@@ -133,7 +133,7 @@
             using (var httpClient = _httpFactory.CreateClient()) 
             {
                 var result = await httpClient.GetAsync($"/api/reizen/{ReisId}");
-
+                
                 if (result.IsSuccessStatusCode)
                 {
                     Reis = await result.Content.ReadFromJsonAsync<ReisDTO>();

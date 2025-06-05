@@ -11,11 +11,11 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class AddLand
     {
-        public record AddLandCommand (Land land, ReizenContext context) : ICommand<Result<Land>>;
+        public record AddLandCommand (LandDAL land, ReizenContext context) : ICommand<Result<LandDAL>>;
 
-        public class AddLandCommandHandler : ICommandHandler<AddLandCommand, Result<Land>> 
+        public class AddLandCommandHandler : ICommandHandler<AddLandCommand, Result<LandDAL>> 
         {
-            public async Task<Result<Land>> Handle (AddLandCommand command)
+            public async Task<Result<LandDAL>> Handle (AddLandCommand command)
             {
                 try
                 {
@@ -26,14 +26,14 @@ namespace Reizen.Data.Models.CQRS.Commands
                             var result = command.context.Landen.Where (l => String.Equals(command.land.Naam, l.Naam, StringComparison.OrdinalIgnoreCase));
                             if (result != null)
                             {
-                                return Result<Land>.Failure ($"Land already exists");
+                                return Result<LandDAL>.Failure ($"Land already exists");
                             }
 
                             await command.context.Landen.AddAsync (command.land);
                             await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
 
-                            return Result<Land>.Success(command.land);
+                            return Result<LandDAL>.Success(command.land);
                         }
                         catch {
                             transaction.Rollback ();
@@ -42,7 +42,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                     } 
                 }
                 catch (Exception ex) {
-                    return Result<Land>.Failure ($"Error adding Land: {ex.Message}");
+                    return Result<LandDAL>.Failure ($"Error adding Land: {ex.Message}");
                 }
             }
         }

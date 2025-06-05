@@ -9,11 +9,11 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class DeleteKlant
     {
-        public record DeleteKlantCommand (int klantId, ReizenContext context) : ICommand<Result<Klant>>;
+        public record DeleteKlantCommand (int klantId, ReizenContext context) : ICommand<Result<KlantDAL>>;
 
-        public class DeleteKlantCommandHandler : ICommandHandler<DeleteKlantCommand, Result<Klant>>
+        public class DeleteKlantCommandHandler : ICommandHandler<DeleteKlantCommand, Result<KlantDAL>>
         {
-            public async Task<Result<Klant>> Handle (DeleteKlantCommand command)
+            public async Task<Result<KlantDAL>> Handle (DeleteKlantCommand command)
             {
                 try
                 {
@@ -24,21 +24,21 @@ namespace Reizen.Data.Models.CQRS.Commands
                             var existingKlant = await command.context.Klanten.FindAsync (command.klantId);
                             if (existingKlant == null)
                             {
-                                return Result<Klant>.Failure ($"Customer with ID not found");
+                                return Result<KlantDAL>.Failure ($"Customer with ID not found");
                             }
                             if (existingKlant.Boekingen.Where(b => b.Reis.Vertrek > DateOnly.FromDateTime(DateTime.Today)).Any())
                             {
-                                return Result<Klant>.Failure ($"Cannot delete customer with active bookings");
+                                return Result<KlantDAL>.Failure ($"Cannot delete customer with active bookings");
                             }
                             
-                            Klant klant = new Klant { Id = command.klantId };
+                            KlantDAL klant = new KlantDAL { Id = command.klantId };
 
                             command.context.Attach (klant);
                             command.context.Klanten.Remove (klant);
                             await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
 
-                            return Result<Klant>.Success(klant);
+                            return Result<KlantDAL>.Success(klant);
                         }
                         catch
                         {
@@ -49,7 +49,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                 }
                 catch (Exception ex)
                 {
-                    return Result<Klant>.Failure($"Error deleting client: {ex.Message}");
+                    return Result<KlantDAL>.Failure($"Error deleting client: {ex.Message}");
                 }
 }
         }     

@@ -10,11 +10,11 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class AddBoeking
     {
-        public record AddBoekingCommand(Boeking boeking, ReizenContext context) : ICommand<Result<Boeking>>;
+        public record AddBoekingCommand(BoekingDAL boeking, ReizenContext context) : ICommand<Result<BoekingDAL>>;
 
-        public class AddBoekingCommandHandler : ICommandHandler<AddBoekingCommand, Result<Boeking>>
+        public class AddBoekingCommandHandler : ICommandHandler<AddBoekingCommand, Result<BoekingDAL>>
         {
-            public async Task<Result<Boeking>> Handle (AddBoekingCommand command)
+            public async Task<Result<BoekingDAL>> Handle (AddBoekingCommand command)
             {
                 try
                 {
@@ -27,13 +27,13 @@ namespace Reizen.Data.Models.CQRS.Commands
                             if (existingBoeking.Any ())
                             {
                                 await transaction.RollbackAsync ();
-                                return Result<Boeking>.Failure ("Boeking already exists for this client");
+                                return Result<BoekingDAL>.Failure ("Boeking already exists for this client");
                             }
                             var result = await command.context.Boekingen.AddAsync (command.boeking);
                             await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
                             
-                            return Result<Boeking>.Success(command.boeking);
+                            return Result<BoekingDAL>.Success(command.boeking);
                         }
                         catch
                         {
@@ -44,7 +44,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                 }
                 catch (Exception ex) 
                 {
-                    return Result<Boeking>.Failure ($"Error adding booking: {ex.Message}");
+                    return Result<BoekingDAL>.Failure ($"Error adding booking: {ex.Message}");
                 }
                 
             }

@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Reizen.Data.Models;
 using Reizen.Data.Services;
-using Reis = Reizen.Data.Models.Reis;
-using Bestemming = Reizen.Data.Models.Bestemming;
+using ReisDAL = Reizen.Data.Models.ReisDAL;
+using BestemmingDAL = Reizen.Data.Models.BestemmingDAL;
 using Reizen.Domain.DTOs;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -35,7 +35,7 @@ namespace ReizenApi.Controllers
                     _logger.LogInformation ($"No trips found: {result.Error}");
                     return NotFound (result.Error);
                 }
-                var dtos = _mapper.Map<ICollection<Reis>> (result.Value);
+                var dtos = _mapper.Map<ICollection<ReisDAL>> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex) 
@@ -62,7 +62,7 @@ namespace ReizenApi.Controllers
                     _logger.LogInformation ($"No trips found with id {id}: {result.Error}");
                     return NotFound (result.Error);
                 }
-                var dto = _mapper.Map<Reis> (result.Value);
+                var dto = _mapper.Map<ReisDAL> (result.Value);
                 return Ok (dto);
             }
             catch (Exception ex)
@@ -83,9 +83,9 @@ namespace ReizenApi.Controllers
                     _logger.LogWarning ("Provided value is invalid");
                     return BadRequest ();
                 }
-                var reis = _mapper.Map<Reis> (reisBestemmingDto.Item1);
+                var reis = _mapper.Map<ReisDAL> (reisBestemmingDto.Item1);
 
-                var bestemming = _mapper.Map<Bestemming> (reisBestemmingDto.Item2);
+                var bestemming = _mapper.Map<BestemmingDAL> (reisBestemmingDto.Item2);
                 var result = await _service.AddReisToBestemmingAsync (reis, bestemming);
 
                 if (!result.IsSuccessful)

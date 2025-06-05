@@ -9,11 +9,11 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class UpdateBoeking
     {
-        public record UpdateBoekingCommand(Boeking boeking, int id, ReizenContext context): ICommand<Result<Boeking>>;
+        public record UpdateBoekingCommand(BoekingDAL boeking, int id, ReizenContext context): ICommand<Result<BoekingDAL>>;
 
-        public class UpdateBoekingCommandHandler : ICommandHandler<UpdateBoekingCommand, Result<Boeking>>
+        public class UpdateBoekingCommandHandler : ICommandHandler<UpdateBoekingCommand, Result<BoekingDAL>>
         {
-            public async Task<Result<Boeking>> Handle (UpdateBoekingCommand command)
+            public async Task<Result<BoekingDAL>> Handle (UpdateBoekingCommand command)
             {
                 try
                 {
@@ -24,7 +24,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                             var existingBoeking = await command.context.Boekingen.FindAsync (command.id);
                             if (existingBoeking == null)
                             {
-                                return Result<Boeking>.Failure ($"Cannot find booking with ID");
+                                return Result<BoekingDAL>.Failure ($"Cannot find booking with ID");
                             }
 
                             existingBoeking.AantalKinderen = command.boeking.AantalKinderen;
@@ -33,7 +33,7 @@ namespace Reizen.Data.Models.CQRS.Commands
 
                             await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
-                            return Result<Boeking>.Success(command.boeking);
+                            return Result<BoekingDAL>.Success(command.boeking);
                             
                         }
                         catch 
@@ -44,7 +44,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                     }
                 }
                 catch (Exception ex) {
-                    return Result<Boeking>.Failure ($"Error updating booking: {ex.Message}");
+                    return Result<BoekingDAL>.Failure ($"Error updating booking: {ex.Message}");
                 }
                 
             }

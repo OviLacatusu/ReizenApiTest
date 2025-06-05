@@ -10,22 +10,22 @@ namespace Reizen.Data.Models.CQRS.Queries
 {
     public sealed class GetWerelddelen
     {
-        public record GetWerelddelenQuery(ReizenContext context): IQuery<Result<IList<Werelddeel>>>;
+        public record GetWerelddelenQuery(ReizenContext context): IQuery<Result<IList<WerelddeelDAL>>>;
 
-        public class GetWerelddelenQueryHandler : IQueryHandler<GetWerelddelenQuery, Result<IList<Werelddeel>>>
+        public class GetWerelddelenQueryHandler : IQueryHandler<GetWerelddelenQuery, Result<IList<WerelddeelDAL>>>
         {
-            public async Task<Result<IList<Werelddeel>>> Handle (GetWerelddelenQuery query)
+            public async Task<Result<IList<WerelddeelDAL>>> Handle (GetWerelddelenQuery query)
             {
                 try
                 {
                     var werelddelen = await query.context.Werelddelen.ToListAsync ();
                     return werelddelen.Count == 0
-                        ? Result<IList<Werelddeel>>.Failure ("No world regions found")
-                        : Result<IList<Werelddeel>>.Success (werelddelen);
+                        ? Result<IList<WerelddeelDAL>>.Failure ("No world regions found")
+                        : Result<IList<WerelddeelDAL>>.Success (werelddelen);
                 }
                 catch (Exception ex)
                 {
-                    return Result<IList<Werelddeel>>.Failure ($"Error retrieving world regions: {ex.Message}");
+                    return Result<IList<WerelddeelDAL>>.Failure ($"Error retrieving world regions: {ex.Message}");
                 }
             }
         }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Reizen.Data.Models;
 
-public partial class Land
+public partial class LandDAL
 {
     public int Id
     {
@@ -17,7 +17,7 @@ public partial class Land
         get; set;
     }
 
-    public virtual ICollection<Bestemming> Bestemmingen { get; set; } = new List<Bestemming> ();
+    public virtual ICollection<BestemmingDAL> Bestemmingen { get; set; } = new List<BestemmingDAL> ();
 
-    public virtual Werelddeel Werelddeel { get; set; } = null!;
+    public virtual WerelddeelDAL Werelddeel { get; set; } = null!;
 }

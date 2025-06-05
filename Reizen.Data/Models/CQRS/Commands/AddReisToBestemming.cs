@@ -10,11 +10,11 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class AddReisToBestemming
     {
-        public record AddReisToBestemmingCommand(Reis reis, Bestemming bestemming, ReizenContext context):ICommand<Result<Reis>>;
+        public record AddReisToBestemmingCommand(ReisDAL reis, BestemmingDAL bestemming, ReizenContext context):ICommand<Result<ReisDAL>>;
 
-        public class AddReisToBestemmingCommandHandler : ICommandHandler<AddReisToBestemmingCommand, Result<Reis>>
+        public class AddReisToBestemmingCommandHandler : ICommandHandler<AddReisToBestemmingCommand, Result<ReisDAL>>
         {
-            public async Task<Result<Reis>> Handle (AddReisToBestemmingCommand command)
+            public async Task<Result<ReisDAL>> Handle (AddReisToBestemmingCommand command)
             {
                 try
                 {
@@ -25,19 +25,19 @@ namespace Reizen.Data.Models.CQRS.Commands
                             var existingBestemming = await command.context.Bestemmingen.FindAsync (command.bestemming.Code);
 
                             if (command.reis == null || command.bestemming == null)
-                                return Result<Reis>.Failure ($"Trip or destination cannot be null");
+                                return Result<ReisDAL>.Failure ($"Trip or destination cannot be null");
                             if (command.reis.Vertrek < DateOnly.FromDateTime (DateTime.Today))
-                                return Result<Reis>.Failure ($"Trip departure cannot be in the past");
+                                return Result<ReisDAL>.Failure ($"Trip departure cannot be in the past");
                             if (existingBestemming is null)
-                                return Result<Reis>.Failure ($"Destination not found");
+                                return Result<ReisDAL>.Failure ($"Destination not found");
                             if (command.reis.Bestemmingscode != command.bestemming.Code)
-                                return Result<Reis>.Failure ($"Destination code does not match trip destination code");
+                                return Result<ReisDAL>.Failure ($"Destination code does not match trip destination code");
 
                             existingBestemming?.Reizen.Add (command.reis);
                             await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
 
-                            return Result<Reis>.Success(command.reis);
+                            return Result<ReisDAL>.Success(command.reis);
                         }
                         catch { 
                             await transaction.RollbackAsync ();
@@ -46,7 +46,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                     }
                 }
                 catch (Exception ex) {
-                    return Result<Reis>.Failure ($"Error adding Reis to destination: {ex.Message}");
+                    return Result<ReisDAL>.Failure ($"Error adding Reis to destination: {ex.Message}");
                 }
             }
         }

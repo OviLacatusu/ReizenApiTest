@@ -17,19 +17,13 @@ namespace ReizenApi.Controllers
     [Route ("api/[controller]")]
     public class TestController : Controller
     {
-        //private const string CODE_ARG = "code";
-        //private const string CREDENTIALS_ARG = "credentials";
-        //private const string SHEETSERVICE_ARG = "sheetService";
-        //private const string AUTHHELPER_ARG = "AuthResponseHelper";
         private const string GOOGLE_PHOTOS_API_URL = "https://photospicker.googleapis.com/v1/mediaItems";
         private const string GOOGLE_PICKER_API_SESSION_REQ = "https://photospicker.googleapis.com/v1/sessions";
 
         private static string[] scopes = { SheetsService.Scope.SpreadsheetsReadonly };
         private ImmutableDictionary<string, KZJobEntry> kzEntries;
 
-        //private readonly GoogleAuthConfig _config;
         private readonly IHttpClientFactory _httpFactory;
-        //private readonly GoogleAuthService  _service;
         private readonly ILogger<TestController> _logger;
 
         public TestController (
@@ -42,23 +36,6 @@ namespace ReizenApi.Controllers
             this._logger = _logger ?? throw new ArgumentNullException (nameof(_logger));
         }
 
-        //[HttpGet ("GetOauthServerSettings")]
-        //public async Task<ActionResult> GetClientId (CancellationToken cancellationToken)
-        //{
-        //    try
-        //    {
-        //        if (string.IsNullOrEmpty (_config.ClientId))
-        //        {
-        //            throw new ArgumentNullException (nameof (_config.ClientId));
-        //        }
-        //        return Ok (_config.ClientId);
-        //    }
-        //    catch (Exception ex) 
-        //    {
-        //        _logger.LogError ($"Error {ex.Message}");
-        //        return StatusCode (500, ex);
-        //    }
-        //}
         [HttpGet ("CopyPhoto/{id}")]
         public async Task<ActionResult> CopyPhoto ([FromHeader] string Authorization, string id, CancellationToken cancellationToken)
         {

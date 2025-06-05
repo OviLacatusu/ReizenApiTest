@@ -30,98 +30,98 @@ namespace Reizen.Data.Services
 {
     public sealed class LandenService (IMediator mediator, IDbContextFactory<ReizenContext> factory) : ILandenWerelddelenRepository
     {
-        public async Task<Result<IList<Werelddeel>>> GetWerelddelenAsync ()
+        public async Task<Result<IList<WerelddeelDAL>>> GetWerelddelenAsync ()
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetWerelddelenQuery, Result<IList<Werelddeel>>> (new GetWerelddelenQuery (context));
+                return await mediator.ExecuteQuery<GetWerelddelenQuery, Result<IList<WerelddeelDAL>>> (new GetWerelddelenQuery (context));
             }
         }
 
-        public async Task<Result<IList<Land>>> GetLandenVanWerelddeelAsync (string? werelddeelNaam)
+        public async Task<Result<IList<LandDAL>>> GetLandenVanWerelddeelAsync (string? werelddeelNaam)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetLandenVanWerelddeelQuery, Result<IList<Land>>> (new GetLandenVanWerelddeelQuery (werelddeelNaam, context));
+                return await mediator.ExecuteQuery<GetLandenVanWerelddeelQuery, Result<IList<LandDAL>>> (new GetLandenVanWerelddeelQuery (werelddeelNaam, context));
             }
         }
 
-        public async Task<Result<IList<Bestemming>>> GetBestemmingenVanLandAsync (string? landnaam)
+        public async Task<Result<IList<BestemmingDAL>>> GetBestemmingenVanLandAsync (string? landnaam)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetBestemmingenVanLandQuery, Result<IList<Bestemming>>> (new GetBestemmingenVanLandQuery (landnaam, context));
+                return await mediator.ExecuteQuery<GetBestemmingenVanLandQuery, Result<IList<BestemmingDAL>>> (new GetBestemmingenVanLandQuery (landnaam, context));
             }
         }
 
-        public async Task<Result<IList<Bestemming>>> GetBestemmingenAsync ()
+        public async Task<Result<IList<BestemmingDAL>>> GetBestemmingenAsync ()
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetBestemmingenQuery, Result<IList<Bestemming>>> (new GetBestemmingenQuery (context));
+                return await mediator.ExecuteQuery<GetBestemmingenQuery, Result<IList<BestemmingDAL>>> (new GetBestemmingenQuery (context));
             }
         }
 
-        public async Task<Result<Land>> AddLandToWerelddeelAsync (Land land, Werelddeel deel)
+        public async Task<Result<LandDAL>> AddLandToWerelddeelAsync (LandDAL land, WerelddeelDAL deel)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<AddLandToWerelddeelCommand, Result<Land>> (new AddLandToWerelddeelCommand(land, deel, context));
+                return await mediator.ExecuteCommand<AddLandToWerelddeelCommand, Result<LandDAL>> (new AddLandToWerelddeelCommand(land, deel, context));
             }
         }
 
-        public async Task<Result<Bestemming>> AddBestemmingAsync (Bestemming bestemming)
+        public async Task<Result<BestemmingDAL>> AddBestemmingAsync (BestemmingDAL bestemming)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<AddBestemmingCommand, Result<Bestemming>> (new AddBestemmingCommand(context, bestemming));
+                return await mediator.ExecuteCommand<AddBestemmingCommand, Result<BestemmingDAL>> (new AddBestemmingCommand(context, bestemming));
             }
         }
 
-        public async Task<Result<Land>> GetLandMetIdAsync (int id)
+        public async Task<Result<LandDAL>> GetLandMetIdAsync (int id)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetLandMetIdQuery, Result<Land>> (new GetLandMetIdQuery ( id, context));
+                return await mediator.ExecuteQuery<GetLandMetIdQuery, Result<LandDAL>> (new GetLandMetIdQuery ( id, context));
             }
         }
 
-        public async Task<Result<Land>> AddLandAsync (Land land)
+        public async Task<Result<LandDAL>> AddLandAsync (LandDAL land)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<AddLandCommand, Result<Land>> (new AddLandCommand (land, context));
+                return await mediator.ExecuteCommand<AddLandCommand, Result<LandDAL>> (new AddLandCommand (land, context));
             }
         }
 
-        public async Task<Result<Land>> UpdateLandMetIdAsync (int id, Land land)
+        public async Task<Result<LandDAL>> UpdateLandMetIdAsync (int id, LandDAL land)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<UpdateLandCommand, Result<Land>> (new UpdateLandCommand (id, land, context));
+                return await mediator.ExecuteCommand<UpdateLandCommand, Result<LandDAL>> (new UpdateLandCommand (id, land, context));
             }
         }
-        public async Task<Result<Land>> DeleteLandMetIdAsync (int id)
+        public async Task<Result<LandDAL>> DeleteLandMetIdAsync (int id)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand <DeleteLandCommand, Result<Land>> (new DeleteLandCommand (id, context));
-            }
-        }
-
-        public async Task<Result<Bestemming>> DeleteBestemmingMetIdAsync (string code)
-        {
-            using (var context = factory.CreateDbContext ())
-            {
-                return await mediator.ExecuteCommand<DeleteBestemmingCommand, Result<Bestemming>> (new DeleteBestemmingCommand (code, context));
+                return await mediator.ExecuteCommand <DeleteLandCommand, Result<LandDAL>> (new DeleteLandCommand (id, context));
             }
         }
 
-        public async Task<Result<IList<Land>>> GetLandenAsync ()
+        public async Task<Result<BestemmingDAL>> DeleteBestemmingMetIdAsync (string code)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetLandenQuery, Result<IList<Land>>> (new GetLandenQuery (context));
+                return await mediator.ExecuteCommand<DeleteBestemmingCommand, Result<BestemmingDAL>> (new DeleteBestemmingCommand (code, context));
+            }
+        }
+
+        public async Task<Result<IList<LandDAL>>> GetLandenAsync ()
+        {
+            using (var context = factory.CreateDbContext ())
+            {
+                return await mediator.ExecuteQuery<GetLandenQuery, Result<IList<LandDAL>>> (new GetLandenQuery (context));
             }
         }
     }

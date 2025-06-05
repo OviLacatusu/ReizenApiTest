@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Reizen.Data.Models;
 using Reizen.Data.Services;
-using Klant = Reizen.Data.Models.Klant;
+using KlantDAL = Reizen.Data.Models.KlantDAL;
 using Reizen.Domain.DTOs;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -103,7 +103,7 @@ namespace ReizenApi.Controllers
                     _logger.LogWarning ("Invalid data provided");
                     return BadRequest ();
                 }
-                var klant = _mapper.Map<Klant> (klantDto);
+                var klant = _mapper.Map<KlantDAL> (klantDto);
                 var result = await _service.AddKlantAsync (klant);
 
                 if (!result.IsSuccessful)
@@ -132,7 +132,7 @@ namespace ReizenApi.Controllers
                     _logger.LogWarning ("Invalid data provided");
                     return BadRequest ();
                 }
-                var klant = _mapper.Map<Klant> (klantDto);
+                var klant = _mapper.Map<KlantDAL> (klantDto);
                 var existingKlant = await _service.GetKlantMetIdAsync (id);
                 
                 if (!existingKlant.IsSuccessful)

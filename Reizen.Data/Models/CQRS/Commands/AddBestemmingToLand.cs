@@ -9,11 +9,11 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class AddBestemmingToLand
     {
-        public record AddBestemmingToLandCommand (Bestemming bestemming, Land land, ReizenContext context) : ICommand<Result<Bestemming>>;
+        public record AddBestemmingToLandCommand (BestemmingDAL bestemming, LandDAL land, ReizenContext context) : ICommand<Result<BestemmingDAL>>;
 
-        public class AddBestemmingToLandCommandHandler : ICommandHandler<AddBestemmingToLandCommand, Result<Bestemming>>
+        public class AddBestemmingToLandCommandHandler : ICommandHandler<AddBestemmingToLandCommand, Result<BestemmingDAL>>
         {
-            public async Task<Result<Bestemming>> Handle (AddBestemmingToLandCommand command)
+            public async Task<Result<BestemmingDAL>> Handle (AddBestemmingToLandCommand command)
             {
                 try
                 {
@@ -25,18 +25,18 @@ namespace Reizen.Data.Models.CQRS.Commands
                             
                             if (land == null)
                             {
-                                return Result<Bestemming>.Failure ($"Country does not exist"); 
+                                return Result<BestemmingDAL>.Failure ($"Country does not exist"); 
                             }
                             if (land?.Bestemmingen.Where (el => el.Plaats == command.bestemming.Plaats).Count () > 0)
                             {
-                                return Result<Bestemming>.Failure ($"Destination already exists for this land");
+                                return Result<BestemmingDAL>.Failure ($"Destination already exists for this land");
                             }
 
                             land.Bestemmingen.Add(command.bestemming);
                             await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
 
-                            return Result<Bestemming>.Success(command.bestemming);
+                            return Result<BestemmingDAL>.Success(command.bestemming);
                         }
                         catch
                         {
@@ -46,7 +46,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                     }
                 }
                 catch (Exception ex) {
-                    return Result<Bestemming>.Failure ($"Error adding destination to Country: {ex.Message}");
+                    return Result<BestemmingDAL>.Failure ($"Error adding destination to Country: {ex.Message}");
                 }
             }
         }

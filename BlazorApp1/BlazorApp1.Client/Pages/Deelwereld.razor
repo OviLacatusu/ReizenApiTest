@@ -8,10 +8,10 @@
 @attribute [Authorize]
 
 <h3>Landen</h3>
-@if (landen != null)
+@if (Landen != null)
 {
     <ul>
-        @foreach (var land in landen)
+        @foreach (var land in Landen)
         {
             <li><a href="/landen/@land.Naam">@land.Naam </a></li>
         }
@@ -29,7 +29,7 @@ else
     [Parameter]
     public string? Naam { get; set; }
 
-    private IEnumerable<LandDTO>? landen;
+    private IEnumerable<LandDTO>? Landen;
 
     private string? Error { get; set; }
 
@@ -39,23 +39,32 @@ else
         if (!String.IsNullOrEmpty(Naam))
         {
             using var httpClient = _httpFactory.CreateClient();
-            var result = await httpClient.GetAsync($"api/landen/{Naam}");
+            // var result = await httpClient.GetAsync($"api/landen/{Naam}");
 
-            if (result.IsSuccessStatusCode)
+            // if (result.IsSuccessStatusCode)
+            // {
+            //     Landen = await result.Content.ReadFromJsonAsync<IEnumerable<LandDTO>>();
+            // }
+            // else
+            // {
+            //     var content = await result.Content.ReadAsStringAsync();
+            //     if (!String.IsNullOrEmpty(content))
+            //     {
+            //         Error = content;
+            //     }
+            //     else
+            //     {
+            //         Error = "Something went wrong.";
+            //     }
+            // }
+            var result = await HelperRequest<IEnumerable<LandDTO>>.SendGetRequestAsync($"api/landen/{Naam}", httpClient);
+            if (result.IsSuccessful)
             {
-                landen = await result.Content.ReadFromJsonAsync<IEnumerable<LandDTO>>();
+                Landen = result.Value;
             }
             else
             {
-                var content = await result.Content.ReadAsStringAsync();
-                if (!String.IsNullOrEmpty(content))
-                {
-                    Error = content;
-                }
-                else
-                {
-                    Error = "Something went wrong.";
-                }
+                Error = result.Error;
             }
         }
     }

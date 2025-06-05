@@ -9,28 +9,28 @@ namespace Reizen.Data.Models.CQRS.Queries
 {
     public sealed class GetKlantMetID
     {
-        public record GetKlantMetIDQuery(ReizenContext context, int id) : IQuery<Result<Klant>>;
+        public record GetKlantMetIDQuery(ReizenContext context, int id) : IQuery<Result<KlantDAL>>;
 
-        public class GetKlantMetIDQueryHandler : IQueryHandler<GetKlantMetIDQuery, Result<Klant>> 
+        public class GetKlantMetIDQueryHandler : IQueryHandler<GetKlantMetIDQuery, Result<KlantDAL>> 
         {
-            public async Task<Result<Klant>> Handle (GetKlantMetIDQuery query) 
+            public async Task<Result<KlantDAL>> Handle (GetKlantMetIDQuery query) 
             {
                 try
                 {
                     if (query.id <= 0)
                     {
-                        return Result<Klant>.Failure ("Invalid customer ID");
+                        return Result<KlantDAL>.Failure ("Invalid customer ID");
                     }
 
                     var klant = await query.context.Klanten.FindAsync (query.id);
 
                     return klant == null
-                        ? Result<Klant>.Failure ($"Customer with ID {query.id} not found")
-                        : Result<Klant>.Success (klant);
+                        ? Result<KlantDAL>.Failure ($"Customer with ID {query.id} not found")
+                        : Result<KlantDAL>.Success (klant);
                 }
                 catch (Exception ex)
                 {
-                    return Result<Klant>.Failure ($"Error retrieving customer: {ex.Message}");
+                    return Result<KlantDAL>.Failure ($"Error retrieving customer: {ex.Message}");
                 }
             } 
         }

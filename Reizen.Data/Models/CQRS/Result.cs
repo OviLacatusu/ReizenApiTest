@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Reizen.Data.Models
+namespace Reizen.Data.Models.CQRS
 {
     public class Result<T>
     {
