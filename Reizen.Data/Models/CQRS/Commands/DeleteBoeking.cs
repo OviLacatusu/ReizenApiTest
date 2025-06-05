@@ -30,8 +30,10 @@ namespace Reizen.Data.Models.CQRS.Commands
                             }
                             
                             var boeking = new Boeking { Id = command.id };
+
                             command.context.Attach (boeking);
                             command.context.Boekingen.Remove (boeking);
+                            await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
 
                             return Result<Boeking>.Success(boeking);

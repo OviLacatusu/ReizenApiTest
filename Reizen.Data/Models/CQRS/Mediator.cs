@@ -22,6 +22,8 @@ using static Reizen.Data.Models.CQRS.Commands.DeleteKlant;
 using static Reizen.Data.Models.CQRS.Commands.UpdateKlant;
 using static Reizen.Data.Models.CQRS.Queries.GetReizenNaarBestemming;
 using static Reizen.Data.Models.CQRS.Queries.GetReisMetId;
+using static Reizen.Data.Models.CQRS.Commands.AddBoeking;
+using static Reizen.Data.Models.CQRS.Queries.GetLanden;
 
 namespace Reizen.Data.Models.CQRS
 {
@@ -94,9 +96,11 @@ namespace Reizen.Data.Models.CQRS
             mediator.Register<AddKlantCommand, Result<Klant>> (new AddKlantCommandHandler ());
             mediator.Register<AddLandToWerelddeelCommand, Result<Land>> (new AddLandToWerelddeelCommandHandler ());
             mediator.Register<AddReisToBestemmingCommand, Result<Reis>> (new AddReisToBestemmingCommandHandler ());
+            mediator.Register<AddBoekingCommand, Result<Boeking>> (new AddBoekingCommandHandler ());
             mediator.Register<DeleteKlantCommand, Result<Klant>> (new DeleteKlantCommandHandler ());
             mediator.Register<UpdateKlantCommand, Result<Klant>> (new UpdateKlantCommandHandler ());
             mediator.Register<GetReisMetIdQuery, Result<Reis>> (new GetReisMetIdQueryHandler ());
+            mediator.Register<GetLandenQuery, Result<IList<Land>>> (new GetLandenQueryHandler ());
             mediator.Register<GetReizenNaarBestemmingQuery, Result<IList<Reis>>> (new GetReizenNaarBestemmingQueryHandler());
 
             //Console.WriteLine (mediator.GetHashCode());

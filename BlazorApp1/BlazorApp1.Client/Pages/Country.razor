@@ -39,7 +39,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        if (Landnaam != null)
+        if (!String.IsNullOrEmpty(Landnaam))
         {
             using var httpClient = httpFactory.CreateClient();
             var result = await httpClient.GetAsync($"api/bestemmingen/{Landnaam}");

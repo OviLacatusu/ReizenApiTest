@@ -34,20 +34,26 @@
         var last = mediaItems.mediaItems.Last();
         @* DownloadFileFromUrl(last.mediaFile.filename, last.mediaFile.baseUrl+"=d"); *@
     }
-    <script>
-        window.triggerFileDownload = (fileName, url) => {
-        const anchorElement = document.createElement('a');
-        anchorElement.href = url;
-        anchorElement.download = fileName ?? '';
-        anchorElement.click();
-        anchorElement.remove();
+    @* <script> *@
+    @*     window.triggerFileDownload = (fileName, url) => { *@
+    @*     const anchorElement = document.createElement('a'); *@
+    @*     anchorElement.href = url; *@
+    @*     anchorElement.download = fileName ?? ''; *@
+    @*     anchorElement.click(); *@
+    @*     anchorElement.remove(); *@
 
-        }
-    </script>
+    @*     } *@
+    @* </script> *@
+    @if (Error != null)
+    {
+        <div class="alert alert-danger">@Error</div>
+    }
 </AuthorizeView>
 
 @code
 {
+    private string? Error { get; set; }
+
     private CancellationToken token = new();
 
     [Parameter]
@@ -58,11 +64,13 @@
 
     public DetailsFiles? mediaItems { get; set; }
 
+    // Test method
     private async Task DownloadFileFromUrl(string filename, string fileURL) 
     {
         await JSRuntime.InvokeVoidAsync("triggerFileDownload", filename, fileURL);
     }
 
+    // Checking wether user is authenticated. If so we assume there is a access token to request a Picker session
     protected override async Task OnInitializedAsync()
     {
         _logger.LogInformation("-- OnInitialized called --");
@@ -87,6 +95,7 @@
         }
     }
 
+    // Requesting the Picker session
     private async Task GetPickerSession()
     {
         var client = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager));
@@ -95,12 +104,14 @@
 
         SessionData = result;
     }
+    // method to have a new tab opened for the picker session
     public async Task OpenTabAndPollSession()
     {
         await JSRuntime.InvokeVoidAsync("open", $"{SessionData.pickerUri}", "_blank");
         await PollRequest(SessionData.id);
     }
 
+    // Calling the API method that polls the request and returns the media files details
     private async Task PollRequest(string id)
     {
         _logger.LogInformation($"Running PollRequest at {DateTime.UtcNow.ToShortTimeString()}");
@@ -109,7 +120,23 @@
         {
             client.BaseAddress = new Uri("https://localhost:7285/");
             var response = await client.GetAsync($"api/Test/GetPhotosWithPicker/{id}");
-            mediaItems = await JsonSerializer.DeserializeAsync<DetailsFiles>(await response.Content?.ReadAsStreamAsync());
+            if (response.IsSuccessStatusCode)
+            {
+                mediaItems = await JsonSerializer.DeserializeAsync<DetailsFiles>(await response.Content?.ReadAsStreamAsync());
+            }
+            else
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                if (!String.IsNullOrEmpty(content))
+                {
+                    Error = content;
+                }
+                else
+                {
+                    Error = "Something went wrong.";
+                }
+            }
+            
         }
         _logger.LogInformation($"Exiting PollRequest at {DateTime.UtcNow.ToShortTimeString()}");
         StateHasChanged();

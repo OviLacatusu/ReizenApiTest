@@ -45,9 +45,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (Bestemmingscode != null)
+        if (!String.IsNullOrEmpty(Bestemmingscode))
         {
-            
             using var httpClient = _httpFactory.CreateClient();
             var result = await httpClient.GetAsync($"api/reizen/{Bestemmingscode}");
 

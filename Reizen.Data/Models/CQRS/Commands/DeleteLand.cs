@@ -32,9 +32,10 @@ namespace Reizen.Data.Models.CQRS.Commands
                                 return Result<Land>.Failure ($"Cannot delete country with active bookings");
                             }
                             Land? land = new Land { Id = command.id };
+
                             command.context.Attach (land);
                             command.context.Landen.Remove (land);
-
+                            await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
                             return Result<Land>.Success(land);
                         }

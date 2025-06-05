@@ -32,7 +32,9 @@ namespace Reizen.Data.Models.CQRS.Commands
                                 return Result<Reis>.Failure ($"Destination not found");
                             if (command.reis.Bestemmingscode != command.bestemming.Code)
                                 return Result<Reis>.Failure ($"Destination code does not match trip destination code");
+
                             existingBestemming?.Reizen.Add (command.reis);
+                            await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
 
                             return Result<Reis>.Success(command.reis);

@@ -31,6 +31,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                             klant.Familienaam = command.klantData.Familienaam;
                             klant.Adres = command.klantData.Adres;
 
+                            await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
 
                             return Result<Klant>.Success(klant);

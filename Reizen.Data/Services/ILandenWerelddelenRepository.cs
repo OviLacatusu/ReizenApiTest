@@ -11,6 +11,7 @@ namespace Reizen.Data.Services
     {
         Task<Result<IList<Werelddeel>>> GetWerelddelenAsync ();
         Task<Result<IList<Land>>> GetLandenVanWerelddeelAsync (string? werelddeelNaam);
+        Task<Result<IList<Land>>> GetLandenAsync();
         Task<Result<IList<Bestemming>>> GetBestemmingenVanLandAsync (string? landnaam);
         Task<Result<IList<Bestemming>>> GetBestemmingenAsync ();
         Task<Result<Bestemming>> AddBestemmingAsync (Bestemming bestemming);

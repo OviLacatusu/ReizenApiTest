@@ -22,14 +22,17 @@ namespace Reizen.Data.Models.CQRS.Commands
                     {
                         try
                         {
-                            var boeking = await command.context.Boekingen.Where (b => b.Klantid == command.boeking.Klantid && b.Reisid == command.boeking.Reisid).ToListAsync ();
+                            var existingBoeking = await command.context.Boekingen.Where (b => b.Klantid == command.boeking.Klantid && b.Reisid == command.boeking.Reisid).ToListAsync ();
 
-                            if (boeking.Any ())
+                            if (existingBoeking.Any ())
                             {
-                               return Result<Boeking>.Failure ("Boeking already exists for this client");
+                                await transaction.RollbackAsync ();
+                                return Result<Boeking>.Failure ("Boeking already exists for this client");
                             }
                             var result = await command.context.Boekingen.AddAsync (command.boeking);
+                            await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
+                            
                             return Result<Boeking>.Success(command.boeking);
                         }
                         catch

@@ -29,6 +29,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                                 return Result<Bestemming>.Failure ($"Destination already present");
 
                             command.context.Bestemmingen.Add (command.bestemming);
+                            await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
                             return Result<Bestemming>.Success (command.bestemming);
                         }

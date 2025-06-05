@@ -32,6 +32,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                             land.Naam = command.landData.Naam;
                             land.Bestemmingen = land.Bestemmingen;
 
+                            await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
 
                             return Result<Land>.Success (land);

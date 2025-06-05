@@ -28,7 +28,9 @@ namespace Reizen.Data.Models.CQRS.Commands
                             {
                                 return Result<Land>.Failure ($"Land already exists");
                             }
+
                             await command.context.Landen.AddAsync (command.land);
+                            await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
 
                             return Result<Land>.Success(command.land);

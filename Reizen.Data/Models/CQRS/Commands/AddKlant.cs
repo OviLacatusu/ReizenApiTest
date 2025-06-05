@@ -23,7 +23,9 @@ namespace Reizen.Data.Models.CQRS.Commands
                         {
                             if (command.klant is null)
                                 return Result<Klant>.Failure ("Klant cannot be null");
+
                             var result = await command.context.Klanten.AddAsync (command.klant);
+                            await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
 
                             return Result<Klant>.Success(result.Entity);

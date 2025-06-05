@@ -73,35 +73,35 @@ namespace ReizenApi.Controllers
         }
 
         //POST api/<ReizenController>
-        //[HttpPost]
-        //public async Task<ActionResult> Post ([FromBody] ReisDTO reisDto, BestemmingDTO bestemmingDto)
-        //{
-        //    try
-        //    {
-        //        if (reisDto is null || bestemmingDto is null)
-        //        {
-        //            _logger.LogWarning ("Provided value is invalid");
-        //            return BadRequest ();
-        //        }
-        //        var reis = _mapper.Map<Reis> (reisDto);
+        [HttpPost]
+        public async Task<ActionResult> Post ([FromBody] (ReisDTO, BestemmingDTO) reisBestemmingDto)
+        {
+            try
+            {
+                if (reisBestemmingDto.Item1 is null || reisBestemmingDto.Item2 is null)
+                {
+                    _logger.LogWarning ("Provided value is invalid");
+                    return BadRequest ();
+                }
+                var reis = _mapper.Map<Reis> (reisBestemmingDto.Item1);
 
-        //        var bestemming = _mapper.Map<Bestemming> (bestemmingDto);
-        //        var result = await _service.AddReisToBestemmingAsync (reis, bestemming);
+                var bestemming = _mapper.Map<Bestemming> (reisBestemmingDto.Item2);
+                var result = await _service.AddReisToBestemmingAsync (reis, bestemming);
 
-        //        if (!result.IsSuccessful)
-        //        {
-        //            _logger.LogError ($"Error occurred while adding trip: {result.Error}");
-        //            return StatusCode (500, "An error occurred while processing your request");
-        //        }
-        //        var dto = _mapper.Map<ReisDTO> (result.Value);
-        //        return Ok (dto);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError ($"Error adding trip");
-        //        return StatusCode (500, "An error occurred while processing your request");
-        //    }
-        //}
+                if (!result.IsSuccessful)
+                {
+                    _logger.LogError ($"Error occurred while adding trip: {result.Error}");
+                    return StatusCode (500, "An error occurred while processing your request");
+                }
+                var dto = _mapper.Map<ReisDTO> (result.Value);
+                return Ok (dto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError ($"Error adding trip");
+                return StatusCode (500, "An error occurred while processing your request");
+            }
+        }
 
         // PUT api/<ReizenController>/5
         [HttpPut ("{id}")]

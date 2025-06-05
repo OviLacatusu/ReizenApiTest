@@ -1,0 +1,69 @@
+﻿@page "/editCountries"
+
+
+
+@inject ILogger<EditAvailableCountries> _logger;
+@inject IHttpClientFactory _httpFactory;
+@inject NavigationManager _navManager;
+
+<h3>EditAvailableCountries</h3>
+
+@if(Lands.Count() > 0)
+{
+    foreach (var land in Lands)
+    {
+    <div class="row">
+        <div class="col-lg-1">
+            <label></label>
+        </div>
+        <div class="col-lg-3">
+            <InputText @bind-Value:get="(land.Naam)" @bind-Value:set="((value) => {})" ></InputText>
+        </div>
+            <div class="col-lg-1">
+                <button class="btn btn-warning">Edit</button>
+            </div>
+            <div class="col-lg-1">
+                <button class="btn btn-danger">X</button>
+            </div>
+        </div>
+    }
+    
+}
+    @if (Error != null)
+    {
+        <div class="alert alert-danger">@Error</div>
+    }
+
+@code {
+    private IEnumerable<LandDTO> Lands { get; set; } = new List<LandDTO>();
+
+    private string? Error { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetLands();
+    }
+
+    private async Task GetLands() 
+    { 
+        using var httpClient = _httpFactory.CreateClient();
+        var result = await httpClient.GetAsync($"api/landen");
+
+        if (result.IsSuccessStatusCode)
+        {
+            Lands = await result.Content.ReadFromJsonAsync<IEnumerable<LandDTO>>();
+        }
+        else
+        {
+            var content = await result.Content.ReadAsStringAsync();
+            if (!String.IsNullOrEmpty(content))
+            {
+                Error = content;
+            }
+            else
+            {
+                Error = "Something went wrong.";
+            }
+        }
+    }
+}

@@ -27,9 +27,10 @@ namespace Reizen.Data.Models.CQRS.Commands
                             return Result<Bestemming>.Failure ($"Cannot delete destination with active trips");
 
                         var toDelete = new Bestemming { Code = command.code };
+
                         command.context.Attach (toDelete);
                         command.context.Bestemmingen.Remove (toDelete);
-
+                        await command.context.SaveChangesAsync ();
                         await transaction.CommitAsync ();
 
                         return Result<Bestemming>.Success (toDelete);

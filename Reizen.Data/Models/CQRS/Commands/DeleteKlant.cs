@@ -32,9 +32,10 @@ namespace Reizen.Data.Models.CQRS.Commands
                             }
                             
                             Klant klant = new Klant { Id = command.klantId };
+
                             command.context.Attach (klant);
                             command.context.Klanten.Remove (klant);
-
+                            await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
 
                             return Result<Klant>.Success(klant);

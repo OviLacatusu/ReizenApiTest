@@ -34,7 +34,9 @@ namespace Reizen.Data.Models.CQRS.Commands
                             {
                                 return Result<Land>.Failure ($"Country already exists on this continent");
                             }
+
                             deelw.Landen.Add (command.land);
+                            await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
                             return Result<Land>.Success(command.land);
                         }

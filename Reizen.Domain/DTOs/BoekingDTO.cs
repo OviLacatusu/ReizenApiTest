@@ -35,7 +35,8 @@ namespace Reizen.Domain.DTOs
         [Range (0, 100)]
         public int? AantalVolwassenen
         {
-            get; set;
+            get; 
+            set;
         }
         [Required (ErrorMessage = "Field is required")]
         [Range (0, 100)]

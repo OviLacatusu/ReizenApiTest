@@ -35,7 +35,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        if (Naam != null)
+        Console.WriteLine($"\tName continent is: {Naam}");
+        if (!String.IsNullOrEmpty(Naam))
         {
             using var httpClient = _httpFactory.CreateClient();
             var result = await httpClient.GetAsync($"api/landen/{Naam}");

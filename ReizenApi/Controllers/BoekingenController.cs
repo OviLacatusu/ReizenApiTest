@@ -75,6 +75,11 @@ namespace ReizenApi.Controllers
                     _logger.LogWarning ("Provided booking is null");
                     return BadRequest ();
                 }
+                if (boekingDto.AantalVolwassenen <= 0 && boekingDto.AantalKinderen <= 0)
+                {
+                    _logger.LogWarning ("Provided booking is null");
+                    return BadRequest ("Please enter the number of persons");
+                }
                 var boeking = _mapper.Map<Boeking> (boekingDto);
                 var result = await _service.AddBoekingAsync (boeking);
                 
@@ -140,14 +145,14 @@ namespace ReizenApi.Controllers
                     return BadRequest ();
                 }
                 var existingBoeking = await _service.GetBoekingMetIdAsync (id);
-                if (existingBoeking is null)
+                if (!existingBoeking.IsSuccessful)
                 {
                     _logger.LogWarning ($"Booking with id={id} not found");
                     return NotFound (existingBoeking.Error);
                 }
                 var result = await _service.DeleteBoekingAsync (id);
 
-                if (result is null)
+                if (!result.IsSuccessful)
                 {
                     _logger.LogError ($"Error occurred while updating booking: {result.Error}");
                     return StatusCode (500, $"An error occurred while processing your request");

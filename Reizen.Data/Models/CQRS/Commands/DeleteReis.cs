@@ -31,9 +31,10 @@ namespace Reizen.Data.Models.CQRS.Commands
                                 return Result<Reis>.Failure ($"Cannot delete trip with active bookings");
                             }
                             Reis? reis = new Reis { Id = command.id };
+
                             command.context.Attach (reis);
                             command.context.Reizen.Remove (reis);
-
+                            await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
                             return Result<Reis>.Success (reis);
                         }

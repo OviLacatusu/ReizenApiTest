@@ -20,6 +20,7 @@ using static Reizen.Data.Models.CQRS.Queries.GetBestemmingenVanLand;
 using static Reizen.Data.Models.CQRS.Queries.GetKlanten;
 using static Reizen.Data.Models.CQRS.Queries.GetKlantMetID;
 using static Reizen.Data.Models.CQRS.Queries.GetKlantMetNaam;
+using static Reizen.Data.Models.CQRS.Queries.GetLanden;
 using static Reizen.Data.Models.CQRS.Queries.GetLandenVanWerelddeel;
 using static Reizen.Data.Models.CQRS.Queries.GetLandMetId;
 using static Reizen.Data.Models.CQRS.Queries.GetReizenNaarBestemming;
@@ -113,6 +114,14 @@ namespace Reizen.Data.Services
             using (var context = factory.CreateDbContext ())
             {
                 return await mediator.ExecuteCommand<DeleteBestemmingCommand, Result<Bestemming>> (new DeleteBestemmingCommand (code, context));
+            }
+        }
+
+        public async Task<Result<IList<Land>>> GetLandenAsync ()
+        {
+            using (var context = factory.CreateDbContext ())
+            {
+                return await mediator.ExecuteQuery<GetLandenQuery, Result<IList<Land>>> (new GetLandenQuery (context));
             }
         }
     }

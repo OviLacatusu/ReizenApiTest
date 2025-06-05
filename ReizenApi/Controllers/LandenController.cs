@@ -17,6 +17,27 @@ namespace ReizenApi.Controllers
         ILogger<LandenController> _logger) : ControllerBase
     {
         // GET: <LandenController>
+        [HttpGet]
+        public async Task<ActionResult> GetLanden ()
+        {
+            try
+            {
+                var result = await _service.GetLandenAsync();
+                if (!result.IsSuccessful)
+                {
+                    _logger.LogInformation ($"No countries found: {result.Error}");
+                    return NotFound (result.Error);
+                }
+                var dtos = _mapper.Map<ICollection<Land>> (result.Value);
+                return Ok (dtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError (ex, "Error while fetching countries");
+                return StatusCode (500, "An error occurred while processing your request");
+            }
+        }
+        // GET: <LandenController>/Asia
 
         [HttpGet ("{naam}")]
         public async Task<ActionResult> GetVanWerelddeel ( string naam)

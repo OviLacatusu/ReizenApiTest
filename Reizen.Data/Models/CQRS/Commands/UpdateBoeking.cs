@@ -31,6 +31,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                             existingBoeking.AantalVolwassenen = command.boeking.AantalVolwassenen;
                             existingBoeking.AnnulatieVerzekering = command.boeking.AnnulatieVerzekering;
 
+                            await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
                             return Result<Boeking>.Success(command.boeking);
                             
