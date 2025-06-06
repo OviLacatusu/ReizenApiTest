@@ -1,7 +1,7 @@
 ﻿@using Reizen.Domain.DTOs
 @using Microsoft.AspNetCore.Authorization
 
-@page "/Werelddelen/{Naam}"
+@page "/{Naam}/landen"
 
 @inject IHttpClientFactory _httpFactory
 
@@ -13,7 +13,7 @@
     <ul>
         @foreach (var land in Landen)
         {
-            <li><a href="/landen/@land.Naam">@land.Naam </a></li>
+            <li><a href="/@land.Naam/bestemmingen">@land.Naam </a></li>
         }
     </ul>
 }
@@ -35,7 +35,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        Console.WriteLine($"\tName continent is: {Naam}");
         if (!String.IsNullOrEmpty(Naam))
         {
             using var httpClient = _httpFactory.CreateClient();

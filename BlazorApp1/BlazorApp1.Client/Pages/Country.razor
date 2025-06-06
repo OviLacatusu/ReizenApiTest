@@ -1,7 +1,7 @@
 ﻿@using Reizen.Domain.DTOs
 @using Microsoft.AspNetCore.Authorization
 
-@page "/landen/{NaamLand}"
+@page "/{NaamLand}/bestemmingen"
 
 @inject IHttpClientFactory httpFactory
 
@@ -16,7 +16,7 @@
     <ul>
         @foreach (var bestemming in Bestemmingen)
         {
-            <li><a href="/bestemmingen/@bestemming.Code">@bestemming.Plaats </a></li>
+            <li><a href="/@bestemming.Code/reizen">@bestemming.Plaats </a></li>
         }
     </ul>
 }

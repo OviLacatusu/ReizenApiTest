@@ -7,6 +7,8 @@
 @inject ILogger<ReisKiezen> _logger;
 @inject IHttpClientFactory _httpFactory
 
+@rendermode InteractiveServer
+
 <div class="container">
     <h2>Chosen trip:</h2>
     @if(Reis is not null)
@@ -24,7 +26,8 @@
             <InputText @bind-value="Familienaam" id="Familienaam"></InputText>
             <button type="button" @onclick="(async () => await GetCustomers())" class="btn btn-primary">Zoek</button>
         </div>
-    }else 
+    }
+    else 
     { 
         <p>Waiting for data...</p>
     }
@@ -83,7 +86,7 @@
 
     private async Task GetCustomers() 
     {
-        if (Familienaam is not null)
+        if (!String.IsNullOrEmpty(Familienaam))
         {
             using (var httpClient = _httpFactory.CreateClient())
             {
@@ -96,6 +99,7 @@
                 {
                     Error = result.Error;
                 }
+                //StateHasChanged();
             }
         }
     }
