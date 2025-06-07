@@ -1,12 +1,13 @@
 ﻿@using Microsoft.AspNetCore.Authorization
-@using Reizen.Domain.DTOs
+@using Reizen.CommonClasses.DTOs
 
-@page "/Home"
+@page "/WerelddeelKeuze"
 
 @inject IHttpClientFactory _httpFactory
-@inject ILogger<Home> _logger;
+@inject ILogger<WerelddeelKeuze> _logger;
 
 @attribute [Authorize]
+
 <AuthorizeView>
     <div class="container">
     <PageTitle>Werelddelen</PageTitle>
@@ -17,8 +18,7 @@
             <ul>
                 @foreach (var werelddeel in Werelddelen)   
                 {
-                    @* _logger.LogInformation(context?.User?.Identity?.Name); *@
-                    <li><a href="/@werelddeel.Naam/landen">@werelddeel.Naam  </a></li>
+                    <li><a href="/landenwerelddeel/@werelddeel.Naam">@werelddeel.Naam  </a></li>
                 }
             </ul>
         } 
@@ -26,19 +26,20 @@
         {
             <p>Waiting for data...</p>
         }
-        @if(!String.IsNullOrEmpty(Error))
-        {
-            <div class="alert alert-danger">@Error</div>
-        }
+
     </div>
 </AuthorizeView> 
+@if (!String.IsNullOrEmpty(Error))
+{
+    <div class="alert alert-danger">@Error</div>
+}
 @code 
 {
     private string Error { get; set; }
 
     private IEnumerable<WerelddeelDTO>? Werelddelen;
 
-    protected override async Task OnInitializedAsync( )
+    protected override async Task OnInitializedAsync()
     {
         using var httpClient = _httpFactory.CreateClient();
         {

@@ -24,6 +24,7 @@ using static Reizen.Data.Models.CQRS.Queries.GetReizenNaarBestemming;
 using static Reizen.Data.Models.CQRS.Queries.GetReisMetId;
 using static Reizen.Data.Models.CQRS.Commands.AddBoeking;
 using static Reizen.Data.Models.CQRS.Queries.GetLanden;
+using Reizen.CommonClasses;
 
 namespace Reizen.Data.Models.CQRS
 {

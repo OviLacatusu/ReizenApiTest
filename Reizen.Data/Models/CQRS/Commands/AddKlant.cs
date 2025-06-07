@@ -1,5 +1,6 @@
 ﻿using Reizen.Data.Repositories;
 using System;
+using Reizen.CommonClasses;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

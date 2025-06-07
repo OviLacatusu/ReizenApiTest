@@ -1,8 +1,11 @@
 ﻿@page "/editCountries"
+@using Microsoft.AspNetCore.Authorization
 
 @inject ILogger<EditAvailableCountries> _logger;
 @inject IHttpClientFactory _httpFactory;
 @inject NavigationManager _navManager;
+
+@attribute [Authorize]
 
 <h3>EditAvailableCountries</h3>
 
@@ -10,15 +13,15 @@
 {
     foreach (var land in Landen)
     {
-    <div class="row">
-        <div class="col-lg-1">
-            <label></label>
-        </div>
-        <div class="col-lg-3">
-            <InputText @bind-Value:get="(land.Naam)" @bind-Value:set="((value) => {})" ></InputText>
-        </div>
+        <div class="row">
             <div class="col-lg-1">
-                <button class="btn btn-warning">Edit</button>
+                <label></label>
+            </div>
+            <div class="col-lg-3">
+                <InputText @ref="@(Elements[land.Naam])"  @bind-Value:get="(land.Naam)" @bind-Value:set="((value) => {})"  ></InputText>
+            </div>
+            <div class="col-lg-1">
+                <button class="btn btn-warning" @onclick="(() => ProcessEdit(land.Naam))">Edit</button>
             </div>
             <div class="col-lg-1">
                 <button class="btn btn-danger">🗙</button>
@@ -32,6 +35,11 @@
 }
 
 @code {
+    private InputText CurrentText { get; set; }
+
+    private Dictionary<string,InputText> Elements { get; set; } = new Dictionary<string, InputText>();
+
+
     private IEnumerable<LandDTO> Landen { get; set; }
 
     private string? Error { get; set; }
@@ -54,5 +62,11 @@
         {
             Error = result.Error;
         }
+    }
+
+    private void ProcessEdit(string key) 
+    {
+        var input = Elements.GetValueOrDefault<string, InputText>(key);
+        
     }
 }

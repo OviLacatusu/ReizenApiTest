@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using Reizen.CommonClasses;
 using Reizen.Data.Repositories;
 using System;
 using System.Collections.Generic;

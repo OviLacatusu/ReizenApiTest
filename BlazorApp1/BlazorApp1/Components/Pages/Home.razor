@@ -11,11 +11,37 @@
 @inject UserManager<ApplicationUser> UserManager
 @inject IHttpContextAccessor _context;
 @inject AuthenticationStateProvider _auth
+@inject ILogger<Home> _logger;
+
+@rendermode InteractiveServer
 
 <PageTitle>Home </PageTitle>
 
-<h1>Hello, world! </h1>
-Welcome to your new app.
+<h1>Hello! </h1>
+Welcome to my Blazor app. Here you'll find some projects I am currently working on.
+<ul>
+    <li>Reizen is a somewhat simple Web API project where I am trying to implement CQRS and event streaming - currently only the CQRS is implemented.</li>
+    <li>Google access is a Google API project. You'll have to authenticate with Google to be able to access this functionality. </li>
+    <li>Things that still need to be added (not necessarily in this order):
+        <ul>
+            <li>
+                Role based authorization
+            </li>
+            <li>
+                Event streaming
+            </li>
+            <li>
+                Some more Google API functionality
+            </li>
+            <li>
+                OAuth 2.0 access token refresh
+            </li>
+            <li>
+                Domain layer
+            </li>
+        </ul>
+    </li>
+    </ul>
 <AuthorizeView > 
     @if (context.User?.Identity?.IsAuthenticated == true)  
     { 
@@ -27,6 +53,7 @@ Welcome to your new app.
 </AuthorizeView> 
 
 @code{
+
     private string AccessToken { get; set; }
 
     private async Task GetAccessToken() 
@@ -39,4 +66,5 @@ Welcome to your new app.
         if(_context.HttpContext?.User?.Identity?.IsAuthenticated == true)
             await GetAccessToken();
     }
+
 }

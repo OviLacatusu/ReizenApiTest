@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\GoogleAccess.Domain\GoogleAccess.Domain.csproj" />
+    <ProjectReference Include="..\..\Reizen.CommonClasses\Reizen.CommonClasses.csproj" />
     <ProjectReference Include="..\..\Reizen.Data\Reizen.Data.csproj" />
     <ProjectReference Include="..\..\Reizen.Domain\Reizen.Domain.csproj" />
   </ItemGroup>

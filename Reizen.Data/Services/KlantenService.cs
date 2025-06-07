@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Reizen.CommonClasses;
 using Reizen.Data.Models;
 using Reizen.Data.Models.CQRS;
 using Reizen.Data.Models.CQRS.Commands;

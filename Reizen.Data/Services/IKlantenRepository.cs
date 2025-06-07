@@ -1,4 +1,5 @@
 ﻿using Reizen.Data.Models;
+using Reizen.CommonClasses;
 using Reizen.Data.Models.CQRS;
 using System;
 using System.Collections.Generic;

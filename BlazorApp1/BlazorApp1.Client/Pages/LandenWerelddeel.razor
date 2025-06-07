@@ -1,9 +1,10 @@
-﻿@using Reizen.Domain.DTOs
+﻿@using Reizen.CommonClasses.DTOs
 @using Microsoft.AspNetCore.Authorization
 
-@page "/{Naam}/landen"
+@page "/landenwerelddeel/{Naam}"
 
 @inject IHttpClientFactory _httpFactory
+@inject ILogger<LandenWerelddeel> _logger
 
 @attribute [Authorize]
 

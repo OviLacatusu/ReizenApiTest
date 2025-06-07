@@ -5,7 +5,7 @@ using Reizen.Data.Models;
 using Reizen.Data.Services;
 using ReisDAL = Reizen.Data.Models.ReisDAL;
 using BestemmingDAL = Reizen.Data.Models.BestemmingDAL;
-using Reizen.Domain.DTOs;
+using Reizen.CommonClasses.DTOs;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ReizenApi.Controllers

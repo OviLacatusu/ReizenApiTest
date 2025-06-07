@@ -38,7 +38,7 @@
 
 @if (!String.IsNullOrEmpty(Error))
 {
-    <div class="alert alert-danger">@Error</div>
+    <div class="alert alert-danger">@((MarkupString)Error) </div>
 }
 
 @code
@@ -65,7 +65,7 @@
         }
         else 
         {
-            Error = "Not authorized. Please log in";
+            Error = "Not authorized. Please log in <a href='/Account/Login'>Here</a>";
         }
     }
 
@@ -83,7 +83,7 @@
     private async Task GetPickerSession()
     {
         var httpClient = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager));
-        httpClient.BaseAddress = new Uri("https://localhost:7285/");
+        httpClient.BaseAddress = new Uri(ConfigData.httpClientURI);
 
         var result = await httpClient.GetAsync("/api/Test/GetPickerLink");
         if (result.IsSuccessStatusCode)
@@ -117,7 +117,7 @@
 
         using (var client = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager)))
         {
-            client.BaseAddress = new Uri("https://localhost:7285/");
+            client.BaseAddress = new Uri(ConfigData.httpClientURI);
             var response = await client.GetAsync($"api/Test/GetPhotosWithPicker/{id}");
             if (response.IsSuccessStatusCode)
             {

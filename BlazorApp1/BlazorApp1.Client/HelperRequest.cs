@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Json;
+using Reizen.CommonClasses;
 
 namespace BlazorApp1.Client
 {
@@ -28,30 +29,6 @@ namespace BlazorApp1.Client
             }
         }
 
-        // Code duplication for testing pourposes
-        public class Result<T>
-        {
-            public bool IsSuccessful
-            {
-                get;
-            }
-            public T? Value
-            {
-                get;
-            }
-            public string? Error
-            {
-                get;
-            }
-            private Result (bool isSuccess, T? value, string? error = null)
-            {
-                IsSuccessful = isSuccess;
-                Value = value;
-                Error = error;
-            }
-            public static Result<T> Success (T value) => new (true, value);
-            public static Result<T> Failure (string error) => new (false, default, error);
-        }
     }
 }
 

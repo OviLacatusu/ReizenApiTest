@@ -12,6 +12,7 @@ using static Reizen.Data.Models.CQRS.Commands.DeleteBoeking;
 using static Reizen.Data.Models.CQRS.Commands.UpdateBoeking;
 using static Reizen.Data.Models.CQRS.Queries.GetBoekingen;
 using static Reizen.Data.Models.CQRS.Queries.GetBoekingMetId;
+using Reizen.CommonClasses;
 
 namespace Reizen.Data.Services
 {

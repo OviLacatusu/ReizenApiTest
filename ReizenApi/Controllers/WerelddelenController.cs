@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Reizen.Data.Models;
 using Reizen.Data.Services;
 using Werelddeel = Reizen.Data.Models.WerelddeelDAL;
-using Reizen.Domain.DTOs;
+using Reizen.CommonClasses.DTOs;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ReizenApi.Controllers
@@ -37,11 +37,32 @@ namespace ReizenApi.Controllers
             }
         }
 
-        // GET api/<Werelddeel>/5
-        [HttpGet ("{id}")]
-        public string Get (int id)
+        // GET api/<Werelddeel>/Europa
+        [HttpGet ("{werelddeel}")]
+        public async Task<ActionResult> GetCountriesAsync (string werelddeel)
         {
-            return "value";
+            try
+            {
+                if (string.IsNullOrEmpty (werelddeel))
+                {
+                    _logger.LogWarning ("Invalid continent name provided");
+                    return BadRequest ();
+                }
+                var result = await _service.GetLandenVanWerelddeelAsync (werelddeel);
+
+                if (!result.IsSuccessful)
+                {
+                    _logger.LogInformation ($"No countries found for continent: {werelddeel}" );
+                    return NotFound ();
+                }
+                var dtos = _mapper.Map<ICollection<LandDAL>> (result.Value);
+                return Ok (dtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError (ex, $"Error occurred while fetching countries for continent: {werelddeel}");
+                return StatusCode (500, $"An error occurred while processing your request");
+            }
         }
 
         // POST api/<Werelddeel>

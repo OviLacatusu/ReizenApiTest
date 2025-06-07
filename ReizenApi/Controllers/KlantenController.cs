@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Reizen.Data.Models;
 using Reizen.Data.Services;
 using KlantDAL = Reizen.Data.Models.KlantDAL;
-using Reizen.Domain.DTOs;
+using Reizen.CommonClasses.DTOs;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ReizenApi.Controllers

@@ -1,102 +1,110 @@
-﻿@using Microsoft.AspNetCore.Authorization
+﻿@using BlazorApp1.Client.Components
+@using Microsoft.AspNetCore.Authorization
 @using Reizen.Data.Models
 @using System.Text.Json;
-@using Reizen.Domain.DTOs
+@using Reizen.CommonClasses.DTOs
 @using System.Text
 
-@page "/boeken/{ReisId:int}/{KlantId:int}"
+@page "/boeken/reis/{ReisId:int}/klant/{KlantId:int}"
 
 @inject ILogger<Boeken> _logger;
 @inject IHttpClientFactory _httpFactory
 
-<div class="container">
+@rendermode InteractiveServer
+
+@attribute [Authorize]
+
+
+    <div class="container">
     @if (Reis is not null && Klant is not null)
     {
-    <h2>Trip</h2>
-    <div class="row">
+        <h2>Trip</h2>
+        <div class="row">
 
-        <div class="col-lg-3">   
-            <p style="font:bold">Destination:</p>
+            <div class="col-lg-3">   
+                <p style="font:bold">Destination:</p>
+            </div>
+            <div class="col-lg-1">
+                <p>@Reis.Bestemming.Plaats</p>
+            </div>
         </div>
-        <div class="col-lg-1">
-            <p>@Reis.Bestemming.Plaats</p>
+        <div class="row">
+            <div class="col-lg-3">
+                <p style="font:bold">Departure:</p>
+            </div>
+            <div class="col-lg-1"> 
+                <p>@Reis.Vertrek</p>
+            </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-3">
-            <p style="font:bold">Departure:</p>
+        <div class="row">
+            <div class="col-lg-3">
+                <p style="font:bold">Number days:</p>
+            </div>
+            <div class="col-lg-1">
+                <p>@Reis.AantalDagen</p>
+            </div>
         </div>
-        <div class="col-lg-1"> 
-            <p>@Reis.Vertrek</p>
+        <div class="row">
+            <div class="col-lg-3">
+                <p style="font:bold">Price person:</p>
+            </div>
+            <div class="col-lg-1">
+                <p>@Reis.PrijsPerPersoon</p>
+            </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-3">
-            <p style="font:bold">Number days:</p>
-        </div>
-        <div class="col-lg-1">
-            <p>@Reis.AantalDagen</p>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-3">
-            <p style="font:bold">Price person:</p>
-        </div>
-        <div class="col-lg-1">
-            <p>@Reis.PrijsPerPersoon</p>
-        </div>
-    </div>
 
-    <h2>Klant</h2>
-    <div class="row">
-        <div class="col-lg-3">
-            <p>@($"{Klant.Voornaam} {Klant.Familienaam}")</p>
+        <h2>Klant</h2>
+        <div class="row">
+            <div class="col-lg-3">
+                <p>@($"{Klant.Voornaam} {Klant.Familienaam}")</p>
+            </div>
+            <div class="col-lg-1">
+                <p>@Klant.Adres</p>
+            </div>
         </div>
-        <div class="col-lg-1">
-            <p>@Klant.Adres</p>
-        </div>
-    </div>
-    <h2>Boeking</h2>
+        <h2>Boeking</h2>
 
-    <div class="row">
+        <div class="row">
             <div class="col-lg-3">
                 <label for="aantalV">Number of adults</label>
             </div>
-        <div class="col-lg-1">
-            <InputNumber @bind-Value:get="(Boeking.AantalVolwassenen)" @bind-Value:set="((value) => Boeking.AantalVolwassenen=value)" id="aantalV"></InputNumber>
+            <div class="col-lg-1">
+                <InputNumber @bind-Value:get="(Boeking.AantalVolwassenen)" @bind-Value:set="((value) => Boeking.AantalVolwassenen=value)" id="aantalV"></InputNumber>
+            </div>
         </div>
-    </div>
-    <div class="row">
+        <div class="row">
             <div class="col-lg-3">
                 <label for="aantalK">Number of kids</label>
             </div>
             <div class="col-lg-1">
                 <InputNumber @bind-Value:get="(Boeking.AantalKinderen)" @bind-Value:set="((value)=>{Boeking.AantalKinderen=value;})" id="aantalK"></InputNumber>
             </div>
-    </div>
-    <div class="row">
+        </div>
+        <div class="row">
             <div class="col-lg-3">
                 <label>Annulatie verzekering</label>
             </div>
             <div class="col-lg-1">
                 <InputCheckbox id="annulatieV" @bind-Value="@Boeking.AnnulatieVerzekering"></InputCheckbox>
             </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-3">
-
         </div>
-            <div class="col-lg-1">
-                <button type="submit" class="btn btn-primary" data-toggle="modal" @onclick=" () => Modal.Open()">Book trip</button>
+
+        <div class="row">
+            <div class="col-lg-3">
+
             </div>
-            <ModalComponent @ref="Modal" Message="Are you sure?" Header="Confirm booking" Callback="@( () => AddNewBooking())"></ModalComponent>
-    </div>
-  
-    } else 
+            <div class="col-lg-2">
+                <button type="submit" class="btn btn-primary" data-toggle="modal" @onclick="(() => Modal.Open())">Book trip</button>
+            </div>
+            <ModalComponent @ref="Modal" Message="Are you sure?" Header="Confirmation" Callback="@(()=>AddNewBooking())"></ModalComponent>
+        </div>
+
+    } 
+    else 
     {
         <p>Waiting for data</p>
     }
+    </div>
     @if (!String.IsNullOrEmpty(Error))
     {
         <div class="alert alert-danger">@Error</div>
@@ -104,7 +112,6 @@
     {
         <div class="alert alert-success">Booking successful</div>
     }
-</div>
 
 @code 
 {
@@ -133,7 +140,7 @@
             using (var httpClient = _httpFactory.CreateClient()) 
             {
                 var result = await httpClient.GetAsync($"/api/reizen/{ReisId}");
-                
+
                 if (result.IsSuccessStatusCode)
                 {
                     Reis = await result.Content.ReadFromJsonAsync<ReisDTO>();
@@ -196,7 +203,8 @@
                     Error = content;
                 }
             }
-            else {
+            else 
+            {
                 IsSuccessful = true;
             }
         }

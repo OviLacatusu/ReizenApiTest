@@ -1,6 +1,6 @@
 ﻿@using Reizen.Domain.Models
 @using Microsoft.AspNetCore.Authorization;
-@using Reizen.Domain.DTOs
+@using Reizen.CommonClasses.DTOs
 
 @page "/reisKiezen/{ReisId:int}"
 
@@ -8,6 +8,8 @@
 @inject IHttpClientFactory _httpFactory
 
 @rendermode InteractiveServer
+
+@attribute [Authorize]
 
 <div class="container">
     <h2>Chosen trip:</h2>
@@ -36,7 +38,8 @@
         <div class="alert alert-danger">@Error</div>
     }
 </div>
-@if (Klanten is not null) {
+@if (Klanten is not null) 
+{
     <table class="table table-striped" >
         <thead>
             <tr>
@@ -47,7 +50,7 @@
             @foreach (var klant in Klanten)
             {
                 <tr>
-                    <td>@klant.Familienaam</td><td>@klant.Voornaam</td><td>@klant.Adres</td><td><a href="/boeken/@ReisId/@klant.Id">Book trip</a></td>
+                    <td>@klant.Familienaam</td><td>@klant.Voornaam</td><td>@klant.Adres</td><td><a href="/boeken/reis/@ReisId/klant/@klant.Id">Book trip</a></td>
                 </tr>
             }
         </tbody>

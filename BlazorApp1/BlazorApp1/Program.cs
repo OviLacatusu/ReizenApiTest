@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
+using Reizen.CommonClasses;
 
 var builder = WebApplication.CreateBuilder (args);
 
@@ -40,14 +41,13 @@ builder.Logging.AddConsole ();
 builder.Services.AddTransient<IServiceProvider, ServiceProvider> ();
 
 // needed for AuthResponse
-builder.Services.AddTransient<GoogleAuthService> ();
+//builder.Services.AddTransient<GoogleAuthService> ();
 
 builder.Services.AddCors ();
 
 builder.Services.AddHttpClient ("", client =>
 {
-    //client.BaseAddress = new Uri ("https://ovilacatusu-002-site1.qtempurl.com/");
-    client.BaseAddress = new Uri ("https://localhost:7285/");
+    client.BaseAddress = new Uri (ConfigData.httpClientURI);
 });
 
 builder.Services.AddControllers ()
@@ -73,8 +73,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole> (options =>
 
 builder.Services.AddAuthentication (options =>
 {
-    //options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     //options.DefaultChallengeScheme = GoogleOpenIdConnectDefaults.AuthenticationScheme;
     //options.DefaultForbidScheme = GoogleOpenIdConnectDefaults.AuthenticationScheme;
 
