@@ -369,3 +369,5 @@ FodyWeavers.xsd
 /BlazorApp1/BlazorApp1/Models/ClaimsReporter.cs
 /BlazorApp1/BlazorApp1.Client/Pages/GoogleAccess.razor
 /BlazorApp1/BlazorApp1.Client/Pages/GoogleAuthorization.razor
+/GoogleAccess.Domain/models/ContinuousTask.cs
+/Reizen.Data/Models/CQRS/Result.cs
