@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
     <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
+    <Configurations>Debug;Release;Test</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,8 +26,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\GoogleAccess.Domain\GoogleAccess.Domain.csproj" />
     <ProjectReference Include="..\..\Reizen.CommonClasses\Reizen.CommonClasses.csproj" />
-    <ProjectReference Include="..\..\Reizen.Data\Reizen.Data.csproj" />
-    <ProjectReference Include="..\..\Reizen.Domain\Reizen.Domain.csproj" />
   </ItemGroup>
 
 </Project>

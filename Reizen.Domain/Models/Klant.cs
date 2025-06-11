@@ -11,7 +11,6 @@ namespace Reizen.Domain.Models
     {
         public int Id { get; private set; }
         public string Voornaam { get; private set; }
-
         public string Familienaam { get; private set; }
         public string Adres { get; private set; }
         public Woonplaats Woonplaats { get; private set; }

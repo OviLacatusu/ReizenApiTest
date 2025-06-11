@@ -5,10 +5,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-BlazorApp1-a533d89d-67a3-4262-b9b9-86736e6545df</UserSecretsId>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Reizen.CommonClasses\Reizen.CommonClasses.csproj" />
+    <ProjectReference Include="..\..\Reizen.Domain\Reizen.Domain.csproj" />
     <ProjectReference Include="..\BlazorApp1.Client\BlazorApp1.Client.csproj" />
 	  <PackageReference Include="AutoMapper" Version="14.0.0" />
 	  <PackageReference Include="Blazored.SessionStorage" Version="2.4.0" />

@@ -5,10 +5,11 @@ using System.Net.Http.Json;
 using Reizen.CommonClasses;
 
 var builder = WebAssemblyHostBuilder.CreateDefault (args);
-HttpClient clientH = new HttpClient ();
-
-//clientH.BaseAddress = new Uri ("https://ovilacatusu-002-site1.qtempurl.com/");
-clientH.BaseAddress = new Uri (ConfigData.httpClientURI);
+builder.Services.AddHttpClient ("", client =>
+{
+    //client.BaseAddress = new Uri ("https://ovilacatusu-002-site1.qtempurl.com/");
+    client.BaseAddress = new Uri (ConfigData.httpClientURI);
+});
 //var config = await clientH.GetFromJsonAsync<GoogleAuthConfig> ("api/GetServerOauthConfig");
 
 //builder.Services.AddTransient<GoogleAuthConfig> (x => config);

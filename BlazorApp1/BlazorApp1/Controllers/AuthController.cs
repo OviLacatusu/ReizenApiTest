@@ -10,7 +10,7 @@ using Google.Apis.Auth.AspNetCore3;
 namespace BlazorApp1.Controllers;
 
 [ApiController]
-[Route ("api/[controller]")]
+[Route ("[controller]")]
 public class AuthController : ControllerBase
 {
     private readonly SignInManager<ApplicationUser> _signInManager;

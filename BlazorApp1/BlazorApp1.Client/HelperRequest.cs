@@ -17,10 +17,10 @@ namespace BlazorApp1.Client
                 }
                 else
                 {
-                    var message = result?.RequestMessage;
+                    var error = await result?.Content.ReadAsStringAsync ();
                     var statusCode = result?.StatusCode;
 
-                    return Result<T>.Failure ($"{statusCode}:  {message}");
+                    return Result<T>.Failure ($"{statusCode}: {error}");
                 }
             }
             catch (Exception ex) 

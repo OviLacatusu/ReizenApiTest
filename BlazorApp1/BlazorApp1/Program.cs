@@ -4,8 +4,7 @@ using BlazorApp1.Components.Account.Pages;
 using BlazorApp1.Data;
 using BlazorApp1.Models;
 using Blazored.SessionStorage;
-using Google.Apis.Auth.AspNetCore3;
-using Google.Apis.Auth.OAuth2;
+using BlazorApp1.Client;
 using GoogleAccess.Domain.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -39,9 +38,6 @@ builder.Logging.ClearProviders ();
 builder.Logging.AddConsole ();
 
 builder.Services.AddTransient<IServiceProvider, ServiceProvider> ();
-
-// needed for AuthResponse
-//builder.Services.AddTransient<GoogleAuthService> ();
 
 builder.Services.AddCors ();
 

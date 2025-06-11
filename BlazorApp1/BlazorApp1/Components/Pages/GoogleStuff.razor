@@ -1,5 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Http
-@using Reizen.Domain.Models
+@using System.Web
 @using global::GoogleAccess.Domain.Models
 @using Microsoft.AspNetCore.WebUtilities
 @using Microsoft.AspNetCore.Authorization
@@ -24,23 +24,51 @@
 
 
 <AuthorizeView>
-    <button @onclick="OpenTabAndPollSession">Share Photos</button>
-
-    @if(MediaItems is not null && MediaItems.mediaItems.Count() > 0)
-    {
-        foreach (var item in MediaItems.mediaItems)
+    <div class="container">
+        <button @onclick="OpenTabAndPollSession">Pick Photos</button>
+        
+        @if(MediaItems is not null && MediaItems.mediaItems.Count() > 0)
         {
-            <a href="@($"{item.mediaFile.baseUrl}=w{item.mediaFile.mediaFileMetadata.width}-h{item.mediaFile.mediaFileMetadata.height}")" >@item.mediaFile.filename</a>
+            foreach (var item in MediaItems.mediaItems)
+            {
+            <div class="row">
+                <div class="col-lg-3">
+                @* <a href="" @onclick="@(async () => await DownloadFoto($"{item.id}=w{item.mediaFile.mediaFileMetadata.width}-h{item.mediaFile.mediaFileMetadata.height}=d"))" >@item.mediaFile.filename</a> *@
+                <button class="btn btn-link" @onclick="@(async () => await DownloadFoto(item.mediaFile))">@item.mediaFile.filename</button>
+                </div>
+                </div>
+            }
+            /*var last = MediaItems.mediaItems.Last();*/
+            <div class="row">
+                <div class="col-md-1">
+                    <button @onclick="(async ()=> await DownloadFiles(MediaItems.mediaItems))">Download files</button>
+
+                </div>
+            </div>
         }
-        /*var last = MediaItems.mediaItems.Last();*/
-    }
+        </div>
+
 </AuthorizeView>
 
 @if (!String.IsNullOrEmpty(Error))
 {
     <div class="alert alert-danger">@((MarkupString)Error) </div>
 }
+@* Suggested way of downloading files < 250 MB in size using JSInterop *@
+<script>
+    window.downloadFileFromStream = async (fileName, contentStreamReference) => {
+    const arrayBuffer = await contentStreamReference.arrayBuffer();
+    const blob = new Blob([arrayBuffer]);
+    const url = URL.createObjectURL(blob);
 
+    const anchorElement = document.createElement('a');
+    anchorElement.href = url;
+    anchorElement.download = fileName ?? '';
+    anchorElement.click();
+    anchorElement.remove();
+    URL.revokeObjectURL(url);
+    };
+</script>
 @code
 {
     private string? Error { get; set; }
@@ -65,7 +93,7 @@
         }
         else 
         {
-            Error = "Not authorized. Please log in <a href='/Account/Login'>Here</a>";
+            Error = "Not authorized. Please log in with Google OpenId Connect<a href='/Account/Login'>Here</a>";
         }
     }
 
@@ -106,8 +134,12 @@
     // method that opens the picker session in a new tab and starts a Web API call for polling the session
     public async Task OpenTabAndPollSession()
     {
-        await JSRuntime.InvokeVoidAsync("open", $"{SessionData.pickerUri}", "_blank");
-        await PollRequest(SessionData.id);
+        if (SessionData is not null)
+        {
+            await JSRuntime.InvokeVoidAsync("open", $"{SessionData.pickerUri}", "_blank");
+            await PollRequest(SessionData.id);
+        }
+        //await DownloadFoto(MediaItems.mediaItems.First().mediaFile.baseUrl);
     }
 
     // Calling the API method that polls the request and returns the media files details
@@ -138,5 +170,33 @@
         }
         _logger.LogInformation($"Exiting PollRequest at {DateTime.UtcNow.ToShortTimeString()}");
         StateHasChanged();
+    }
+    private async Task DownloadFiles(IEnumerable<PickedMediaItem> fileDetails) 
+    {
+        foreach (var file in fileDetails) 
+        {
+            await DownloadFoto(file.mediaFile);
+        }
+    }
+    // Tested only with fotos for now
+    private async Task DownloadFoto(MediaFile fileDetails) 
+    { 
+        _logger.LogInformation($"Running DownloadFoto at {DateTime.UtcNow.ToShortTimeString()}");
+        using (var client = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager))) {
+            client.BaseAddress = new Uri(ConfigData.httpClientURI);
+
+            var response = await client.GetAsync($"api/test/downloadfoto/{HttpUtility.UrlEncode(fileDetails.baseUrl)}/{HttpUtility.UrlEncode(fileDetails.mimeType)}");           //{HttpUtility.UrlEncode(url)}");
+            if (response.IsSuccessStatusCode) 
+            {
+                var stream = await response.Content.ReadAsStreamAsync();
+                using var streamRef = new DotNetStreamReference(stream: stream);
+
+                await JSRuntime.InvokeVoidAsync("downloadFileFromStream", $"{fileDetails.filename}", streamRef);
+            }
+            else
+            {
+                Error = "Failed to download file.";
+            }
+        }
     }
 }

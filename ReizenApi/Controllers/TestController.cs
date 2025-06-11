@@ -5,18 +5,20 @@ using Google.Apis.Gmail.v1;
 using Google.Apis.Json;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
+using Google.Apis.Util;
 using GoogleAccess.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Collections.Immutable;
 using System.Net;
+using System.Web;
 
 namespace ReizenApi.Controllers
 {
     [Route ("api/[controller]")]
     public class TestController : Controller
     {
-        private const string GOOGLE_PHOTOS_API_URL = "https://photospicker.googleapis.com/v1/mediaItems";
+        private const string GOOGLE_PHOTOS_API_URL = "https://photoslibrary.googleapis.com/v1/mediaItems";
         private const string GOOGLE_PICKER_API_SESSION_REQ = "https://photospicker.googleapis.com/v1/sessions";
 
         private static string[] scopes = { SheetsService.Scope.SpreadsheetsReadonly };
@@ -35,36 +37,37 @@ namespace ReizenApi.Controllers
             this._logger = _logger ?? throw new ArgumentNullException (nameof(_logger));
         }
 
-        [HttpGet ("CopyPhoto/{id}")]
-        public async Task<ActionResult> CopyPhoto ([FromHeader] string Authorization, string id, CancellationToken cancellationToken)
+        [HttpGet ("DownloadFoto/{encodedUrl}/{encodedMimeType}")]
+        public async Task<IActionResult> DownloadFoto ([FromHeader] string Authorization, string encodedUrl, string encodedMimeType, CancellationToken cancellationToken)
         {
             try
             {
+                _logger.LogInformation ($"Authorization: {Authorization} ");
                 // restore AuthResponse state from session
                 if (Authorization == null)
                     throw new OAuth2Exception ("Access token not found!");
-                if (String.IsNullOrEmpty (id))
+                if (String.IsNullOrEmpty (encodedUrl))
                     throw new ArgumentException ("Provided id is null or the empty string!");
-
+                var baseurl = HttpUtility.UrlDecode (encodedUrl);
+                var mimeType = HttpUtility.UrlDecode (encodedMimeType);
                 var accessToken = Authorization.Split (" ").Last ();
                 using (var client = _httpFactory.CreateClient ())
                 {
+                    _logger.LogInformation ($"Base url : {baseurl}");
+                    _logger.LogInformation ($"access token: {Authorization}");
                     // setting the Authentication header necessary for the request
                     client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue ("Bearer", accessToken);
                     
-                    var result = await client.GetAsync ($"{GOOGLE_PHOTOS_API_URL}/{id}");
+                    var stream = await client.GetStreamAsync($"{baseurl}=d");
+                    var result = new FileStreamResult(stream, mimeType);
 
-                    result.EnsureSuccessStatusCode ();
-                    var details = JsonConvert.DeserializeObject<MediaFile> (await result.Content.ReadAsStringAsync ());
-
-                    var bytes = await client.GetByteArrayAsync ($"{details.baseUrl}=d");
-                    await System.IO.File.WriteAllBytesAsync (details.filename, bytes);
-                    return Ok ("Image copyed");
+                    return result;
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 _logger.LogError ($"Error {ex.Message}");
-                return StatusCode (500, ex.Message);
+                return StatusCode(500, ex.Message);
             }
         }
         [HttpGet("GetFiles")]
@@ -144,8 +147,7 @@ namespace ReizenApi.Controllers
         public async Task<ActionResult> GetListPhotos2 ([FromHeader] string Authorization, CancellationToken token)
         {
             try
-            {
-                
+            {                
                 if (Authorization == null)
                     throw new OAuth2Exception ("Access token not found! Session has probably expired.");
                 var accessToken = Authorization.Split (" ").Last ();
