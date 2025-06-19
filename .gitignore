@@ -371,3 +371,4 @@ FodyWeavers.xsd
 /BlazorApp1/BlazorApp1.Client/Pages/GoogleAuthorization.razor
 /GoogleAccess.Domain/models/ContinuousTask.cs
 /Reizen.Data/Models/CQRS/Result.cs
+/BlazorApp1/BlazorApp1/Controllers/TestController.cs
