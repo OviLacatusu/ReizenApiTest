@@ -16,7 +16,7 @@ using System.Web;
 namespace ReizenApi.Controllers
 {
     [Route ("api/[controller]")]
-    public class TestController : Controller
+    public class GoogleAccessController : Controller
     {
         private const string GOOGLE_PHOTOS_API_URL = "https://photoslibrary.googleapis.com/v1/mediaItems";
         private const string GOOGLE_PICKER_API_SESSION_REQ = "https://photospicker.googleapis.com/v1/sessions";
@@ -25,12 +25,11 @@ namespace ReizenApi.Controllers
         private ImmutableDictionary<string, KZJobEntry> kzEntries;
 
         private readonly IHttpClientFactory _httpFactory;
-        private readonly ILogger<TestController> _logger;
+        private readonly ILogger<GoogleAccessController> _logger;
 
-        public TestController (
-
+        public GoogleAccessController (
             IHttpClientFactory _httpFactory,
-            ILogger<TestController> _logger
+            ILogger<GoogleAccessController> _logger
         )
         {
             this._httpFactory = _httpFactory ?? throw new ArgumentNullException (nameof(_httpFactory));
@@ -107,7 +106,7 @@ namespace ReizenApi.Controllers
                 return StatusCode (500, ex.Message);
             }
         }
-
+        // Methor returning a link for the generated picker session. Once accessed link becomes invalid
         [HttpGet ("GetPickerLink")]
         public async Task<ActionResult> GetPickerData ([FromHeader] string Authorization, [FromServices] IHttpContextAccessor context, CancellationToken cancellationToken)
         {
@@ -133,7 +132,6 @@ namespace ReizenApi.Controllers
                     var session = JsonConvert.DeserializeObject<PickingSession> (await response.Content.ReadAsStringAsync());
 
                     return Ok (session);
-
                 }
             }
             catch (Exception ex)
@@ -161,15 +159,15 @@ namespace ReizenApi.Controllers
                     List<MediaFile> files = new List<MediaFile> ();
                     Boolean hasNextPage = true;
 
-                    var content = await SendGetRequest<DetailsFiles> (urlRequest, token, false, null);
+                    var content = await SendGetRequest<GPhotosDetailsFiles> (urlRequest, token, false, null);
                     //files.AddRange (content.mediaItems.ToList());
 
                     DateTime timeStart = DateTime.Now;
                     do
                     {
-                        if (!String.IsNullOrEmpty (content.nextPageToken))
+                        if (!String.IsNullOrEmpty (content.NextPageToken))
                         {
-                            content = await SendGetRequest<DetailsFiles> ($"{urlRequest}?&pageToken={content.nextPageToken}", token, false, null);
+                            content = await SendGetRequest<GPhotosDetailsFiles> ($"{urlRequest}?&pageToken={content.NextPageToken}", token, false, null);
                             //files.AddRange (content.mediaItems.ToList ());
                         }
                         else
@@ -179,7 +177,7 @@ namespace ReizenApi.Controllers
 
                     } while (hasNextPage);
                     DateTime timeEnd = DateTime.Now;
-                    files.Last ().filename += "   " + timeEnd.Subtract (timeStart).Seconds;
+                    files.Last ().Filename += "   " + timeEnd.Subtract (timeStart).Seconds;
 
                     if (files.Count > 0)
                     {
@@ -232,7 +230,7 @@ namespace ReizenApi.Controllers
                 // TODO: Add support for pagination
                 url = new Uri ($"https://photospicker.googleapis.com/v1/mediaItems?sessionId={sessionId}");
 
-                var details = await SendGetRequest<DetailsFiles> (url.ToString(), cancellationToken, true, accessToken);
+                var details = await SendGetRequest<GPhotosDetailsFiles> (url.ToString(), cancellationToken, true, accessToken);
 
                 return Ok (details);
             }
@@ -268,8 +266,8 @@ namespace ReizenApi.Controllers
                 throw new HttpRequestException(ex.Message, ex.InnerException) ;
             }
         }
-        [HttpGet ("GetEmails")]
-        public async Task<ActionResult> GetEmails ([FromHeader] string Authorization, CancellationToken cancellationToken)
+        [HttpGet ("GetMessages")]
+        public async Task<ActionResult> GetMessages([FromHeader] string Authorization, CancellationToken cancellationToken)
         {
             try
             {
@@ -282,21 +280,63 @@ namespace ReizenApi.Controllers
                 var service = new GmailService (new BaseClientService.Initializer ()
                 {
                     HttpClientInitializer = credentials,
-                    ApplicationName = "Testing Drive",
+                    ApplicationName = "Testing Gmail",
                     ValidateParameters = false
                 });
                 // For testing purposes
-                var request = service.Users.Messages.List("ovi.lacatusu@gmail.com");
-                request.LabelIds = "INBOX";
-                request.IncludeSpamTrash = false;
-                request.AccessToken = accessToken;
+                using var client = _httpFactory.CreateClient ();
+                {
+                    var response = await client.GetAsync("https://www.googleapis.com/gmail/v1/users/me/profile"); 
+                    response.EnsureSuccessStatusCode ();
+                    var profile = await response.Content.ReadFromJsonAsync<GmailUserProfile> ();
 
-                var result = await request.ExecuteAsync ();
-                return Ok (result.Messages);
+                    var request = service.Users.Messages.List(profile?.EmailAddress);
+
+                    request.LabelIds = "INBOX";
+                    request.IncludeSpamTrash = false;
+                    request.AccessToken = accessToken;
+                    var result = await request.ExecuteAsync ();
+                    
+                    return Ok (result.Messages);
+                }
+                
             }
             catch (Exception ex) {
-                _logger.LogError ($"Error {ex.Message}");
+                _logger.LogError ($"Error {ex.Message}"); 
                 return StatusCode (500, ex);
+            }
+        }
+        [HttpPost ("DeleteMessage")]
+        public async Task<ActionResult> DeleteMessage ([FromHeader] string Authorization, [FromBody] string messageId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (Authorization == null)
+                    throw new OAuth2Exception ("Access token not found! Session has probably expired.");
+
+                var accessToken = Authorization.Split (" ").Last ();
+                var credentials = GoogleCredential.FromAccessToken (accessToken);
+
+                var service = new GmailService ( new BaseClientService.Initializer ()
+                {   
+                    HttpClientInitializer = credentials,
+                    ValidateParameters = false
+                });
+
+                using var client = _httpFactory.CreateClient ();
+                {
+                    var response = await client.GetAsync ("https://www.googleapis.com/gmail/v1/users/me/profile");
+                    response.EnsureSuccessStatusCode ();
+                    var profile = await response.Content.ReadFromJsonAsync<GmailUserProfile> ();
+
+                    var request = service.Users.Messages.Delete (profile?.EmailAddress, messageId);
+                    return NoContent();
+                }
+            }
+            catch (Exception ex) 
+            {
+                _logger.LogError ($"Error {ex.Message}");
+                return StatusCode(500, ex);
             }
         }
     }

@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="models\OAuth2Helper_old.cs" />
+    <Compile Remove="Models\OAuth2Helper_old.cs" />
   </ItemGroup>
 
   <ItemGroup>

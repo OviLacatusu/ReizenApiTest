@@ -20,7 +20,7 @@ namespace BlazorApp1.Models
         protected override async Task<HttpResponseMessage> SendAsync (
           HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            if (request.RequestUri?.ToString().ToLower().Contains("/api/test") is true && _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated is true)
+            if (request.RequestUri?.ToString ().ToLower ().Contains ("/api/googleaccess") is true && _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated is true)
             {
                 var currentUser = await _userManager.GetUserAsync (_httpContextAccessor.HttpContext.User);
                 var accessToken = await _userManager.GetAuthenticationTokenAsync (currentUser, "GoogleOpenIdConnect", "access_token");
@@ -30,7 +30,7 @@ namespace BlazorApp1.Models
                     request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue ("Bearer", accessToken);
                 }
             }
-            return await base.SendAsync(request,cancellationToken);
+            return await base.SendAsync (request, cancellationToken);
         }
     }
 }

@@ -43,7 +43,7 @@ namespace Reizen.Domain.Models
         {
             if (bestemming is null)
                 throw new ArgumentNullException ("Destination cannot be null");
-            if (bestemming.Land != null)
+            if (bestemming.Land != this)
                 throw new InvalidOperationException ("Destination does not belong to this land");
 
             _bestemmingen.Add (bestemming);

@@ -8,6 +8,7 @@
 @using Models
 @using Microsoft.AspNetCore.Identity;
 @using Data
+@using Google.Apis.Gmail.v1.Data
 
 @page "/GoogleAccess"
 
@@ -22,31 +23,52 @@
 @inject UserManager<ApplicationUser> UserManager;
 @inject Blazored.SessionStorage.ISessionStorageService _storage;
 
-
 <AuthorizeView>
     <div class="container">
-        <button @onclick="OpenTabAndPollSession">Pick Photos</button>
-        
-        @if(MediaItems is not null && MediaItems.mediaItems.Count() > 0)
+        <h3>Google Photos API:</h3>
+        <div class="row">
+            <div class="col-md-2">
+                <button @onclick="OpenTabAndPollSession">Pick Photos</button>
+            </div>
+        </div>
+
+        @if(MediaItems is not null && MediaItems.MediaItems.Count() > 0)
         {
-            foreach (var item in MediaItems.mediaItems)
+            foreach (var item in MediaItems.MediaItems)
             {
-            <div class="row">
-                <div class="col-lg-3">
-                @* <a href="" @onclick="@(async () => await DownloadFoto($"{item.id}=w{item.mediaFile.mediaFileMetadata.width}-h{item.mediaFile.mediaFileMetadata.height}=d"))" >@item.mediaFile.filename</a> *@
-                <button class="btn btn-link" @onclick="@(async () => await DownloadFoto(item.mediaFile))">@item.mediaFile.filename</button>
-                </div>
+                <div class="row">
+                    <div class="col-md-2">
+
+                        <button class="btn btn-link" @onclick="@(async () => await DownloadFoto(item.MediaFile))">@item.MediaFile.Filename</button>
+                    </div>
                 </div>
             }
             /*var last = MediaItems.mediaItems.Last();*/
             <div class="row">
-                <div class="col-md-1">
-                    <button @onclick="(async ()=> await DownloadFiles(MediaItems.mediaItems))">Download files</button>
+                <div class="col-md-2">
+                    <button @onclick="(async ()=> await DownloadFiles(MediaItems.MediaItems))">Download files</button>
 
                 </div>
             </div>
         }
-        </div>
+        @if (Messages is not null && Messages.Count() > 0)
+        {
+            <h3>Google Gmail API:</h3>
+            foreach (var item in Messages)
+            {
+                <div class="row">
+                    <div class="col-lg-3">
+
+                        <button class="btn btn-link">@item.Payload.Filename</button>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-link">Delete mail</button>
+
+                    </div>
+                </div>
+            }
+        }
+    </div>
 
 </AuthorizeView>
 
@@ -81,9 +103,11 @@
     [Parameter]
     public string? AccessToken { get; set; }
 
-    public DetailsFiles? MediaItems { get; set; }
+    private GPhotosDetailsFiles? MediaItems { get; set; }
 
-    // Checking wether user is authenticated. If so we assume there is a access token to request a Picker session
+    private IEnumerable<Message> Messages { get; set; }
+
+    // Checking wether user is authenticated. If so, we assume there is a access token to request a Picker session - this is not always the case
     protected override async Task OnInitializedAsync()
     {
         _logger.LogInformation("-- OnInitialized called --");
@@ -93,7 +117,7 @@
         }
         else 
         {
-            Error = "Not authorized. Please log in with Google OpenId Connect<a href='/Account/Login'>Here</a>";
+            Error = "Not authorized. Please log in with GoogleOpenIdConnect  <a href='/Account/Login'>Here</a>";
         }
     }
 
@@ -106,14 +130,36 @@
     {
         _logger.LogInformation($"** OnAfterRender called with firstrender = {firstRender} **");
     }
+    private async Task GetMailMessages()
+    {
+        var httpClient = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager));
+        httpClient.BaseAddress = new Uri(ConfigData.httpClientURI);
 
+        var response = await httpClient.GetAsync("/api/GoogleAccess/GetMessages");
+        if (response.IsSuccessStatusCode)
+        {
+            Messages = await JsonSerializer.DeserializeAsync<IEnumerable<Message>>(await response.Content?.ReadAsStreamAsync());
+        }
+        else
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            if (!String.IsNullOrEmpty(content))
+            {
+                Error = content;
+            }
+            else
+            {
+                Error = "Something went wrong.";
+            }
+        }
+    }
     // Requesting the Picker session
     private async Task GetPickerSession()
     {
         var httpClient = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager));
         httpClient.BaseAddress = new Uri(ConfigData.httpClientURI);
 
-        var result = await httpClient.GetAsync("/api/Test/GetPickerLink");
+        var result = await httpClient.GetAsync("/api/GoogleAccess/GetPickerLink");
         if (result.IsSuccessStatusCode)
         {
             SessionData = await JsonSerializer.DeserializeAsync<PickingSession>(await result.Content?.ReadAsStreamAsync());
@@ -131,29 +177,28 @@
             }
         }
     }
-    // method that opens the picker session in a new tab and starts a Web API call for polling the session
+    // Method that opens the picker session in a new tab and starts a Web API call for polling the session
     public async Task OpenTabAndPollSession()
     {
         if (SessionData is not null)
         {
             await JSRuntime.InvokeVoidAsync("open", $"{SessionData.pickerUri}", "_blank");
-            await PollRequest(SessionData.id);
+            await PollRequestPickerApi(SessionData.id);
         }
-        //await DownloadFoto(MediaItems.mediaItems.First().mediaFile.baseUrl);
     }
 
-    // Calling the API method that polls the request and returns the media files details
-    private async Task PollRequest(string id)
+    // Calling the API method that polls the photo Picker session and returns the details of the picked media files
+    private async Task PollRequestPickerApi(string sessionId)
     {
         _logger.LogInformation($"Running PollRequest at {DateTime.UtcNow.ToShortTimeString()}");
 
         using (var client = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager)))
         {
             client.BaseAddress = new Uri(ConfigData.httpClientURI);
-            var response = await client.GetAsync($"api/Test/GetPhotosWithPicker/{id}");
+            var response = await client.GetAsync($"api/GoogleAccess/GetPhotosWithPicker/{sessionId}");
             if (response.IsSuccessStatusCode)
             {
-                MediaItems = await JsonSerializer.DeserializeAsync<DetailsFiles>(await response.Content?.ReadAsStreamAsync());
+                MediaItems = await JsonSerializer.DeserializeAsync<GPhotosDetailsFiles>(await response.Content?.ReadAsStreamAsync());
             }
             else
             {
@@ -175,23 +220,23 @@
     {
         foreach (var file in fileDetails) 
         {
-            await DownloadFoto(file.mediaFile);
+            await DownloadFoto(file.MediaFile);
         }
     }
-    // Tested only with fotos for now
+    // Method that returns an API data stream for the clicked file. Tested only with fotos
     private async Task DownloadFoto(MediaFile fileDetails) 
     { 
         _logger.LogInformation($"Running DownloadFoto at {DateTime.UtcNow.ToShortTimeString()}");
         using (var client = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager))) {
             client.BaseAddress = new Uri(ConfigData.httpClientURI);
 
-            var response = await client.GetAsync($"api/test/downloadfoto/{HttpUtility.UrlEncode(fileDetails.baseUrl)}/{HttpUtility.UrlEncode(fileDetails.mimeType)}");           //{HttpUtility.UrlEncode(url)}");
+            var response = await client.GetAsync($"api/GoogleAccess/downloadfoto/{HttpUtility.UrlEncode(fileDetails.BaseUrl)}/{HttpUtility.UrlEncode(fileDetails.MimeType)}");           //{HttpUtility.UrlEncode(url)}");
             if (response.IsSuccessStatusCode) 
             {
                 var stream = await response.Content.ReadAsStreamAsync();
                 using var streamRef = new DotNetStreamReference(stream: stream);
 
-                await JSRuntime.InvokeVoidAsync("downloadFileFromStream", $"{fileDetails.filename}", streamRef);
+                await JSRuntime.InvokeVoidAsync("downloadFileFromStream", $"{fileDetails.Filename}", streamRef);
             }
             else
             {

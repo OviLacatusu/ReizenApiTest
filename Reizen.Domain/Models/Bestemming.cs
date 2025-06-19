@@ -57,7 +57,6 @@ namespace Reizen.Domain.Models
 
             _reizen.Add (reis);
         }
-
         public IEnumerable<Reis> GetFutureTrips ()
         {
             return _reizen.Where (r => r.Vertrek > DateOnly.FromDateTime (DateTime.Today)).ToList().AsReadOnly();

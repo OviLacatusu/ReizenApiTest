@@ -13,8 +13,7 @@
 
 @attribute [Authorize]
 
-
-    <div class="container">
+<div class="container">
     @if (Reis is not null && Klant is not null)
     {
         <h2>Trip</h2>
@@ -95,7 +94,7 @@
             <div class="col-lg-2">
                 <button type="submit" class="btn btn-primary" data-toggle="modal" @onclick="(() => Modal.Open())">Book trip</button>
             </div>
-            <ModalComponent @ref="Modal" Message="Are you sure?" Header="Confirmation" Callback="@(()=>AddNewBooking())"></ModalComponent>
+            <ModalComponent @ref="Modal" Message="Are you sure you want to book this trip?" Header="Confirmation" Callback="@(()=>AddNewBooking())"></ModalComponent>
         </div>
 
     } 
@@ -103,7 +102,7 @@
     {
         <p>Waiting for data</p>
     }
-    </div>
+</div>
     @if (!String.IsNullOrEmpty(Error))
     {
         <div class="alert alert-danger">@Error</div>
