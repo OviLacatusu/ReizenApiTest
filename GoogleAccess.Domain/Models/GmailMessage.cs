@@ -4,30 +4,31 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace GoogleAccess.Domain.Models
 {
     public class GmailMessage
     {
-        [JsonProperty ("id")]
-        public string Id { get; set; }
-        [JsonProperty ("threadId")]
-        public string ThreadId { get; set; }
-        [JsonProperty ("labelIds")]
-        public string[] LabelIds { get; set; }
-        [JsonProperty ("snippet")]
-        public string Snippet { get; set; }
-        [JsonProperty ("historyId")]
-        public string HistoryId { get; set; }
-        [JsonProperty ("internalDate")]
-        public string InternalDate { get; set; }
-        [JsonProperty ("payload")]
-        public MessagePart Payload { get; set; }
-        [JsonProperty ("sizeEstimate")]
-        public int SizeEstimate { get; set; }
-        [JsonProperty ("raw")]
-        public string Raw { get; set; }
+        [JsonPropertyName ("id")]
+        public string? Id { get; set; }
+        [JsonPropertyName ("threadId")]
+        public string? ThreadId { get; set; }
+        [JsonPropertyName ("labelIds")]
+        public string[]? LabelIds { get; set; }
+        [JsonPropertyName ("snippet")]
+        public string? Snippet { get; set; }
+        [JsonPropertyName ("historyId")]
+        public string? HistoryId { get; set; }
+        [JsonPropertyName ("internalDate")]
+        public string? InternalDate { get; set; }
+        [JsonPropertyName ("payload")]
+        public MessagePart? Payload { get; set; }
+        [JsonPropertyName ("sizeEstimate")]
+        public int? SizeEstimate { get; set; }
+        [JsonPropertyName ("raw")]
+        public string? Raw { get; set; }
     }
 
     public record MessagePart(

@@ -1,13 +1,17 @@
 ﻿using Azure.Core;
+using Azure.Messaging;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
 using Google.Apis.Gmail.v1;
+using Google.Apis.Gmail.v1.Data;
 using Google.Apis.Json;
+using Google.Apis.Requests;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Util;
 using GoogleAccess.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.Collections.Immutable;
 using System.Net;
@@ -20,6 +24,8 @@ namespace ReizenApi.Controllers
     {
         private const string GOOGLE_PHOTOS_API_URL = "https://photoslibrary.googleapis.com/v1/mediaItems";
         private const string GOOGLE_PICKER_API_SESSION_REQ = "https://photospicker.googleapis.com/v1/sessions";
+        private const string GOOGLE_GMAIL_AUTHENTICATED_USER_URL = "https://www.googleapis.com/gmail/v1/users/me/profile";
+        private const string GOOGLE_PICKER_PHOTOS_REQ = "https://photospicker.googleapis.com/v1/mediaItems";
 
         private static string[] scopes = { SheetsService.Scope.SpreadsheetsReadonly };
         private ImmutableDictionary<string, KZJobEntry> kzEntries;
@@ -69,6 +75,7 @@ namespace ReizenApi.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+        // TO DO
         [HttpGet("GetFiles")]
         public async Task<ActionResult> GetListFiles([FromHeader] string Authorization,CancellationToken cancellationToken)
         {
@@ -106,14 +113,13 @@ namespace ReizenApi.Controllers
                 return StatusCode (500, ex.Message);
             }
         }
-        // Methor returning a link for the generated picker session. Once accessed link becomes invalid
+        // Method returning a link for the generated picker session. Once accessed, the link becomes invalid
+
         [HttpGet ("GetPickerLink")]
         public async Task<ActionResult> GetPickerData ([FromHeader] string Authorization, [FromServices] IHttpContextAccessor context, CancellationToken cancellationToken)
         {
             try
             {
-                Console.WriteLine (context.HttpContext);
-                // restore AuthResponse state from session
                 
                 if (Authorization  is null)
                     throw new OAuth2Exception ("Access token not found! Session has probably expired.");
@@ -121,7 +127,7 @@ namespace ReizenApi.Controllers
 
                 using (var client = _httpFactory.CreateClient ())
                 {
-                    // setting the Authentication header necessary for the request
+                    // setting the access token in the authentication header; necessary for the request
                     client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue ("Bearer", accessToken);
                     // sending an empty PickingSession object that will be returned with session details
                     var httpContent = new StringContent(JsonConvert.SerializeObject(new PickingSession()));
@@ -140,7 +146,7 @@ namespace ReizenApi.Controllers
                 return StatusCode (500, ex);
             }
         }
-        // Not supported since around 1/05/2025
+        // This approach is not supported since around 1/05/2025
         //[HttpGet ("GetPhotos2")]
         public async Task<ActionResult> GetListPhotos2 ([FromHeader] string Authorization, CancellationToken token)
         {
@@ -210,7 +216,7 @@ namespace ReizenApi.Controllers
                 if (string.IsNullOrEmpty (sessionId))
                     throw new ArgumentException ($"Invalid argument: sessionId = {sessionId} ");
 
-                var url = new Uri ($"https://photospicker.googleapis.com/v1/sessions/{sessionId}");
+                var url = new Uri ($"{GOOGLE_PICKER_API_SESSION_REQ}/{sessionId}");
 
                 // while loop for polling the session until mediaItemsSet is set to true
                 while (!cancellationToken.IsCancellationRequested)
@@ -228,7 +234,7 @@ namespace ReizenApi.Controllers
                 _logger.LogInformation ($"Exited while loop in {nameof(GetListWithPicker)} at {DateTime.UtcNow.ToShortTimeString ()}");
                 // requesting the details of the media items chosen by the user 
                 // TODO: Add support for pagination
-                url = new Uri ($"https://photospicker.googleapis.com/v1/mediaItems?sessionId={sessionId}");
+                url = new Uri ($"{GOOGLE_PICKER_PHOTOS_REQ}?sessionId={sessionId}");
 
                 var details = await SendGetRequest<GPhotosDetailsFiles> (url.ToString(), cancellationToken, true, accessToken);
 
@@ -240,8 +246,8 @@ namespace ReizenApi.Controllers
                 return StatusCode (500, ex);
             }
         }
-        // Generic API request that returns deserialized JSON Objects
-        private async Task<T?> SendGetRequest<T> (string url, CancellationToken stoppingToken, bool WithBearerHeader, string? accessToken)
+        // Generic API GET request that returns deserialized JSON Objects
+        private async Task<T?> SendGetRequest<T> (string url, CancellationToken cancellationToken, bool WithBearerHeader, string? accessToken)
         {
             try
             {
@@ -255,8 +261,8 @@ namespace ReizenApi.Controllers
                     {
                         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue ("Bearer", accessToken);
                     }
-                    var response = await client.GetAsync (url, stoppingToken);
-                    var content = JsonConvert.DeserializeObject<T> (await response.Content.ReadAsStringAsync ());
+                    var response = await client.GetAsync (url, cancellationToken);
+                    var content = await System.Text.Json.JsonSerializer.DeserializeAsync<T> (await response.Content.ReadAsStreamAsync ());
                     return (content);
                 }
             }
@@ -266,6 +272,7 @@ namespace ReizenApi.Controllers
                 throw new HttpRequestException(ex.Message, ex.InnerException) ;
             }
         }
+        // Method retrieving gmail messages of the currently authenticated with Google user
         [HttpGet ("GetMessages")]
         public async Task<ActionResult> GetMessages([FromHeader] string Authorization, CancellationToken cancellationToken)
         {
@@ -282,24 +289,59 @@ namespace ReizenApi.Controllers
                     HttpClientInitializer = credentials,
                     ApplicationName = "Testing Gmail",
                     ValidateParameters = false
+                    
                 });
-                // For testing purposes
+                // A first request is meant to retrieve the id's of messages. Subsequently these id's will be used to query the specific message data in batch requests
+                // 
                 using var client = _httpFactory.CreateClient ();
                 {
-                    var response = await client.GetAsync("https://www.googleapis.com/gmail/v1/users/me/profile"); 
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue ("Bearer", accessToken);
+                    // request to find the current authenticated user
+                    var response = await client.GetAsync(GOOGLE_GMAIL_AUTHENTICATED_USER_URL); 
                     response.EnsureSuccessStatusCode ();
-                    var profile = await response.Content.ReadFromJsonAsync<GmailUserProfile> ();
-
+                    var profile = JsonConvert.DeserializeObject<GmailUserProfile> (await response.Content.ReadAsStringAsync());
+                    // request to retrieving the id's of first 50 messages
                     var request = service.Users.Messages.List(profile?.EmailAddress);
 
-                    request.LabelIds = "INBOX";
                     request.IncludeSpamTrash = false;
                     request.AccessToken = accessToken;
-                    var result = await request.ExecuteAsync ();
+                    request.MaxResults = 50;
                     
-                    return Ok (result.Messages);
+                    var result = await request.ExecuteAsync ();
+                    var listMessages = new List<Message> ();
+                    int i = 0;
+                    do
+                    {
+                        BatchRequest batch = new BatchRequest (service);
+
+                        foreach (var elem in result.Messages)
+                        {
+                            batch.Queue<Message> (
+                                service.Users.Messages.Get (profile.EmailAddress, elem.Id),
+                                async (content, error, i, message) =>
+                                {
+                                    if (error == null)
+                                    {
+                                        listMessages.Add (content);
+                                    }
+                                    else
+                                    {
+                                        _logger.LogError (error.Message);
+                                    }
+                                });
+                        }
+                        await batch.ExecuteAsync ();
+                        // Doing maximum 4 iterations atm
+                        if(String.IsNullOrEmpty(result.NextPageToken) || i == 3)
+                            break;
+                        request.PageToken = result.NextPageToken;
+                        result = await request.ExecuteAsync ();
+                        i++;
+                    } while (true);
+
+                    return Ok (listMessages);
+                    
                 }
-                
             }
             catch (Exception ex) {
                 _logger.LogError ($"Error {ex.Message}"); 
@@ -322,10 +364,10 @@ namespace ReizenApi.Controllers
                     HttpClientInitializer = credentials,
                     ValidateParameters = false
                 });
-
+               
                 using var client = _httpFactory.CreateClient ();
                 {
-                    var response = await client.GetAsync ("https://www.googleapis.com/gmail/v1/users/me/profile");
+                    var response = await client.GetAsync (GOOGLE_GMAIL_AUTHENTICATED_USER_URL);
                     response.EnsureSuccessStatusCode ();
                     var profile = await response.Content.ReadFromJsonAsync<GmailUserProfile> ();
 

@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Http
 @using System.Web
+@using Newtonsoft.Json
 @using global::GoogleAccess.Domain.Models
 @using Microsoft.AspNetCore.WebUtilities
 @using Microsoft.AspNetCore.Authorization
@@ -25,50 +26,59 @@
 
 <AuthorizeView>
     <div class="container">
-        <h3>Google Photos API:</h3>
-        <div class="row">
-            <div class="col-md-2">
-                <button @onclick="OpenTabAndPollSession">Pick Photos</button>
-            </div>
-        </div>
-
-        @if(MediaItems is not null && MediaItems.MediaItems.Count() > 0)
-        {
-            foreach (var item in MediaItems.MediaItems)
-            {
-                <div class="row">
-                    <div class="col-md-2">
-
-                        <button class="btn btn-link" @onclick="@(async () => await DownloadFoto(item.MediaFile))">@item.MediaFile.Filename</button>
-                    </div>
-                </div>
-            }
-            /*var last = MediaItems.mediaItems.Last();*/
+      <CollapsingElement Title="Google Photos API">
+        <ElementBody>
             <div class="row">
                 <div class="col-md-2">
-                    <button @onclick="(async ()=> await DownloadFiles(MediaItems.MediaItems))">Download files</button>
-
+                    @*Closing the window before picking the fotos will have the polling loop run indefinately*@
+                    <button @onclick="OpenTabAndPollSession">Pick Photos</button>
                 </div>
             </div>
-        }
-        @if (Messages is not null && Messages.Count() > 0)
-        {
-            <h3>Google Gmail API:</h3>
-            foreach (var item in Messages)
+                    
+            @if (MediaItems is not null && MediaItems.MediaItems.Count() > 0)
             {
-                <div class="row">
-                    <div class="col-lg-3">
+                foreach (var item in MediaItems.MediaItems)
+                {
+                    <div class="row">
+                        <div class="col-md-2">
 
-                        <button class="btn btn-link">@item.Payload.Filename</button>
+                            <button class="btn btn-link" @onclick="@(async () => await DownloadFoto(item.MediaFile))">@item.MediaFile.Filename</button>
+                        </div>
                     </div>
+                }
+                <div class="row">
                     <div class="col-md-2">
-                        <button class="btn btn-link">Delete mail</button>
+                        <button @onclick="(async ()=> await DownloadFiles(MediaItems.MediaItems))">Download files</button>
 
                     </div>
                 </div>
-            }
-        }
-    </div>
+            } 
+        </ElementBody>
+     </CollapsingElement>
+
+  <CollapsingElement Title="Google Gmail API">
+      <ElementBody>
+                    @if (Messages is not null && Messages.Count() > 0)
+                    {
+                        foreach (var item in Messages)
+                        {
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <p>@item.Payload?.Headers.Where(x => x.Name == "From").First().Value</p>
+                                <button class="btn btn-link">@item.Payload?.Headers.Where(x => x.Name == "Subject").First().Value</button>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-link">Delete mail</button>
+
+                            </div>
+                        </div>
+                        }
+                    }
+
+      </ElementBody>
+  </CollapsingElement>
+</div>
+
 
 </AuthorizeView>
 
@@ -114,6 +124,7 @@
         if (_httpContextAccessor?.HttpContext?.User?.Identity?.IsAuthenticated == true)
         {
             await GetPickerSession();
+            await GetMailMessages();
         }
         else 
         {
@@ -138,7 +149,7 @@
         var response = await httpClient.GetAsync("/api/GoogleAccess/GetMessages");
         if (response.IsSuccessStatusCode)
         {
-            Messages = await JsonSerializer.DeserializeAsync<IEnumerable<Message>>(await response.Content?.ReadAsStreamAsync());
+            Messages = JsonConvert.DeserializeObject<IList<Message>>(await response.Content.ReadAsStringAsync());
         }
         else
         {
@@ -162,7 +173,7 @@
         var result = await httpClient.GetAsync("/api/GoogleAccess/GetPickerLink");
         if (result.IsSuccessStatusCode)
         {
-            SessionData = await JsonSerializer.DeserializeAsync<PickingSession>(await result.Content?.ReadAsStreamAsync());
+            SessionData = await System.Text.Json.JsonSerializer.DeserializeAsync<PickingSession>(await result.Content?.ReadAsStreamAsync());
         }
         else
         {
@@ -178,7 +189,7 @@
         }
     }
     // Method that opens the picker session in a new tab and starts a Web API call for polling the session
-    public async Task OpenTabAndPollSession()
+    private async Task OpenTabAndPollSession()
     {
         if (SessionData is not null)
         {
@@ -198,7 +209,7 @@
             var response = await client.GetAsync($"api/GoogleAccess/GetPhotosWithPicker/{sessionId}");
             if (response.IsSuccessStatusCode)
             {
-                MediaItems = await JsonSerializer.DeserializeAsync<GPhotosDetailsFiles>(await response.Content?.ReadAsStreamAsync());
+                MediaItems = await System.Text.Json.JsonSerializer.DeserializeAsync<GPhotosDetailsFiles>(await response.Content?.ReadAsStreamAsync());
             }
             else
             {

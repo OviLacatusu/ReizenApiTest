@@ -3,7 +3,7 @@
 
 @page "/{NaamLand}/bestemmingen"
 
-@inject IHttpClientFactory httpFactory
+@inject IHttpClientFactory _httpFactory
 
 @attribute [Authorize]
 
@@ -16,7 +16,17 @@
     <ul>
         @foreach (var bestemming in Bestemmingen)
         {
-            <li><a href="/@bestemming.Code/reizen">@bestemming.Plaats </a></li>
+            <li><a href="/@bestemming.Code/reizen" >@bestemming.Plaats</a>
+
+                @if (reizenNaarBestemming?[bestemming.Code]?.Count() > 0) 
+                { 
+                    <p>Available trips: @reizenNaarBestemming?[bestemming.Code]?.Count()</p>
+                }
+                else 
+                {
+                    <p>No available trips</p>
+                }
+            </li>
         }
     </ul>
 }
@@ -33,24 +43,45 @@ else
     [Parameter]
     public string? NaamLand { get; set; }
 
-    private string Error { get; set; }
+    private string? Error { get; set; }
 
     private IEnumerable<BestemmingDTO>? Bestemmingen;
+
+    private IDictionary<string,IEnumerable<ReisDTO>>? reizenNaarBestemming = new Dictionary<string,IEnumerable<ReisDTO>>();
 
     protected override async Task OnInitializedAsync()
     {
         if (!String.IsNullOrEmpty(NaamLand))
         {
-            using var httpClient = httpFactory.CreateClient();
+            using var httpClient = _httpFactory.CreateClient();
 
             var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<BestemmingDTO>>($"api/bestemmingen/{NaamLand}", httpClient);
             if (result.IsSuccessful)
             {
                 Bestemmingen = result.Value;
+                await GetAvailableTripsForEachDestination();
             }
             else
             {
                 Error = result.Error;
+            }
+        }
+    }
+    private async Task GetAvailableTripsForEachDestination()
+    {
+        foreach (var bestemming in Bestemmingen)
+        {
+            using var httpClient = _httpFactory.CreateClient();
+
+            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<ReisDTO>>($"api/reizen/{bestemming.Code}", httpClient);
+            if (result.IsSuccessful)
+            {
+                reizenNaarBestemming.Add(bestemming.Code, result.Value);
+            }
+            else
+            {
+                reizenNaarBestemming.Add(bestemming.Code, null);
+                //Error += result.Error;
             }
         }
     }

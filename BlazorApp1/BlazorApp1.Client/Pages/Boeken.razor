@@ -94,7 +94,7 @@
             <div class="col-lg-2">
                 <button type="submit" class="btn btn-primary" data-toggle="modal" @onclick="(() => Modal.Open())">Book trip</button>
             </div>
-            <ModalComponent @ref="Modal" Message="Are you sure you want to book this trip?" Header="Confirmation" Callback="@(()=>AddNewBooking())"></ModalComponent>
+            <ModalComponent @ref="Modal" Message="Are you sure you want to book this trip?" Header="Confirmation" Callback="@(async ()=> await AddNewBooking())"></ModalComponent>
         </div>
 
     } 
@@ -103,13 +103,13 @@
         <p>Waiting for data</p>
     }
 </div>
-    @if (!String.IsNullOrEmpty(Error))
-    {
-        <div class="alert alert-danger">@Error</div>
-    } else if (IsSuccessful)
-    {
-        <div class="alert alert-success">Booking successful</div>
-    }
+@if (!String.IsNullOrEmpty(Error))
+{
+    <div class="alert alert-danger">@Error</div>
+} else if (IsSuccessful)
+{
+    <div class="alert alert-success">Booking successful</div>
+}
 
 @code 
 {
@@ -205,6 +205,7 @@
             {
                 IsSuccessful = true;
             }
+            Modal.Close();
         }
     }
 }

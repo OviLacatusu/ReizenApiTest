@@ -1,15 +1,16 @@
 ﻿using Google.Apis.Admin.Directory.directory_v1.Data;
 using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace GoogleAccess.Domain.Models
 {
     public class GPhotosDetailsFiles {
-        [JsonProperty("mediaItems")]
+        [JsonPropertyName("mediaItems")]
         public IEnumerable<PickedMediaItem> MediaItems
         {
             get; set;
         } = new List<PickedMediaItem> ();
-        [JsonProperty ("nextPageToken")]
+        [JsonPropertyName ("nextPageToken")]
         public string? NextPageToken
         {
             get; set;
@@ -17,34 +18,34 @@ namespace GoogleAccess.Domain.Models
     }
     public class MediaFile
     {
-        [JsonProperty("mimeType")]
-        public string MimeType { get; set; }
-        [JsonProperty ("filename")]
-        public string Filename { get; set; }
-        [JsonProperty ("baseUrl")]
-        public string BaseUrl { get; set; }
-        [JsonProperty ("mediaFileMetadata")]
-        public MediaFileMetadata MediaFileMetadata { get; set; }
+        [JsonPropertyName("mimeType")]
+        public string? MimeType { get; set; }
+        [JsonPropertyName ("filename")]
+        public string? Filename { get; set; }
+        [JsonPropertyName ("baseUrl")]
+        public string? BaseUrl { get; set; }
+        [JsonPropertyName ("mediaFileMetadata")]
+        public MediaFileMetadata? MediaFileMetadata { get; set; }
     }
     public class PickedMediaItem
     {
-        [JsonProperty ("id")]
-        public string Id
+        [JsonPropertyName ("id")]
+        public string? Id
         {
             get; set;
         }
-        [JsonProperty ("createTime")]
-        public string CreateTime
+        [JsonPropertyName ("createTime")]
+        public string? CreateTime
         {
             get; set;
         }
-        [JsonProperty ("type")]
-        public string Type
+        [JsonPropertyName ("type")]
+        public string? Type
         {
             get; set;
         }
-        [JsonProperty ("mediaFile")]
-        public MediaFile MediaFile
+        [JsonPropertyName ("mediaFile")]
+        public MediaFile? MediaFile
         {
             get; set;
         }
@@ -52,36 +53,36 @@ namespace GoogleAccess.Domain.Models
     }
     public class MediaFileMetadata
     {
-        [JsonProperty ("width")]
+        [JsonPropertyName ("width")]
         public int Width { get; set; }
-        [JsonProperty ("height")]
+        [JsonPropertyName ("height")]
         public int Height { get; set; }
-        [JsonProperty ("cameraMake")]
-        public string CameraMake { get; set; }
-        [JsonProperty ("cameraModel")]
-        public string CameraModel { get; set; }
-        [JsonProperty ("photoMetadata")]
-        public PhotoMetadata PhotoMetadata { get; set; }
-        [JsonProperty ("videoMetadata")]
-        public VideoMetadata VideoMetadata { get; set; }
+        [JsonPropertyName ("cameraMake")]
+        public string? CameraMake { get; set; }
+        [JsonPropertyName ("cameraModel")]
+        public string? CameraModel { get; set; }
+        [JsonPropertyName ("photoMetadata")]
+        public PhotoMetadata? PhotoMetadata { get; set; }
+        [JsonPropertyName ("videoMetadata")]
+        public VideoMetadata? VideoMetadata { get; set; }
     }
     public class PhotoMetadata
     {
-        [JsonProperty ("focalLength")]
+        [JsonPropertyName ("focalLength")]
         public decimal FocalLength { get; set; }
-        [JsonProperty ("aperturefNumber")]
+        [JsonPropertyName ("aperturefNumber")]
         public decimal AperturefNumber { get; set; }
-        [JsonProperty ("isoEquivalent")]
+        [JsonPropertyName ("isoEquivalent")]
         public int IsoEquivalent { get; set; }
-        [JsonProperty ("exposureTime")]
-        public string ExposureTime { get; set; }
+        [JsonPropertyName ("exposureTime")]
+        public string? ExposureTime { get; set; }
     }
     public class VideoMetadata
     {
-        [JsonProperty ("fps")]
+        [JsonPropertyName ("fps")]
         public decimal Fps { get; set; }
-        [JsonProperty ("processingStatus")]
-        public string ProcessingStatus { get; set; }
+        [JsonPropertyName ("processingStatus")]
+        public string? ProcessingStatus { get; set; }
     }
     public enum Type { TYPE_UNSPECIFIED, PHOTO, VIDEO };
 

@@ -1,31 +1,33 @@
-﻿using Newtonsoft.Json;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace GoogleAccess.Domain.Models
 {
     public class GmailUserProfile
     {
-        [JsonProperty ("emailAddress")]
-        public string EmailAddress
+        [JsonPropertyName ("emailAddress")]
+        public string? EmailAddress
         {
             get; set;
         }
-        [JsonProperty ("messagesTotal")]
-        public int MessagesTotal
+        [JsonPropertyName ("messagesTotal")]
+        public int? MessagesTotal
         {
             get; set;
         }
-        [JsonProperty ("threadsTotal")]
-        public int ThreadsTotal
+        [JsonPropertyName ("threadsTotal")]
+        public int? ThreadsTotal
         {
             get; set;
         }
-        [JsonProperty ("historyId")]
-        public string HistoryId
+        [JsonPropertyName ("historyId")]
+        public string? HistoryId
         {
             get; set;
         }

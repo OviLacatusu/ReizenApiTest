@@ -8,8 +8,8 @@ namespace GoogleAccess.Domain.Models
 {
     public class GoogleUserTokens
     {
-        public User User { get; set; }
-        public string ClientId { get; set; }
-        public string RefreshToken { get; set; }
+        public User? User { get; set; }
+        public string? ClientId { get; set; }
+        public string? RefreshToken { get; set; }
     }
 }
