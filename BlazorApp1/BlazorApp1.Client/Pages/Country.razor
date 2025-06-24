@@ -5,39 +5,46 @@
 
 @inject IHttpClientFactory _httpFactory
 
-@attribute [Authorize]
+@* @attribute [Authorize] *@
+<div class="container">
+    <h2>Choose the destination:</h2>
 
-<h2>Choose the destination:</h2>
+    <img src="/vlaggen/@(NaamLand).png" />
 
-<img src="/vlaggen/@(NaamLand).png" />
-
-@if (Bestemmingen != null)
-{
-    <ul>
-        @foreach (var bestemming in Bestemmingen)
-        {
-            <li><a href="/@bestemming.Code/reizen" >@bestemming.Plaats</a>
-
-                @if (reizenNaarBestemming?[bestemming.Code]?.Count() > 0) 
-                { 
-                    <p>Available trips: @reizenNaarBestemming?[bestemming.Code]?.Count()</p>
-                }
-                else 
-                {
-                    <p>No available trips</p>
-                }
-            </li>
-        }
-    </ul>
-}
-else
-{
-    <p>Waiting for data...</p>
-}
-@if (!String.IsNullOrEmpty(Error))
-{
-    <div class="alert alert-danger">@Error</div>
-}
+    @if (Bestemmingen != null)
+    {
+        <ul>
+            @foreach (var bestemming in Bestemmingen)
+            {
+                <li>
+                    <div class="row">
+                        <div class="col col-md-1">
+                            <a href="/@bestemming.Code/reizen">@bestemming.Plaats</a>
+                        </div>
+                        <div class="col col-md-3">
+                            @if (reizenNaarBestemming?[bestemming.Code]?.Count() > 0) 
+                            {
+                                <p> - @reizenNaarBestemming?[bestemming.Code]?.Count() available trips</p>
+                            }
+                            else 
+                            {
+                                <p> - no available trips</p>
+                            }
+                        </div>
+                    </div>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>Waiting for data...</p>
+    }
+    @if (!String.IsNullOrEmpty(Error))
+    {
+        <div class="alert alert-danger">@Error</div>
+    }
+</div>
 
 @code {
     [Parameter]

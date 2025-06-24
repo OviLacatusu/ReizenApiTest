@@ -6,9 +6,9 @@
 @inject IHttpClientFactory _httpFactory
 @inject ILogger<WerelddeelKeuze> _logger;
 
-@attribute [Authorize]
+@* @attribute [Authorize] *@
 
-<AuthorizeView>
+@* <AuthorizeView> *@
     <div class="container">
     <PageTitle>Werelddelen</PageTitle>
     <h2>Choose the continent:</h2>
@@ -27,7 +27,7 @@
         }
 
     </div>
-</AuthorizeView> 
+@* </AuthorizeView>  *@
 @if (!String.IsNullOrEmpty(Error))
 {
     <div class="alert alert-danger">@Error</div>
