@@ -8,7 +8,7 @@
 @inject ILogger<Bestemming> _logger;
 
 @* @attribute [Authorize] *@
-
+<div class="container">
 @if (Reizen != null)
 {
     <h3>@Reizen.FirstOrDefault()?.Bestemming.Plaats</h3>
@@ -33,7 +33,7 @@
 {
     <div class="alert alert-danger">@Error</div>
 }
-
+</div>
 @code 
 {
     [Parameter]

@@ -355,6 +355,8 @@ namespace ReizenApi.Controllers
             {
                 if (Authorization == null)
                     throw new OAuth2Exception ("Access token not found! Session has probably expired.");
+                if (String.IsNullOrEmpty (messageId))
+                    throw new ArgumentException ("Invalid argument");
 
                 var accessToken = Authorization.Split (" ").Last ();
                 var credentials = GoogleCredential.FromAccessToken (accessToken);
@@ -367,11 +369,14 @@ namespace ReizenApi.Controllers
                
                 using var client = _httpFactory.CreateClient ();
                 {
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue ("Bearer", accessToken);
                     var response = await client.GetAsync (GOOGLE_GMAIL_AUTHENTICATED_USER_URL);
                     response.EnsureSuccessStatusCode ();
                     var profile = await response.Content.ReadFromJsonAsync<GmailUserProfile> ();
 
                     var request = service.Users.Messages.Delete (profile?.EmailAddress, messageId);
+                    // should be changed to return failure or success status of action
+                    var result = await request.ExecuteAsync ();
                     return NoContent();
                 }
             }

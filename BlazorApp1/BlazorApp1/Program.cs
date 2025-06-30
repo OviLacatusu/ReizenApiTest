@@ -124,7 +124,6 @@ app.UseAuthentication ();
 app.UseAuthorization ();
 
 app.UseStaticFiles ();
-//app.UseMiddleware<ClaimsReporter> ();
 app.UseAntiforgery ();
 
 app.MapStaticAssets ();

@@ -8,7 +8,9 @@
 
 @* @attribute [Authorize] *@
 
-<h2>Choose the country:</h2>
+
+<div class="container">
+    <h2>Choose the country:</h2>
 @if (Landen != null)
 {
     <ul>
@@ -26,6 +28,7 @@ else
 {
     <div class="alert alert-danger">@Error</div>
 }
+</div>
 @code {
     [Parameter]
     public string? Naam { get; set; }

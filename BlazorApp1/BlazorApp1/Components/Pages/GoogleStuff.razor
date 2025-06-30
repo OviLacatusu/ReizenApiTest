@@ -26,66 +26,76 @@
 
 <AuthorizeView>
     <div class="container">
-      <CollapsingElement Title="Google Photos API">
-        <ElementBody>
-            <div class="row">
-                <div class="col-md-2">
-                    @*Closing the window before picking the fotos will have the polling loop run indefinately*@
-                    <button @onclick="OpenTabAndPollSession">Pick Photos</button>
-                </div>
-            </div>
-                    
-            @if (MediaItems is not null && MediaItems.MediaItems.Count() > 0)
-            {
-                foreach (var item in MediaItems.MediaItems)
-                {
-                    <div class="row">
-                        <div class="col-md-2">
-
-                            <button class="btn btn-link" @onclick="@(async () => await DownloadFoto(item.MediaFile))">@item.MediaFile.Filename</button>
-                        </div>
-                    </div>
-                }
+        <CollapsingElement Title="Google Photos API">
+            <ElementBody>
                 <div class="row">
                     <div class="col-md-2">
-                        <button @onclick="(async ()=> await DownloadFiles(MediaItems.MediaItems))">Download files</button>
-
+                        @*Closing the window before picking the fotos will have the polling loop run indefinately*@
+                        <button @onclick="OpenTabAndPollSession">Pick Photos</button>
                     </div>
                 </div>
-            } 
-        </ElementBody>
-     </CollapsingElement>
 
-  <CollapsingElement Title="Google Gmail API">
-      <ElementBody>
-                    @if (Messages is not null && Messages.Count() > 0)
+                @if (MediaItems is not null && MediaItems.MediaItems.Count() > 0)
+                {
+                    foreach (var item in MediaItems.MediaItems)
                     {
-                        foreach (var item in Messages)
-                        {
                         <div class="row">
+                            <div class="col-md-2">
+
+                                <button class="btn btn-link" @onclick="@(async () => await DownloadFoto(item.MediaFile))">@item.MediaFile.Filename</button>
+                            </div>
+                        </div>
+                    }
+                    <div class="row">
+                        <div class="col-md-2">
+                            <button @onclick="(async ()=> await DownloadFiles(MediaItems.MediaItems))">Download files</button>
+
+                        </div>
+                    </div>
+                } 
+            </ElementBody>
+        </CollapsingElement>
+
+        <CollapsingElement Title="Google Gmail API">
+            <ElementBody>
+                @if (Error != null) 
+                {
+                    <div class="alert alert-danger">@Error</div>
+                } else if (IsSuccessfull)
+                {
+                    <div class="alert alert-success">Message deleted successfully</div>
+                }
+                @if (Messages is not null && Messages.Count() > 0)
+                {
+                    foreach (var item in Messages)
+                    {
+                        <div class="row">
+                            <div class="col-md-3">
+                                <p>@item?.Payload?.Headers?.Where(x => x.Name == "From").First()?.Value</p>
+                            </div>
                             <div class="col-lg-6">
-                                <p>@item.Payload?.Headers.Where(x => x.Name == "From").First().Value</p>
-                                <button class="btn btn-link">@item.Payload?.Headers.Where(x => x.Name == "Subject").First().Value</button>
+                                <button class="btn btn-link">@item.Payload?.Headers?.Where(x => x.Name == "Subject").FirstOrDefault()?.Value</button>
                             </div>
                             <div class="col-md-2">
-                                <button class="btn btn-link">Delete mail</button>
+                                <button class="btn btn-link" @onclick="@(async () => await DeleteMessage(item.Id))">Delete mail</button>
 
                             </div>
                         </div>
-                        }
                     }
+                }
 
-      </ElementBody>
-  </CollapsingElement>
-</div>
+            </ElementBody>
+        </CollapsingElement>
+    </div>
 
 
 </AuthorizeView>
 
-@if (!String.IsNullOrEmpty(Error))
-{
-    <div class="alert alert-danger">@((MarkupString)Error) </div>
-}
+@if (!String.IsNullOrEmpty(Error)) 
+ { 
+     <div class="alert alert-danger">@((MarkupString)Error) </div> 
+ }
+
 @* Suggested way of downloading files < 250 MB in size using JSInterop *@
 <script>
     window.downloadFileFromStream = async (fileName, contentStreamReference) => {
@@ -104,6 +114,8 @@
 @code
 {
     private string? Error { get; set; }
+
+    private bool IsSuccessfull;
 
     private CancellationToken token = new();
 
@@ -252,6 +264,29 @@
             else
             {
                 Error = "Failed to download file.";
+            }
+        }
+    }
+
+    private async Task DeleteMessage(string messageId) 
+    {
+        _logger.LogInformation($"Running DeleteMail - deleting mail message with ID: {messageId}");
+        using (var client = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager)))
+        {  
+            client.BaseAddress = new Uri(ConfigData.httpClientURI);
+
+            var result = await client.PostAsJsonAsync($"/api/GoogleAccess/deletemessage", messageId);
+
+            if (result.IsSuccessStatusCode)
+            {
+                IsSuccessfull = true;
+                await GetMailMessages();
+                StateHasChanged();
+            }
+            else {
+                
+                IsSuccessfull = false;
+                Error = await result.Content.ReadAsStringAsync();
             }
         }
     }

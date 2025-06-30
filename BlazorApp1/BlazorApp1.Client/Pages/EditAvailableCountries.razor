@@ -6,7 +6,7 @@
 @inject NavigationManager _navManager;
 
 @* @attribute [Authorize] *@
-
+<div class="container">
 <h3>EditAvailableCountries</h3>
 
 @if(Landen != null)
@@ -33,7 +33,7 @@
 {
     <div class="alert alert-danger">@Error</div>
 }
-
+</div>
 @code {
     private InputText CurrentText { get; set; }
 
