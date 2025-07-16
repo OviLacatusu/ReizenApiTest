@@ -11,14 +11,14 @@ var builder = WebApplication.CreateBuilder(args);
 var clientID = builder.Configuration.GetSection ("OAuthConfig").GetValue<string> ("ClientID");
 var clientSecret = builder.Configuration.GetSection ("OAuthConfig").GetValue<string> ("ClientSecret");
 
-builder.Services.AddDbContextFactory<ReizenContext> (options => options.UseSqlServer( builder.Configuration.GetConnectionString("ReizenDB2")));
+builder.Services.AddDbContextFactory<ReizenContext> (options => options.UseSqlServer( builder.Configuration.GetConnectionString("ReizenDB")));
 
 builder.Services.AddTransient<IMediator> (_ => Mediator.MediatorFactory ());
 
-builder.Services.AddScoped<IKlantenRepository,KlantenService> ();
-builder.Services.AddScoped<ILandenWerelddelenRepository, LandenService> ();
-builder.Services.AddScoped<IReizenRepository, ReizenService> ();
-builder.Services.AddScoped<IBoekingenRepository, BoekingenService> ();
+builder.Services.AddScoped<IClientsRepository,ClientsService> ();
+builder.Services.AddScoped<ICountriesContinentsRepository, CountriesService> ();
+builder.Services.AddScoped<ITripsRepository, TripsService> ();
+builder.Services.AddScoped<IBookingsRepository, BookingsService> ();
 
 builder.Services.AddHttpContextAccessor ();
 

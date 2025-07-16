@@ -1,26 +1,24 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Google.Apis.Auth.AspNetCore3;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BlazorApp1.Components.Account.Pages
 {
     [Authorize]
     public class LogoutModel : PageModel
     {
-        public IActionResult OnGetAsync ()
+        public async Task<IActionResult> OnGet ()
         {
-            return SignOut (new AuthenticationProperties
-            {
-                RedirectUri = "/SignedOut"
-            },
-            // Clear auth cookie
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            // Redirect to OIDC provider signout endpoint
-            GoogleOpenIdConnectDefaults.AuthenticationScheme);
+            //var authenticationProperties = new LogoutAuthenticationPropertiesBuilder ()
+            //     .WithRedirectUri ("/")
+            //.Build ();
+
+            await HttpContext.SignOutAsync (OpenIdConnectDefaults.AuthenticationScheme);
+            await HttpContext.SignOutAsync (CookieAuthenticationDefaults.AuthenticationScheme);
+            return Redirect ("/");
         }
     }
 }

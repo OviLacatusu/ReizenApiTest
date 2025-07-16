@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-//using Reizen.Data.Models;
+//using Trips.Data.Models;
 using Reizen.Data.Models;
 using Reizen.CommonClasses.DTOs;
 
@@ -9,26 +9,26 @@ namespace ReizenApi
     {
         public AutoMapperProfile() 
         {
-            CreateMap<KlantDAL, KlantDTO>();
-            CreateMap<KlantDTO, KlantDAL> ();
+            CreateMap<ClientDAL, ClientDTO>();
+            CreateMap<ClientDTO, ClientDAL> ();
 
-            CreateMap<LandDAL, LandDTO> ();
-            CreateMap<LandDTO, LandDAL> ();
+            CreateMap<CountryDAL, CountryDTO> ();
+            CreateMap<CountryDTO, CountryDAL> ();
 
-            CreateMap<BestemmingDAL, BestemmingDTO> ();
-            CreateMap<BestemmingDTO, BestemmingDAL> ();
+            CreateMap<DestinationDAL, DestinationDTO> ();
+            CreateMap<DestinationDTO, DestinationDAL> ();
 
-            CreateMap<WerelddeelDAL, WerelddeelDTO> ();
-            CreateMap<WerelddeelDTO, WerelddeelDAL> ();
+            CreateMap<ContinentDAL, ContinentDTO> ();
+            CreateMap<ContinentDTO, ContinentDAL> ();
 
-            CreateMap<BoekingDAL, BoekingDTO> ();
-            CreateMap<BoekingDTO, BoekingDAL> ();
+            CreateMap<BookingDAL, BookingDTO> ();
+            CreateMap<BookingDTO, BookingDAL> ();
 
-            CreateMap<ReisDAL, ReisDTO> ();
-            CreateMap<ReisDTO, ReisDAL> ();
+            CreateMap<TripDAL, TripDTO> ();
+            CreateMap<TripDTO, TripDAL> ();
 
-            CreateMap<WoonplaatsDAL, WoonplaatsDTO> ();
-            CreateMap<WoonplaatsDTO, WoonplaatsDAL> ();
+            CreateMap<ResidenceDAL, ResidenceDTO> ();
+            CreateMap<ResidenceDTO, ResidenceDAL> ();
         }
     }
 }

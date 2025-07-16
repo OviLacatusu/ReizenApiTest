@@ -1,0 +1,64 @@
+﻿@using Reizen.CommonClasses.DTOs
+@using System.Net
+@using Microsoft.AspNetCore.Authorization
+
+@page "/{DestinationCode}/trips"
+
+@inject IHttpClientFactory _httpFactory
+@inject ILogger<TripsToDestination> _logger;
+
+@* @attribute [Authorize] *@
+<div class="container">
+@if (Trips != null)
+{
+    <h3>@Trips.FirstOrDefault()?.Destination.PlaceName</h3>
+    <img src="/Destinations/@(Trips.FirstOrDefault()?.Destination.PlaceName).jpg"/>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">DateOfDeparture</th><th scope="col">Prijs/person</th><th scope="col">Aantal dagen</th><th scope="col">Boeken</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var trip in Trips)
+            {
+                <tr>
+                    <td>@trip.DateOfDeparture.ToString()</td><td>@trip.PricePerPerson</td><td>@trip.NumberOfDays</td><td><a href="/tripKiezen/@trip.Id">Boeken</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@if (!String.IsNullOrEmpty(Error))
+{
+    <div class="alert alert-danger">@Error</div>
+}
+</div>
+@code 
+{
+    [Parameter]
+    public string DestinationCode { get; init; }
+
+    private IEnumerable<TripDTO>? Trips;
+
+    private string Error { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!String.IsNullOrEmpty(DestinationCode))
+        {
+            using var httpClient = _httpFactory.CreateClient();
+
+            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<TripDTO>> ($"api/trips/{DestinationCode}", httpClient);
+            if (result.IsSuccessful)
+            {
+                Trips = result.Value;
+            }
+            else
+            {
+                Error = result.Error;
+            }
+            
+        }
+    }
+}

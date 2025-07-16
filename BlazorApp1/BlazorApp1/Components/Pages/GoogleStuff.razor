@@ -16,6 +16,7 @@
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
 
 @inject IJSRuntime JSRuntime;
+@inject SignInManager<ApplicationUser> SignInManager
 @inject ILogger<GoogleStuff> _logger;
 @inject IHttpClientFactory _factory;
 @inject NavigationManager _navManager;
@@ -42,13 +43,13 @@
                         <div class="row">
                             <div class="col-md-2">
 
-                                <button class="btn btn-link" @onclick="@(async () => await DownloadFoto(item.MediaFile))">@item.MediaFile.Filename</button>
+                                <button class="btn btn-link" @onclick="@(async () => await DownloadFoto(item.MediaFile))">@item.MediaFile?.Filename</button>
                             </div>
                         </div>
                     }
                     <div class="row">
                         <div class="col-md-2">
-                            <button @onclick="(async ()=> await DownloadFiles(MediaItems.MediaItems))">Download files</button>
+                            <button @onclick="(async () => await DownloadFiles(MediaItems.MediaItems))">Download files</button>
 
                         </div>
                     </div>
@@ -65,7 +66,7 @@
                 {
                     <div class="alert alert-success">Message deleted successfully</div>
                 }
-                @if (Messages is not null && Messages.Count() > 0)
+                @if (Messages is not null && Messages.Count() > 0) // Messages?.Count() > 0
                 {
                     foreach (var item in Messages)
                     {
@@ -74,7 +75,7 @@
                                 <p>@item?.Payload?.Headers?.Where(x => x.Name == "From").First()?.Value</p>
                             </div>
                             <div class="col-lg-6">
-                                <button class="btn btn-link">@item.Payload?.Headers?.Where(x => x.Name == "Subject").FirstOrDefault()?.Value</button>
+                                <button class="btn btn-link">@item?.Payload?.Headers?.Where(x => x.Name == "Subject").FirstOrDefault()?.Value</button>
                             </div>
                             <div class="col-md-2">
                                 <button class="btn btn-link" @onclick="@(async () => await DeleteMessage(item.Id))">Delete mail</button>
@@ -92,9 +93,9 @@
 </AuthorizeView>
 
 @if (!String.IsNullOrEmpty(Error)) 
- { 
-     <div class="alert alert-danger">@((MarkupString)Error) </div> 
- }
+{ 
+    <div class="alert alert-danger">@((MarkupString)Error) </div> 
+}
 
 @* Suggested way of downloading files < 250 MB in size using JSInterop *@
 <script>
@@ -111,8 +112,12 @@
     URL.revokeObjectURL(url);
     };
 </script>
+
+
 @code
 {
+    private ExternalLoginInfo? ExternalLoginInfo;
+
     private string? Error { get; set; }
 
     private bool IsSuccessfull;
@@ -133,6 +138,7 @@
     protected override async Task OnInitializedAsync()
     {
         _logger.LogInformation("-- OnInitialized called --");
+        //ExternalLoginInfo = await SignInManager.GetExternalLoginInfoAsync();
         if (_httpContextAccessor?.HttpContext?.User?.Identity?.IsAuthenticated == true)
         {
             await GetPickerSession();

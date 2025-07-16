@@ -11,11 +11,10 @@
 
 @if (!user.Identity?.IsAuthenticated == true)
 { 
-    <p>Not logged in</p>
+    <div>Not logged in</div>
 }
-
 else {
-    <p>Welcome @username</p>
+    <div>Welcome @username</div>
 }
 
 @code {

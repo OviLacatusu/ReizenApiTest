@@ -16,196 +16,195 @@ public partial class ReizenContext : DbContext
     {
     }
 
-    public virtual DbSet<BestemmingDAL> Bestemmingen
+    public virtual DbSet<DestinationDAL> Destinations
     {
         get; set;
     }
 
-    public virtual DbSet<BoekingDAL> Boekingen
+    public virtual DbSet<BookingDAL> Bookings
     {
         get; set;
     }
 
-    public virtual DbSet<KlantDAL> Klanten
+    public virtual DbSet<ClientDAL> Clients
     {
         get; set;
     }
 
-    public virtual DbSet<LandDAL> Landen
+    public virtual DbSet<CountryDAL> Countries
     {
         get; set;
     }
 
-    public virtual DbSet<ReisDAL> Reizen
+    public virtual DbSet<TripDAL> Trips
     {
         get; set;
     }
 
-    public virtual DbSet<WerelddeelDAL> Werelddelen
+    public virtual DbSet<ContinentDAL> Continents
     {
         get; set;
     }
 
-    public virtual DbSet<WoonplaatsDAL> Woonplaatsen
+    public virtual DbSet<ResidenceDAL> Residences
     {
         get; set;
     }
 
 //    protected override void OnConfiguring (DbContextOptionsBuilder optionsBuilder)
 //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer ("Server=.\\sqlexpress;Database=reizen;Trusted_Connection=true;TrustServerCertificate=true");
+//        => optionsBuilder.UseSqlServer ("Server=.\\sqlexpress;Database=trips;Trusted_Connection=true;TrustServerCertificate=true");
 
     protected override void OnModelCreating (ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<BestemmingDAL> (entity =>
+        modelBuilder.Entity<DestinationDAL> (entity =>
         {
-            entity.HasKey (e => e.Code).HasName ("PK__bestemmingen__357D4CF8ABF0313B");
+            entity.HasKey (e => e.Code).HasName ("PK__Destinations__357D4CF8ABF0313B");
 
-            entity.ToTable ("bestemmingen");
+            entity.ToTable ("destinations");
 
             entity.Property (e => e.Code)
                 .HasMaxLength (5)
                 .IsUnicode (false)
                 .IsFixedLength ()
                 .HasColumnName ("code");
-            //entity.Property (e => e.Landid).HasColumnName ("landid");
-            entity.Property (e => e.Plaats)
+            entity.Property (e => e.PlaceName)
                 .HasMaxLength (20)
                 .IsUnicode (false)
-                .HasColumnName ("plaats");
+                .HasColumnName ("placename");
 
-            entity.HasOne (d => d.Land).WithMany (p => p.Bestemmingen)
-                .HasForeignKey (d => d.Landid)
+            entity.HasOne (d => d.Country).WithMany (p => p.Destinations)
+                .HasForeignKey (d => d.CountryId)
                 .OnDelete (DeleteBehavior.ClientSetNull)
-                .HasConstraintName ("bestemmingen_landen");
+                .HasConstraintName ("Destinations_Countries");
         });
 
-        modelBuilder.Entity<BoekingDAL> (entity =>
+        modelBuilder.Entity<BookingDAL> (entity =>
         {
-            entity.HasKey (e => e.Id).HasName ("PK__boekingen__3213E83FE0274BF8");
+            entity.HasKey (e => e.Id).HasName ("PK__bookings__3213E83FE0274BF8");
 
-            entity.ToTable ("boekingen");
+            entity.ToTable ("bookings");
 
             entity.Property (e => e.Id).HasColumnName ("id");
-            entity.Property (e => e.AantalKinderen).HasColumnName ("aantalKinderen");
-            entity.Property (e => e.AantalVolwassenen).HasColumnName ("aantalVolwassenen");
+            entity.Property (e => e.NumberOfMinors).HasColumnName ("numberOfMinors");
+            entity.Property (e => e.NumberOfAdults).HasColumnName ("numberOfAdults");
             entity.Property (e => e.AnnulatieVerzekering).HasColumnName ("annulatieVerzekering");
-            entity.Property (e => e.GeboektOp).HasColumnName ("geboektOp");
-            entity.Property (e => e.Klantid).HasColumnName ("klantid");
-            entity.Property (e => e.Reisid).HasColumnName ("reisid");
+            entity.Property (e => e.BookedOnDate).HasColumnName ("geboektOp");
+            entity.Property (e => e.ClientId).HasColumnName ("klantid");
+            entity.Property (e => e.TripId).HasColumnName ("tripid");
 
-            entity.HasOne (d => d.Klant).WithMany (p => p.Boekingen)
-                .HasForeignKey (d => d.Klantid)
+            entity.HasOne (d => d.Client).WithMany (p => p.Bookings)
+                .HasForeignKey (d => d.ClientId)
                 .OnDelete (DeleteBehavior.ClientSetNull)
-                .HasConstraintName ("boekingen_klanten");
+                .HasConstraintName ("bookings_clients");
 
-            entity.HasOne (d => d.Reis).WithMany (p => p.Boekingen)
-                .HasForeignKey (d => d.Reisid)
+            entity.HasOne (d => d.Trip).WithMany (p => p.Bookings)
+                .HasForeignKey (d => d.TripId)
                 .OnDelete (DeleteBehavior.ClientSetNull)
-                .HasConstraintName ("boekingen_reizen");
+                .HasConstraintName ("bookings_trips");
         });
 
-        modelBuilder.Entity<KlantDAL> (entity =>
+        modelBuilder.Entity<ClientDAL> (entity =>
         {
-            entity.HasKey (e => e.Id).HasName ("PK__klanten__3213E83F8BE1A164");
+            entity.HasKey (e => e.Id).HasName ("PK__clients__3213E83F8BE1A164");
 
-            entity.ToTable ("klanten");
+            entity.ToTable ("clients");
 
             entity.Property (e => e.Id).HasColumnName ("id");
-            entity.Property (e => e.Adres)
+            entity.Property (e => e.Address)
                 .HasMaxLength (50)
                 .IsUnicode (false)
-                .HasColumnName ("adres");
-            entity.Property (e => e.Familienaam)
+                .HasColumnName ("address");
+            entity.Property (e => e.FamilyName)
                 .HasMaxLength (50)
                 .IsUnicode (false)
-                .HasColumnName ("familienaam");
-            entity.Property (e => e.Voornaam)
+                .HasColumnName ("familyname");
+            entity.Property (e => e.FirstName)
                 .HasMaxLength (50)
                 .IsUnicode (false)
-                .HasColumnName ("voornaam");
-            entity.Property (e => e.Woonplaatsid).HasColumnName ("woonplaatsid");
+                .HasColumnName ("firstname");
+            entity.Property (e => e.ResidenceId).HasColumnName ("residenceid");
 
-            entity.HasOne (d => d.Woonplaats).WithMany (p => p.Klanten)
-                .HasForeignKey (d => d.Woonplaatsid)
+            entity.HasOne (d => d.Residence).WithMany (p => p.Clients)
+                .HasForeignKey (d => d.ResidenceId)
                 .OnDelete (DeleteBehavior.ClientSetNull)
-                .HasConstraintName ("klanten_woonplaatsen");
+                .HasConstraintName ("clients_residences");
         });
 
-        modelBuilder.Entity<LandDAL> (entity =>
+        modelBuilder.Entity<CountryDAL> (entity =>
         {
-            entity.HasKey (e => e.Id).HasName ("PK__landen__3213E83FF994C39E");
+            entity.HasKey (e => e.Id).HasName ("PK__Countries__3213E83FF994C39E");
 
-            entity.ToTable ("landen");
+            entity.ToTable ("countries");
 
-            entity.HasIndex (e => e.Naam, "UQ__landen__72E1CD78CA87044C").IsUnique ();
+            entity.HasIndex (e => e.Name, "UQ__Countries__72E1CD78CA87044C").IsUnique ();
 
             entity.Property (e => e.Id).HasColumnName ("id");
-            entity.Property (e => e.Naam)
+            entity.Property (e => e.Name)
                 .HasMaxLength (50)
                 .IsUnicode (false)
-                .HasColumnName ("naam");
-            entity.Property (e => e.Werelddeelid).HasColumnName ("werelddeelid");
+                .HasColumnName ("name");
+            entity.Property (e => e.Continentid).HasColumnName ("Continentid");
 
-            entity.HasOne (d => d.Werelddeel).WithMany (p => p.Landen)
-                .HasForeignKey (d => d.Werelddeelid)
+            entity.HasOne (d => d.Continent).WithMany (p => p.Countries)
+                .HasForeignKey (d => d.Continentid)
                 .OnDelete (DeleteBehavior.ClientSetNull)
-                .HasConstraintName ("landen_werelddelen");
+                .HasConstraintName ("Countries_continents");
         });
 
-        modelBuilder.Entity<ReisDAL> (entity =>
+        modelBuilder.Entity<TripDAL> (entity =>
         {
-            entity.HasKey (e => e.Id).HasName ("PK__reizen__3213E83F18B8A173");
+            entity.HasKey (e => e.Id).HasName ("PK__trips__3213E83F18B8A173");
 
-            entity.ToTable ("reizen");
+            entity.ToTable ("trips");
 
             entity.Property (e => e.Id).HasColumnName ("id");
-            entity.Property (e => e.AantalDagen).HasColumnName ("aantalDagen");
-            entity.Property (e => e.AantalKinderen).HasColumnName ("aantalKinderen");
-            entity.Property (e => e.AantalVolwassenen).HasColumnName ("aantalVolwassenen");
-            entity.Property (e => e.Bestemmingscode)
+            entity.Property (e => e.NumberOfDays).HasColumnName ("numberOfDays");
+            entity.Property (e => e.NumberOfMinors).HasColumnName ("numberOfMinors");
+            entity.Property (e => e.NumberOfAdults).HasColumnName ("numberOfAdults");
+            entity.Property (e => e.DestinationCode)
                 .HasMaxLength (5)
                 .IsUnicode (false)
                 .IsFixedLength ()
-                .HasColumnName ("bestemmingscode");
-            entity.Property (e => e.PrijsPerPersoon)
+                .HasColumnName ("DestinationCode");
+            entity.Property (e => e.PricePerPerson)
                 .HasColumnType ("decimal(10, 2)")
-                .HasColumnName ("prijsPerPersoon");
-            entity.Property (e => e.Vertrek).HasColumnName ("vertrek");
+                .HasColumnName ("pricePerPerson");
+            entity.Property (e => e.DateOfDeparture).HasColumnName ("dateofdeparture");
 
-            entity.HasOne (d => d.Bestemming).WithMany (p => p.Reizen)
-                .HasForeignKey (d => d.Bestemmingscode)
+            entity.HasOne (d => d.Destination).WithMany (p => p.Trips)
+                .HasForeignKey (d => d.DestinationCode)
                 .OnDelete (DeleteBehavior.ClientSetNull)
-                .HasConstraintName ("reizen_bestemmingen");
+                .HasConstraintName ("trips_Destinations");
         });
 
-        modelBuilder.Entity<WerelddeelDAL> (entity =>
+        modelBuilder.Entity<ContinentDAL> (entity =>
         {
-            entity.HasKey (e => e.Id).HasName ("PK__werelddelen__3213E83FCC03D392");
+            entity.HasKey (e => e.Id).HasName ("PK__continents__3213E83FCC03D392");
 
-            entity.ToTable ("werelddelen");
+            entity.ToTable ("continents");
 
-            entity.HasIndex (e => e.Naam, "UQ__wereldde__72E1CD7890D795ED").IsUnique ();
+            entity.HasIndex (e => e.Name, "UQ__continents__72E1CD7890D795ED").IsUnique ();
 
             entity.Property (e => e.Id).HasColumnName ("id");
-            entity.Property (e => e.Naam)
+            entity.Property (e => e.Name)
                 .HasMaxLength (50)
                 .IsUnicode (false)
-                .HasColumnName ("naam");
+                .HasColumnName ("name");
         });
 
-        modelBuilder.Entity<WoonplaatsDAL> (entity =>
+        modelBuilder.Entity<ResidenceDAL> (entity =>
         {
-            entity.HasKey (e => e.Id).HasName ("PK__woonplaa__3213E83F42709BCC");
+            entity.HasKey (e => e.Id).HasName ("PK__residences__3213E83F42709BCC");
 
-            entity.ToTable ("woonplaatsen");
+            entity.ToTable ("residences");
 
             entity.Property (e => e.Id).HasColumnName ("id");
-            entity.Property (e => e.Naam)
+            entity.Property (e => e.Name)
                 .HasMaxLength (50)
                 .IsUnicode (false)
-                .HasColumnName ("naam");
-            entity.Property (e => e.Postcode).HasColumnName ("postcode");
+                .HasColumnName ("name");
+            entity.Property (e => e.PostalCode).HasColumnName ("postalcode");
         });
 
         OnModelCreatingPartial (modelBuilder);

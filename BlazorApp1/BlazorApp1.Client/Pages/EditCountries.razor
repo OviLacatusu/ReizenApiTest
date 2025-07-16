@@ -1,0 +1,72 @@
+﻿@page "/editCountries"
+@using Microsoft.AspNetCore.Authorization
+
+@inject ILogger<EditCountries> _logger;
+@inject IHttpClientFactory _httpFactory;
+@inject NavigationManager _navManager;
+
+@* @attribute [Authorize] *@
+<div class="container">
+<h3>EditAvailableCountries</h3>
+
+@if(Countries != null)
+{
+    foreach (var Country in Countries)
+    {
+        <div class="row">
+            <div class="col-lg-1">
+                <label></label>
+            </div>
+            <div class="col-lg-3">
+                <InputText @ref="@(Elements[Country.Name])"  @bind-Value:get="(Country.Name)" @bind-Value:set="((value) => {})"  ></InputText>
+            </div>
+            <div class="col-lg-1">
+                <button class="btn btn-warning" @onclick="(() => ProcessEdit(Country.Name))">Edit</button>
+            </div>
+            <div class="col-lg-1">
+                <button class="btn btn-danger">🗙</button>
+            </div>
+        </div>
+    }
+}
+@if (!String.IsNullOrEmpty(Error))
+{
+    <div class="alert alert-danger">@Error</div>
+}
+</div>
+@code {
+    private InputText CurrentText { get; set; }
+
+    private Dictionary<string,InputText> Elements { get; set; } = new Dictionary<string, InputText>();
+
+
+    private IEnumerable<CountryDTO> Countries { get; set; }
+
+    private string? Error { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetCountrys();
+    }
+
+    private async Task GetCountrys() 
+    { 
+        using var httpClient = _httpFactory.CreateClient();
+
+        var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<CountryDTO>>($"api/Countries", httpClient);
+        if (result.IsSuccessful)
+        {
+            Countries = result.Value;
+        }
+        else
+        {
+            Error = result.Error;
+        }
+    }
+
+    private void ProcessEdit(string key) 
+    {
+        var input = Elements.GetValueOrDefault<string, InputText>(key);
+        
+    }
+}

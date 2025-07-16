@@ -1,0 +1,110 @@
+﻿
+@using Microsoft.AspNetCore.Authorization;
+@using Reizen.CommonClasses.DTOs
+@using Reizen.CommonClasses;
+
+@page "/listoftrips/{TripId:int}"
+
+@inject ILogger<ListOfTrips> _logger;
+@inject IHttpClientFactory _httpFactory
+
+@rendermode InteractiveServer
+
+@* @attribute [Authorize] *@
+
+<div class="container">
+    <h2>Chosen trip:</h2>
+    @if(Trip is not null)
+    {
+        <h4>Destination</h4>
+        <p>@Trip.Destination?.PlaceName</p>
+        <h4>Departure date</h4>
+        <p>@Trip.DateOfDeparture</p>
+        <h4>Number of days</h4>
+        <p>@Trip.NumberOfDays</p>
+        <h4>Price</h4>
+        <p>@Trip.PricePerPerson</p>
+        <div >
+            <label for="FamilyName">Family name lookup:</label>
+            <InputText @bind-value="FamilyName" id="FamilyName"></InputText>
+            <button type="button" @onclick="(async () => await GetCustomers())" class="btn btn-primary">Zoek</button>
+        </div>
+    }
+    else 
+    { 
+        <p>Waiting for data...</p>
+    }
+    @if (!String.IsNullOrEmpty(Error))
+    {
+        <div class="alert alert-danger">@Error</div>
+    }
+</div>
+@if (Clients is not null) 
+{
+    <table class="table table-striped" >
+        <thead>
+            <tr>
+                <th>Family name</th><th>First name</th><th>City of residence</th><th>Book Trip</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var klant in Clients)
+            {
+                <tr>
+                    <td>@klant.FamilyName</td><td>@klant.FirstName</td><td>@klant.Address</td><td><a href="/book/trip/@TripId/client/@klant.Id">Book trip</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public int TripId { get; init; }
+
+    private string? Error { get; set; }
+
+    private TripDTO? Trip { get; set; }
+
+    private string? FamilyName { get; set; }
+
+    private IEnumerable<ClientDTO>? Clients;
+
+    protected override async Task OnInitializedAsync() 
+    {
+        if (TripId > 0) 
+        {
+            using var httpClient = _httpFactory.CreateClient();
+
+            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<TripDTO>($"api/trips/{TripId}", httpClient);
+            if (result.IsSuccessful)
+            {
+                Trip = result.Value;
+            }
+            else
+            {
+                Error = result.Error;
+            }
+        }
+    }
+
+    private async Task GetCustomers() 
+    {
+        if (!String.IsNullOrEmpty(FamilyName))
+        {
+            using (var httpClient = _httpFactory.CreateClient())
+            {
+                var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<ClientDTO>>($"api/klanten/{FamilyName}", httpClient);
+                if (result.IsSuccessful)
+                {
+                    Clients = result.Value;
+                }
+                else
+                {
+                    Error = result.Error;
+                }
+                //StateHasChanged();
+            }
+        }
+    }
+}

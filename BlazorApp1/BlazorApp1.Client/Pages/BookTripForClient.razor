@@ -1,0 +1,211 @@
+﻿@using BlazorApp1.Client.Components
+@using Microsoft.AspNetCore.Authorization
+@using System.Text.Json;
+@using Reizen.CommonClasses.DTOs
+@using System.Text
+
+@page "/book/trip/{TripId:int}/client/{ClientId:int}"
+
+@inject ILogger<BookTripForClient> _logger;
+@inject IHttpClientFactory _httpFactory
+
+@rendermode InteractiveServer
+
+@* @attribute [Authorize] *@
+
+<div class="container">
+    @if (Trip is not null && Client is not null)
+    {
+        <h2>Trip</h2>
+        <div class="row">
+
+            <div class="col-lg-3">   
+                <p style="font:bold">Destination:</p>
+            </div>
+            <div class="col-lg-1">
+                <p>@Trip.Destination.PlaceName</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3">
+                <p style="font:bold">Departure:</p>
+            </div>
+            <div class="col-lg-1"> 
+                <p>@Trip.DateOfDeparture</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3">
+                <p style="font:bold">Number days:</p>
+            </div>
+            <div class="col-lg-1">
+                <p>@Trip.NumberOfDays</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3">
+                <p style="font:bold">Price person:</p>
+            </div>
+            <div class="col-lg-1">
+                <p>@Trip.PricePerPerson</p>
+            </div>
+        </div>
+
+        <h2>Client</h2>
+        <div class="row">
+            <div class="col-lg-3">
+                <p>@($"{Client.FirstName} {Client.FamilyName}")</p>
+            </div>
+            <div class="col-lg-1">
+                <p>@Client.Address</p>
+            </div>
+        </div>
+        <h2>Booking</h2>
+
+        <div class="row">
+            <div class="col-lg-3">
+                <label for="aantalV">Number of adults</label>
+            </div>
+            <div class="col-lg-1">
+                <InputNumber @bind-Value:get="(Booking.NumberOfAdults)" @bind-Value:set="((value) => Booking.NumberOfAdults=value)" id="aantalV"></InputNumber>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3">
+                <label for="aantalK">Number of kids</label>
+            </div>
+            <div class="col-lg-1">
+                <InputNumber @bind-Value:get="(Booking.NumberOfMinors)" @bind-Value:set="((value)=>{Booking.NumberOfMinors=value;})" id="aantalK"></InputNumber>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3">
+                <label>Annulatie verzekering</label>
+            </div>
+            <div class="col-lg-1">
+                <InputCheckbox id="annulatieV" @bind-Value="@Booking.AnnulatieVerzekering"></InputCheckbox>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-3">
+
+            </div>
+            <div class="col-lg-2">
+                <button type="submit" class="btn btn-primary" data-toggle="modal" @onclick="(() => Modal.Open())">Book trip</button>
+            </div>
+            <ModalComponent @ref="Modal" Message="Are you sure you want to book this trip?" Header="Confirmation" Callback="@(async ()=> await AddNewBooking())"></ModalComponent>
+        </div>
+
+    } 
+    else 
+    {
+        <p>Waiting for data</p>
+    }
+</div>
+@if (!String.IsNullOrEmpty(Error))
+{
+    <div class="alert alert-danger">@Error</div>
+} else if (IsSuccessful)
+{
+    <div class="alert alert-success">Booking successful</div>
+}
+
+@code 
+{
+    private ModalComponent Modal { get; set; }
+
+    [Parameter]
+    public int TripId { get; init; }
+
+    [Parameter]
+    public int ClientId { get; init; }
+
+    private ClientDTO? Client { get; set; }
+
+    private TripDTO? Trip { get; set; }
+
+    private BookingDTO? Booking { get; set; } = new BookingDTO { NumberOfMinors = 0, NumberOfAdults = 0, AnnulatieVerzekering = false };
+
+    private string Error { get; set; }
+
+    private bool IsSuccessful { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (TripId > 0) 
+        {
+            using (var httpClient = _httpFactory.CreateClient()) 
+            {
+                var result = await httpClient.GetAsync($"/api/trips/{TripId}");
+
+                if (result.IsSuccessStatusCode)
+                {
+                    Trip = await result.Content.ReadFromJsonAsync<TripDTO>();
+                }
+                else 
+                { 
+                    var content = await result.Content.ReadAsStringAsync();
+                    if (!String.IsNullOrEmpty(content))
+                    {
+                        Error = content;
+                    }
+                    else
+                    {
+                        Error = "Something went wrong.";
+                    }
+                }
+            }
+        }
+        if (ClientId > 0 && Trip != null)
+        { 
+            using (var httpClient = _httpFactory.CreateClient()) 
+            {
+                var result = await httpClient.GetAsync($"/api/clients/{ClientId}");
+                if (result.IsSuccessStatusCode)
+                {
+                    Client = await result.Content.ReadFromJsonAsync<ClientDTO>();
+                }
+                else
+                {
+                    var content = await result.Content.ReadAsStringAsync();
+                    if (!String.IsNullOrEmpty(content))
+                    {
+                        Error = content;
+                    }
+                    else
+                    {
+                        Error = "Something went wrong.";
+                    }
+                }
+            }
+        }
+    }
+
+    private async Task AddNewBooking() 
+    {
+        Booking.BookedOnDate = DateOnly.FromDateTime(DateTime.Today);
+        Booking.TripId = TripId;
+        Booking.ClientId = ClientId;
+        using (var client = _httpFactory.CreateClient()) 
+        { 
+            var httpContent = new StringContent(JsonSerializer.Serialize<BookingDTO>(Booking), Encoding.UTF8, "application/json");
+            // POST request
+            var response = await client.PostAsync($"/api/bookings", httpContent);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                if (!String.IsNullOrEmpty(content))
+                {
+                    Error = content;
+                }
+            }
+            else 
+            {
+                IsSuccessful = true;
+            }
+            Modal.Close();
+        }
+    }
+}

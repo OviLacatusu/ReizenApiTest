@@ -1,0 +1,49 @@
+﻿@using Microsoft.AspNetCore.Authorization
+
+@page "/listOfClients"
+
+@inject IHttpClientFactory _httpFactory
+
+@* @attribute [Authorize] *@
+
+<PageTitle>Clients</PageTitle>
+
+<div class="container">
+    <h1>Hello, clients!</h1>
+    @if (Clients_ != null)
+    {
+        @foreach (var klant in Clients_)
+        {
+            <p>@klant.FamilyName @klant.FirstName @klant.Id</p>
+        }
+    }
+    else
+    {
+        <p>Waiting for data...</p>
+    }
+    @if (!String.IsNullOrEmpty(Error))
+    {
+        <div class="alert alert-danger">@Error</div>
+    }
+</div>
+@code
+{
+    private IEnumerable<ClientDTO>? Clients_;
+
+    private string Error { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var httpClient = _httpFactory.CreateClient();
+
+        var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<ClientDTO>>($"api/clients", httpClient);
+        if (result.IsSuccessful)
+        {
+            Clients_ = result.Value;
+        }
+        else
+        {
+            Error = result.Error;
+        }
+    }
+}

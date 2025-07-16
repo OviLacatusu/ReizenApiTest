@@ -48,7 +48,6 @@ namespace ReizenApi.Controllers
             try
             {
                 _logger.LogInformation ($"Authorization: {Authorization} ");
-                // restore AuthResponse state from session
                 if (Authorization == null)
                     throw new OAuth2Exception ("Access token not found!");
                 if (String.IsNullOrEmpty (encodedUrl))
@@ -114,7 +113,6 @@ namespace ReizenApi.Controllers
             }
         }
         // Method returning a link for the generated picker session. Once accessed, the link becomes invalid
-
         [HttpGet ("GetPickerLink")]
         public async Task<ActionResult> GetPickerData ([FromHeader] string Authorization, [FromServices] IHttpContextAccessor context, CancellationToken cancellationToken)
         {

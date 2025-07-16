@@ -7,23 +7,23 @@ using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using System.Diagnostics;
 using Reizen.Data.Models.CQRS.Queries;
-using static Reizen.Data.Models.CQRS.Queries.GetBestemmingenVanLand;
-using static Reizen.Data.Models.CQRS.Queries.GetKlanten;
-using static Reizen.Data.Models.CQRS.Queries.GetKlantMetID;
-using static Reizen.Data.Models.CQRS.Queries.GetKlantMetNaam;
-using static Reizen.Data.Models.CQRS.Queries.GetLandenVanWerelddeel;
-using static Reizen.Data.Models.CQRS.Queries.GetWerelddelen;
+using static Reizen.Data.Models.CQRS.Queries.GetDestinationsOfCountry;
+using static Reizen.Data.Models.CQRS.Queries.GetClients;
+using static Reizen.Data.Models.CQRS.Queries.GetClientWithId;
+using static Reizen.Data.Models.CQRS.Queries.GetClientWithName;
+using static Reizen.Data.Models.CQRS.Queries.GetCountriesOfContinent;
+using static Reizen.Data.Models.CQRS.Queries.GetContinents;
 using Reizen.Data.Models.CQRS.Commands;
-using static Reizen.Data.Models.CQRS.Commands.AddBestemmingToLand;
-using static Reizen.Data.Models.CQRS.Commands.AddKlant;
-using static Reizen.Data.Models.CQRS.Commands.AddLandToWerelddeel;
-using static Reizen.Data.Models.CQRS.Commands.AddReisToBestemming;
-using static Reizen.Data.Models.CQRS.Commands.DeleteKlant;
-using static Reizen.Data.Models.CQRS.Commands.UpdateKlant;
-using static Reizen.Data.Models.CQRS.Queries.GetReizenNaarBestemming;
-using static Reizen.Data.Models.CQRS.Queries.GetReisMetId;
-using static Reizen.Data.Models.CQRS.Commands.AddBoeking;
-using static Reizen.Data.Models.CQRS.Queries.GetLanden;
+using static Reizen.Data.Models.CQRS.Commands.AddDestinationToCountry;
+using static Reizen.Data.Models.CQRS.Commands.AddClient;
+using static Reizen.Data.Models.CQRS.Commands.AddCountryToContinent;
+using static Reizen.Data.Models.CQRS.Commands.AddTripToDestination;
+using static Reizen.Data.Models.CQRS.Commands.DeleteClient;
+using static Reizen.Data.Models.CQRS.Commands.UpdateClient;
+using static Reizen.Data.Models.CQRS.Queries.GetTripsToDestination;
+using static Reizen.Data.Models.CQRS.Queries.GetTripWithId;
+using static Reizen.Data.Models.CQRS.Commands.AddBooking;
+using static Reizen.Data.Models.CQRS.Queries.GetCountries;
 using Reizen.CommonClasses;
 
 namespace Reizen.Data.Models.CQRS
@@ -87,22 +87,22 @@ namespace Reizen.Data.Models.CQRS
         {
             var mediator = new Mediator ();
 
-            mediator.Register<GetBestemmingenVanLandQuery, Result<IList<BestemmingDAL>>> (new GetBestemmingenVanLandQueryHandler());
-            mediator.Register<GetKlantenQuery, Result<IList<KlantDAL>>> (new GetKlantenQueryHandler ());
-            mediator.Register<GetKlantMetIDQuery, Result<KlantDAL>> (new GetKlantMetIDQueryHandler());
-            mediator.Register<GetKlantMetNaamQuery, Result<IList<KlantDAL>>> (new GetKlantMetNaamQueryHandler ());
-            mediator.Register<GetLandenVanWerelddeelQuery, Result<IList<LandDAL>>> (new GetLandenVanWerelddeelQueryHandler());
-            mediator.Register<GetWerelddelenQuery, Result<IList<WerelddeelDAL>>> (new GetWerelddelenQueryHandler());
-            mediator.Register<AddBestemmingToLandCommand, Result<BestemmingDAL>> (new AddBestemmingToLandCommandHandler ());
-            mediator.Register<AddKlantCommand, Result<KlantDAL>> (new AddKlantCommandHandler ());
-            mediator.Register<AddLandToWerelddeelCommand, Result<LandDAL>> (new AddLandToWerelddeelCommandHandler ());
-            mediator.Register<AddReisToBestemmingCommand, Result<ReisDAL>> (new AddReisToBestemmingCommandHandler ());
-            mediator.Register<AddBoekingCommand, Result<BoekingDAL>> (new AddBoekingCommandHandler ());
-            mediator.Register<DeleteKlantCommand, Result<KlantDAL>> (new DeleteKlantCommandHandler ());
-            mediator.Register<UpdateKlantCommand, Result<KlantDAL>> (new UpdateKlantCommandHandler ());
-            mediator.Register<GetReisMetIdQuery, Result<ReisDAL>> (new GetReisMetIdQueryHandler ());
-            mediator.Register<GetLandenQuery, Result<IList<LandDAL>>> (new GetLandenQueryHandler ());
-            mediator.Register<GetReizenNaarBestemmingQuery, Result<IList<ReisDAL>>> (new GetReizenNaarBestemmingQueryHandler());
+            mediator.Register<GetDestinationsOfCountryQuery, Result<IList<DestinationDAL>>> (new GetDestinationsOfCountryQueryHandler());
+            mediator.Register<GetClientsQuery, Result<IList<ClientDAL>>> (new GetClientsQueryHandler ());
+            mediator.Register<GetClientWithIdQuery, Result<ClientDAL>> (new GetClientWithIdQueryHandler());
+            mediator.Register<GetClientWithNameQuery, Result<IList<ClientDAL>>> (new GetClientWithNameQueryHandler ());
+            mediator.Register<GetCountriesOfContinentQuery, Result<IList<CountryDAL>>> (new GetCountriesOfContinentQueryHandler());
+            mediator.Register<GetContinentsQuery, Result<IList<ContinentDAL>>> (new GetContinentsQueryHandler());
+            mediator.Register<AddDestinationToCountryCommand, Result<DestinationDAL>> (new AddDestinationToCountryCommandHandler ());
+            mediator.Register<AddClientCommand, Result<ClientDAL>> (new AddClientCommandHandler ());
+            mediator.Register<AddCountryToContinentCommand, Result<CountryDAL>> (new AddCountryToContinentCommandHandler ());
+            mediator.Register<AddTripToDestinationCommand, Result<TripDAL>> (new AddTripToDestinationCommandHandler ());
+            mediator.Register<AddBookingCommand, Result<BookingDAL>> (new AddBookingCommandHandler ());
+            mediator.Register<DeleteClientCommand, Result<ClientDAL>> (new DeleteClientCommandHandler ());
+            mediator.Register<UpdateClientCommand, Result<ClientDAL>> (new UpdateClientCommandHandler ());
+            mediator.Register<GetTripWithIdQuery, Result<TripDAL>> (new GetTripWithIdQueryHandler ());
+            mediator.Register<GetCountriesQuery, Result<IList<CountryDAL>>> (new GetCountriesQueryHandler ());
+            mediator.Register<GetTripsToDestinationQuery, Result<IList<TripDAL>>> (new GetTripsToDestinationQueryHandler());
 
             //Console.WriteLine (mediator.GetHashCode());
 

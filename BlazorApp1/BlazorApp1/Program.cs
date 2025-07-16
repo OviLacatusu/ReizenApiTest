@@ -55,7 +55,7 @@ builder.Services.AddScoped<IdentityUserAccessor> ();
 builder.Services.AddScoped<IdentityRedirectManager> ();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider> ();
 
-var connectionString = builder.Configuration.GetConnectionString ("ReizenDB2") ?? throw new InvalidOperationException ("Connection string not found.");
+var connectionString = builder.Configuration.GetConnectionString ("ReizenDB") ?? throw new InvalidOperationException ("Connection string not found.");
 builder.Services.AddDbContext<ApplicationDbContext> (options =>
     options.UseSqlServer (connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter ();
