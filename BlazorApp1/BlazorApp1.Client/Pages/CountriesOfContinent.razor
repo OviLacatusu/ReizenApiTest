@@ -6,9 +6,6 @@
 @inject IHttpClientFactory _httpFactory
 @inject ILogger<CountriesOfContinent> _logger
 
-@* @attribute [Authorize] *@
-
-
 <div class="container">
     <h2>Choose the country:</h2>
 @if (Countries != null)
@@ -29,6 +26,7 @@ else
     <div class="alert alert-danger">@Error</div>
 }
 </div>
+
 @code {
     [Parameter]
     public string? Name { get; set; }

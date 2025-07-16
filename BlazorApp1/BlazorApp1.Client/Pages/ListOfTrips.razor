@@ -10,8 +10,6 @@
 
 @rendermode InteractiveServer
 
-@* @attribute [Authorize] *@
-
 <div class="container">
     <h2>Chosen trip:</h2>
     @if(Trip is not null)
@@ -44,14 +42,20 @@
     <table class="table table-striped" >
         <thead>
             <tr>
-                <th>Family name</th><th>First name</th><th>City of residence</th><th>Book Trip</th>
+                <th>Family name</th>
+                <th>First name</th>
+                <th>City of residence</th>
+                <th>Book Trip</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var klant in Clients)
             {
                 <tr>
-                    <td>@klant.FamilyName</td><td>@klant.FirstName</td><td>@klant.Address</td><td><a href="/book/trip/@TripId/client/@klant.Id">Book trip</a></td>
+                    <td>@klant.FamilyName</td>
+                    <td>@klant.FirstName</td>
+                    <td>@klant.Address</td>
+                    <td><a href="/book/trip/@TripId/client/@klant.Id">Book trip</a></td>
                 </tr>
             }
         </tbody>

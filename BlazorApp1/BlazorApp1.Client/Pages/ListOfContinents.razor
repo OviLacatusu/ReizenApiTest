@@ -5,32 +5,31 @@
 @inject IHttpClientFactory _httpFactory
 @inject ILogger<ListOfContinents> _logger;
 
-@* @attribute [Authorize] *@
-
-@* <AuthorizeView> *@
-    <div class="container">
+<div class="container">
     <PageTitle>Continents</PageTitle>
     <h2>Choose the continent:</h2>
-    @if(Continents != null)
-        {
-            <ul>
-                @foreach (var Continent in Continents)   
-                {
-                    <li><a href="/CountriesOfContinent/@Continent.Name">@Continent.Name  </a></li>
-                }
-            </ul>
-        } 
-        else 
-        {
-            <p>Waiting for data...</p>
-        }
 
-    </div>
-@* </AuthorizeView>  *@
+    @if(Continents != null)
+    {
+        <ul>
+            @foreach (var Continent in Continents)   
+            {
+                <li><a href="/CountriesOfContinent/@Continent.Name">@Continent.Name  </a></li>
+            }
+        </ul>
+    } 
+    else 
+    {
+        <p>Waiting for data...</p>
+    }
+
+</div>
+
 @if (!String.IsNullOrEmpty(Error))
 {
     <div class="alert alert-danger">@Error</div>
 }
+
 @code 
 {
     private string Error { get; set; }

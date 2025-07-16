@@ -16,14 +16,20 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th scope="col">DateOfDeparture</th><th scope="col">Prijs/person</th><th scope="col">Aantal dagen</th><th scope="col">Boeken</th>
+                <th scope="col">Date Of Departure</th>
+                <th scope="col">Price per person</th>
+                <th scope="col">Number of days</th>
+                <th scope="col">Book</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var trip in Trips)
             {
                 <tr>
-                    <td>@trip.DateOfDeparture.ToString()</td><td>@trip.PricePerPerson</td><td>@trip.NumberOfDays</td><td><a href="/listoftrips/@trip.Id">Boeken</a></td>
+                    <td>@trip.DateOfDeparture.ToString()</td>
+                    <td>@trip.PricePerPerson</td>
+                    <td>@trip.NumberOfDays</td>
+                    <td><a href="/listoftrips/@trip.Id">Book</a></td>
                 </tr>
             }
         </tbody>
@@ -34,6 +40,7 @@
     <div class="alert alert-danger">@Error</div>
 }
 </div>
+
 @code 
 {
     [Parameter]

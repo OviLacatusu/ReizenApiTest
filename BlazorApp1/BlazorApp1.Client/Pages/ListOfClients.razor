@@ -4,8 +4,6 @@
 
 @inject IHttpClientFactory _httpFactory
 
-@* @attribute [Authorize] *@
-
 <PageTitle>Clients</PageTitle>
 
 <div class="container">
@@ -26,6 +24,7 @@
         <div class="alert alert-danger">@Error</div>
     }
 </div>
+
 @code
 {
     private IEnumerable<ClientDTO>? Clients;

@@ -11,8 +11,6 @@
 
 @rendermode InteractiveServer
 
-@* @attribute [Authorize] *@
-
 <div class="container">
     @if (Trip is not null && Client is not null)
     {
@@ -36,7 +34,7 @@
         </div>
         <div class="row">
             <div class="col-lg-3">
-                <p style="font:bold">Number days:</p>
+                <p style="font:bold">Number of days:</p>
             </div>
             <div class="col-lg-1">
                 <p>@Trip.NumberOfDays</p>
@@ -44,7 +42,7 @@
         </div>
         <div class="row">
             <div class="col-lg-3">
-                <p style="font:bold">Price person:</p>
+                <p style="font:bold">Price per person:</p>
             </div>
             <div class="col-lg-1">
                 <p>@Trip.PricePerPerson</p>
@@ -80,10 +78,10 @@
         </div>
         <div class="row">
             <div class="col-lg-3">
-                <label>Annulatie verzekering</label>
+                <label>Cancellation insurance</label>
             </div>
             <div class="col-lg-1">
-                <InputCheckbox id="annulatieV" @bind-Value="@Booking.AnnulatieVerzekering"></InputCheckbox>
+                <InputCheckbox id="annulatieV" @bind-Value="@Booking.HasCancellationInsurance"></InputCheckbox>
             </div>
         </div>
 
@@ -103,6 +101,7 @@
         <p>Waiting for data</p>
     }
 </div>
+
 @if (!String.IsNullOrEmpty(Error))
 {
     <div class="alert alert-danger">@Error</div>
@@ -125,7 +124,7 @@
 
     private TripDTO? Trip { get; set; }
 
-    private BookingDTO? Booking { get; set; } = new BookingDTO { NumberOfMinors = 0, NumberOfAdults = 0, AnnulatieVerzekering = false };
+    private BookingDTO? Booking { get; set; } = new BookingDTO { NumberOfMinors = 0, NumberOfAdults = 0, HasCancellationInsurance = false };
 
     private string Error { get; set; }
 

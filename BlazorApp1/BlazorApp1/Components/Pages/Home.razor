@@ -19,9 +19,9 @@
 <h1>Hello! </h1>
 Welcome to my Blazor app. Here you'll find some projects I am currently working on.
 <ul>
-    <li>Trips is a somewhat simple Web API project where I am trying to implement CQRS and event streaming - currently only the CQRS is implemented.</li>
-    <li>Google access is a Google API project. You'll have to authenticate with Google to be able to access this functionality. </li>
-    <li>Things that still need to be added (not necessarily in this order):
+    <li>Trips is a somewhat simple Web API project where I am trying to implement CQRS and event streaming - currently only the CQRS part is implemented.</li>
+    <li>Google access is a Google API project. You'll have to authenticate with Google and authorize the application in order access this functionality. </li>
+    <li>Things that will be added (not necessarily in this order):
         <ul>
             <li>
                 Role based authorization
@@ -29,17 +29,27 @@ Welcome to my Blazor app. Here you'll find some projects I am currently working 
             <li>
                 Event streaming
             </li>
+            
+            <li>
+                Domain layer
+            </li>
             <li>
                 Some more Google API functionality
+            </li>
+            <li>
+                Form validation
             </li>
             <li>
                 OAuth 2.0 access token refresh
             </li>
             <li>
-                Domain layer
+                Loging out
             </li>
         </ul>
     </li>
+        <li> 
+            <a href="https://github.com/OviLacatusu/ReizenApiTest">Github repository</a>
+        </li>
     </ul>
 <AuthorizeView > 
     @if (context.User?.Identity?.IsAuthenticated == true)  

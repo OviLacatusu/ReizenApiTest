@@ -45,7 +45,7 @@ namespace Reizen.CommonClasses.DTOs
             get; set;
         }
         [Required (ErrorMessage = "Field is required")]
-        public bool AnnulatieVerzekering
+        public bool HasCancellationInsurance
         {
             get; set;
         }
