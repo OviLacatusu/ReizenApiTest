@@ -18,7 +18,7 @@ namespace ReizenApi.Controllers
         IMapper _mapper,
         ILogger<TripsController> _logger) : ControllerBase
     {
-        // GET: api/<TripsController>
+        // GET: api/<TripsController>/BANGK
         [HttpGet ("{destinationCode}")]
         public async Task<ActionResult> Get (string destinationCode)
         {
@@ -35,7 +35,7 @@ namespace ReizenApi.Controllers
                     _logger.LogInformation ($"No trips found: {result.Error}");
                     return NotFound (result.Error);
                 }
-                var dtos = _mapper.Map<ICollection<TripDAL>> (result.Value);
+                var dtos = _mapper.Map<ICollection<TripDTO>> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex) 
@@ -62,7 +62,7 @@ namespace ReizenApi.Controllers
                     _logger.LogInformation ($"No trips found with id {id}: {result.Error}");
                     return NotFound (result.Error);
                 }
-                var dto = _mapper.Map<TripDAL> (result.Value);
+                var dto = _mapper.Map<TripDTO> (result.Value);
                 return Ok (dto);
             }
             catch (Exception ex)

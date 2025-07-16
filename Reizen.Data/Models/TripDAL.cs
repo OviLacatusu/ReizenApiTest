@@ -10,7 +10,7 @@ public partial class TripDAL
         get; set;
     }
 
-    public string DestinationCode { get; set; } = null!;
+    public string DestinationCode { get; set; }
 
     public DateOnly DateOfDeparture
     {
@@ -27,12 +27,12 @@ public partial class TripDAL
         get; set;
     }
 
-    public int NumberOfAdults
+    public int? NumberOfAdults
     {
         get; set;
     }
 
-    public int NumberOfMinors
+    public int? NumberOfMinors
     {
         get; set;
     }

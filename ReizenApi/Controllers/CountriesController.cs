@@ -28,7 +28,7 @@ namespace ReizenApi.Controllers
                     _logger.LogInformation ($"No countries found: {result.Error}");
                     return NotFound (result.Error);
                 }
-                var dtos = _mapper.Map<ICollection<CountryDAL>> (result.Value);
+                var dtos = _mapper.Map<ICollection<CountryDTO>> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex)
@@ -40,7 +40,7 @@ namespace ReizenApi.Controllers
         // GET: api/<CountriesController>/Asia
 
         [HttpGet ("{name}")]
-        public async Task<ActionResult> GetVanContinent ( string name)
+        public async Task<ActionResult> GetOfContinent ( string name)
         {
             try
             {
@@ -55,7 +55,7 @@ namespace ReizenApi.Controllers
                     _logger.LogInformation ($"No countries found: {result.Error}");
                     return NotFound (result.Error);
                 }
-                var dtos = _mapper.Map<ICollection<CountryDAL>> (result.Value);
+                var dtos = _mapper.Map<ICollection<CountryDTO>> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex) {
@@ -81,7 +81,7 @@ namespace ReizenApi.Controllers
                     _logger.LogInformation ($"No countries with an id = {id} found: {result.Error}");
                     return NotFound (result.Error);
                 }
-                var dtos = _mapper.Map<CountryDAL?> (result.Value);
+                var dtos = _mapper.Map<CountryDTO?> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex)

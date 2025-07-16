@@ -15,17 +15,17 @@
     @if (Destinations != null)
     {
         <ul>
-            @foreach (var Destination in Destinations)
+            @foreach (var destination in Destinations)
             {
                 <li>
                     <div class="row">
                         <div class="col col-md-2">
-                            <a href="/@Destination.Code/trips">@Destination.PlaceName</a>
+                            <a href="/@destination.Code/trips">@destination.PlaceName</a>
                         </div>
                         <div class="col col-md-3">
-                            @if (tripsNaarDestination?[Destination.Code]?.Count() > 0) 
+                            @if (TripsToDestination?[destination.Code]?.Count() > 0) 
                             {
-                                <p> - @tripsNaarDestination?[Destination.Code]?.Count() available trips</p>
+                                <p> - @TripsToDestination?[destination.Code]?.Count() available trips</p>
                             }
                             else 
                             {
@@ -55,7 +55,7 @@
 
     private IEnumerable<DestinationDTO>? Destinations;
 
-    private IDictionary<string,IEnumerable<TripDTO>>? tripsNaarDestination = new Dictionary<string,IEnumerable<TripDTO>>();
+    private IDictionary<string,IEnumerable<TripDTO>>? TripsToDestination = new Dictionary<string,IEnumerable<TripDTO>>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -77,18 +77,18 @@
     }
     private async Task GetAvailableTripsForEachDestination()
     {
-        foreach (var Destination in Destinations)
+        foreach (var destination in Destinations)
         {
             using var httpClient = _httpFactory.CreateClient();
 
-            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<TripDTO>>($"api/trips/{Destination.Code}", httpClient);
+            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<TripDTO>>($"api/Trips/{destination.Code}", httpClient);
             if (result.IsSuccessful)
             {
-                tripsNaarDestination.Add(Destination.Code, result.Value);
+                TripsToDestination.Add(destination.Code, result.Value);
             }
             else
             {
-                tripsNaarDestination.Add(Destination.Code, null);
+                TripsToDestination.Add(destination.Code, null);
                 //Error += result.Error;
             }
         }

@@ -12,7 +12,7 @@
 @if (Trips != null)
 {
     <h3>@Trips.FirstOrDefault()?.Destination.PlaceName</h3>
-    <img src="/Destinations/@(Trips.FirstOrDefault()?.Destination.PlaceName).jpg"/>
+    <img src="/Bestemmingen/@(Trips.FirstOrDefault()?.Destination.PlaceName).jpg"/>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -23,7 +23,7 @@
             @foreach (var trip in Trips)
             {
                 <tr>
-                    <td>@trip.DateOfDeparture.ToString()</td><td>@trip.PricePerPerson</td><td>@trip.NumberOfDays</td><td><a href="/tripKiezen/@trip.Id">Boeken</a></td>
+                    <td>@trip.DateOfDeparture.ToString()</td><td>@trip.PricePerPerson</td><td>@trip.NumberOfDays</td><td><a href="/listoftrips/@trip.Id">Boeken</a></td>
                 </tr>
             }
         </tbody>

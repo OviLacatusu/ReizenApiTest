@@ -94,7 +94,7 @@
         {
             using (var httpClient = _httpFactory.CreateClient())
             {
-                var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<ClientDTO>>($"api/klanten/{FamilyName}", httpClient);
+                var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<ClientDTO>>($"api/clients/{FamilyName}", httpClient);
                 if (result.IsSuccessful)
                 {
                     Clients = result.Value;

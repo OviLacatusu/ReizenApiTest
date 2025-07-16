@@ -35,7 +35,7 @@ public partial class BookingDAL
         get; set;
     }
 
-    public bool AnnulatieVerzekering
+    public bool HasCancellationInsurance
     {
         get; set;
     }

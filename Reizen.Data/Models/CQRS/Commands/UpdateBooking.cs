@@ -30,7 +30,7 @@ namespace Reizen.Data.Models.CQRS.Commands
 
                             existingBooking.NumberOfMinors = command.boeking.NumberOfMinors;
                             existingBooking.NumberOfAdults = command.boeking.NumberOfAdults;
-                            existingBooking.AnnulatieVerzekering = command.boeking.AnnulatieVerzekering;
+                            existingBooking.HasCancellationInsurance = command.boeking.HasCancellationInsurance;
 
                             await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();

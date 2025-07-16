@@ -39,7 +39,7 @@ namespace ReizenApi.Controllers
         }
         // GET: api/<ClientsController>/van
         [HttpGet ("{name}")]
-        public async Task<ActionResult> GetMetName (string name)
+        public async Task<ActionResult> GetWithName (string name)
         {
             try
             {
@@ -67,7 +67,7 @@ namespace ReizenApi.Controllers
         }
         // GET: api/<ClientsController>/5
         [HttpGet ("{id:int}")]
-        public async Task<ActionResult> GetMetId (int id)
+        public async Task<ActionResult> GetWithId (int id)
         {
             try
             {
@@ -94,25 +94,25 @@ namespace ReizenApi.Controllers
 
         // POST: <ClientsController>
         [HttpPost]
-        public async Task<ActionResult> Post ([FromBody] ClientDTO klantDto)
+        public async Task<ActionResult> Post ([FromBody] ClientDTO clientDto)
         {
             try
             {
-                if (klantDto is null)
+                if (clientDto is null)
                 {
                     _logger.LogWarning ("Invalid data provided");
                     return BadRequest ();
                 }
-                var klant = _mapper.Map<ClientDAL> (klantDto);
-                var result = await _service.AddClientAsync (klant);
+                var client = _mapper.Map<ClientDAL> (clientDto);
+                var result = await _service.AddClientAsync (client);
 
                 if (!result.IsSuccessful)
                 {
                     _logger.LogError ($"Error while trying to add Client: {result.Error}");
                     return StatusCode (500, $"An error occurred while processing your request");
                 }
-                var dto = _mapper.Map<ClientDTO> (klant);
-                return CreatedAtAction(nameof(Post), new{ klantFirstName = dto.FirstName, klantFamiliname = dto.FamilyName }, dto);
+                var dto = _mapper.Map<ClientDTO> (client);
+                return CreatedAtAction(nameof(Post), new{ clientFirstName = dto.FirstName, clientFamiliname = dto.FamilyName }, dto);
             }
             catch (Exception ex)
             {
@@ -123,16 +123,16 @@ namespace ReizenApi.Controllers
 
         // PUT: api/<ClientsController>/5
         [HttpPut ("{id}")]
-        public async Task<ActionResult> Put ([FromBody] ClientDTO klantDto, int id, CancellationToken token)
+        public async Task<ActionResult> Put ([FromBody] ClientDTO clientDto, int id, CancellationToken token)
         {
             try
             {
-                if (klantDto is null)
+                if (clientDto is null)
                 {
                     _logger.LogWarning ("Invalid data provided");
                     return BadRequest ();
                 }
-                var klant = _mapper.Map<ClientDAL> (klantDto);
+                var client = _mapper.Map<ClientDAL> (clientDto);
                 var existingClient = await _service.GetClientWithIdAsync (id);
                 
                 if (!existingClient.IsSuccessful)
@@ -140,13 +140,13 @@ namespace ReizenApi.Controllers
                     _logger.LogWarning ($"Invalid data provided - client does not exist: {existingClient.Error}");
                     return NotFound (existingClient.Error);
                 }
-                var result = await _service.UpdateClientAsync (id, klant);
+                var result = await _service.UpdateClientAsync (id, client);
                 if (!result.IsSuccessful)
                 {
                     _logger.LogError ($"Error while trying to update Client: {result.Error}");
                     return StatusCode (500, $"An error occurred while processing your request:");
                 }
-                var dto = _mapper.Map<ClientDTO> (klant);
+                var dto = _mapper.Map<ClientDTO> (client);
                 return Ok (dto);
             }
             catch (Exception ex)

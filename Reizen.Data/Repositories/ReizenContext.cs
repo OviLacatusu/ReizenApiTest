@@ -88,9 +88,9 @@ public partial class ReizenContext : DbContext
             entity.Property (e => e.Id).HasColumnName ("id");
             entity.Property (e => e.NumberOfMinors).HasColumnName ("numberOfMinors");
             entity.Property (e => e.NumberOfAdults).HasColumnName ("numberOfAdults");
-            entity.Property (e => e.AnnulatieVerzekering).HasColumnName ("annulatieVerzekering");
-            entity.Property (e => e.BookedOnDate).HasColumnName ("geboektOp");
-            entity.Property (e => e.ClientId).HasColumnName ("klantid");
+            entity.Property (e => e.HasCancellationInsurance).HasColumnName ("cancellationInsurance");
+            entity.Property (e => e.BookedOnDate).HasColumnName ("bookedondate");
+            entity.Property (e => e.ClientId).HasColumnName ("clientid");
             entity.Property (e => e.TripId).HasColumnName ("tripid");
 
             entity.HasOne (d => d.Client).WithMany (p => p.Bookings)

@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Reizen.Data.Models;
 using Reizen.Data.Services;
-using Continent = Reizen.Data.Models.ContinentDAL;
+using ContinentDAL = Reizen.Data.Models.ContinentDAL;
 using Reizen.CommonClasses.DTOs;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -55,7 +55,7 @@ namespace ReizenApi.Controllers
                     _logger.LogInformation ($"No countries found for continent: {continentName}" );
                     return NotFound ();
                 }
-                var dtos = _mapper.Map<ICollection<CountryDAL>> (result.Value);
+                var dtos = _mapper.Map<ICollection<CountryDTO>> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex)

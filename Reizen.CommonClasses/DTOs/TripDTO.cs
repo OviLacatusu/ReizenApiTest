@@ -15,6 +15,7 @@ namespace Reizen.CommonClasses.DTOs
         }
 
         public string DestinationCode { get; set; } = null!;
+
         [Required (ErrorMessage = "Field is required")]
         public DateOnly DateOfDeparture
         {

@@ -28,7 +28,7 @@ namespace ReizenApi.Controllers
                     _logger.LogInformation ($"No bookings found: {bookings.Error}");
                     return NotFound (bookings.Error);
                 }
-                var dtos = _mapper.Map<ICollection<BookingDAL>> (bookings.Value);
+                var dtos = _mapper.Map<ICollection<BookingDTO>> (bookings.Value);
                 return Ok (dtos);
             }
             catch (Exception ex) 
@@ -55,7 +55,7 @@ namespace ReizenApi.Controllers
                     _logger.LogWarning ($"Error occurred: {booking.Error}"); 
                     return NotFound (booking.Error);
                 }
-                var dto = _mapper.Map<BookingDAL> (booking.Value);
+                var dto = _mapper.Map<BookingDTO> (booking.Value);
                 return Ok (dto);
             }
             catch (Exception ex) {

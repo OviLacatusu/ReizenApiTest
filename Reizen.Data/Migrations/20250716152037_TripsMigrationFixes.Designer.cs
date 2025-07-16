@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Reizen.Data.Repositories;
 
@@ -11,9 +12,11 @@ using Reizen.Data.Repositories;
 namespace Reizen.Data.Migrations
 {
     [DbContext(typeof(ReizenContext))]
-    partial class ReizenContextModelSnapshot : ModelSnapshot
+    [Migration("20250716152037_TripsMigrationFixes")]
+    partial class TripsMigrationFixes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -237,7 +240,7 @@ namespace Reizen.Data.Migrations
                         .HasColumnName("DestinationCode")
                         .IsFixedLength();
 
-                    b.Property<int?>("NumberOfAdults")
+                    b.Property<int>("NumberOfAdults")
                         .HasColumnType("int")
                         .HasColumnName("numberOfAdults");
 
@@ -245,7 +248,7 @@ namespace Reizen.Data.Migrations
                         .HasColumnType("int")
                         .HasColumnName("numberOfDays");
 
-                    b.Property<int?>("NumberOfMinors")
+                    b.Property<int>("NumberOfMinors")
                         .HasColumnType("int")
                         .HasColumnName("numberOfMinors");
 

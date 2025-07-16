@@ -27,7 +27,7 @@ namespace ReizenApi.Controllers
                     _logger.LogInformation ("No destinations found");
                     return NotFound (result.Error);
                 }
-                var dtos = _mapper.Map<ICollection<DestinationDAL>> (result.Value);
+                var dtos = _mapper.Map<ICollection<DestinationDTO>> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex) {
@@ -35,47 +35,47 @@ namespace ReizenApi.Controllers
                 return StatusCode (500, $"An error occurred while processing your request: {ex.Message}");
             }
         }
-        // GET: api/<DestinationsController>
+        // GET: api/<DestinationsController>/Thailand
         [HttpGet ("{CountryName}")]
-        public async Task<ActionResult> GetByCountry (string CountryName)
+        public async Task<ActionResult> GetByCountry (string countryName)
         {
             try
             {
-                if (string.IsNullOrEmpty(CountryName))
+                if (string.IsNullOrEmpty(countryName))
                 {
                     _logger.LogWarning ("Invalid country name provided");
                     return BadRequest ();
                 }
-                var result = await _service.GetDestinationsOfCountryAsync (CountryName);
+                var result = await _service.GetDestinationsOfCountryAsync (countryName);
 
                 if (!result.IsSuccessful)
                 {
-                    _logger.LogInformation ("No destinations found for country: {CountryName}", CountryName);
+                    _logger.LogInformation ("No destinations found for country: {countryName}", countryName);
                     return NotFound ();
                 }
-                var dtos = _mapper.Map<ICollection<DestinationDAL>> (result.Value);
+                var dtos = _mapper.Map<ICollection<DestinationDTO>> (result.Value);
                 return Ok (dtos);
             }
             catch (Exception ex)
             {
-                _logger.LogError (ex, "Error occurred while fetching destinations for country: {CountryName}", CountryName);
+                _logger.LogError (ex, "Error occurred while fetching destinations for country: {countryName}", countryName);
                 return StatusCode (500, $"An error occurred while processing your request");
             }
         }
 
         // POST: api/<DestinationsController>
         [HttpPost]
-        public async Task<ActionResult> Post ([FromBody] DestinationDTO DestinationDto)
+        public async Task<ActionResult> Post ([FromBody] DestinationDTO destinationDto)
         {
             try
             {
-                if (DestinationDto == null)
+                if (destinationDto == null)
                 {
                     _logger.LogWarning ("Invalid data provided");
                     return BadRequest ("Invalid data");
                 }
-                var Destination = _mapper.Map<DestinationDAL> (DestinationDto);
-                var result = await _service.AddDestinationAsync (Destination);
+                var destination = _mapper.Map<DestinationDAL> (destinationDto);
+                var result = await _service.AddDestinationAsync (destination);
 
                 if (!result.IsSuccessful)
                 {
