@@ -3,20 +3,21 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"></h5>
+                <h5 class="modal-title">
+                    @Header
+                </h5>
 
             </div>
             <div class="modal-body">
                 <p>@Message</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" @onclick="@(() => Callback.InvokeAsync())">Yes</button>
+                <button type="button" class="btn btn-primary" @onclick="@( async () => { await Callback.InvokeAsync(); Close(); })">Yes</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="(() => Close())">Close</button>
             </div>
         </div>
     </div>
 </div>
-
 
 @if (ShowBackdrop)
 {
@@ -33,7 +34,6 @@
     [Parameter]
     public EventCallback Callback { get; set; }
 
-    public Guid Guid = Guid.NewGuid();
     public string ModalDisplay = "none;";
     public string ModalClass = "";
     public bool ShowBackdrop = false;

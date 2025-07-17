@@ -20,8 +20,7 @@ namespace Reizen.CommonClasses.DTOs
         {
             get; set;
         }
-        [Required (ErrorMessage = "Field is required")]
-        [Range (0, int.MaxValue)]
+
         public int TripId
         {
             get; set;

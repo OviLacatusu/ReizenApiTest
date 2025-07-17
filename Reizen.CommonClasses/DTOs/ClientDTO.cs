@@ -16,12 +16,12 @@ namespace Reizen.CommonClasses.DTOs
         }
         [Required (ErrorMessage = "Field is required")]
         [StringLength (100)]
-        public string FamilyName { get; set; } = null!;
+        public string? FamilyName { get; set; }
         [Required (ErrorMessage = "Field is required")]
         [StringLength (100)]
-        public string FirstName { get; set; } = null!;
+        public string? FirstName { get; set; }
 
-        public string? Address { get; set; } = null!;
+        public string? Address { get; set; }
 
         //private ClientDTO (string firstname, string familyname, string address, int? id)
         //{

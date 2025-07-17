@@ -8,23 +8,23 @@
 
 <div class="container">
     <h2>Choose the country:</h2>
-@if (Countries != null)
-{
-    <ul>
-        @foreach (var Country in Countries)
-        {
-            <li><a href="/@Country.Name/Destinations">@Country.Name </a></li>
-        }
-    </ul>
-}
-else
-{
-    <p>Waiting for data...</p>
-}
-@if (!String.IsNullOrEmpty(Error))
-{
-    <div class="alert alert-danger">@Error</div>
-}
+    @if (Countries != null)
+    {
+        <ul>
+            @foreach (var Country in Countries)
+            {
+                <li><a href="/@Country.Name/Destinations">@Country.Name </a></li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>Waiting for data...</p>
+    }
+    @if (!String.IsNullOrEmpty(Error))
+    {
+        <div class="alert alert-danger">@Error</div>
+    }
 </div>
 
 @code {

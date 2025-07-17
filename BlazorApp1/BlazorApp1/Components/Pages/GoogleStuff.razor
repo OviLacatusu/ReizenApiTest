@@ -10,10 +10,12 @@
 @using Microsoft.AspNetCore.Identity;
 @using Data
 @using Google.Apis.Gmail.v1.Data
+@using BlazorApp1.Client.Components
 
 @page "/GoogleAccess"
 
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
+
 
 @inject IJSRuntime JSRuntime;
 @inject SignInManager<ApplicationUser> SignInManager
@@ -31,7 +33,7 @@
             <ElementBody>
                 <div class="row">
                     <div class="col-md-2">
-                        @*Closing the window before picking the fotos will have the polling loop run indefinately*@
+                        @*Closing the picking session window before picking the fotos will have the polling loop run indefinately*@
                         <button @onclick="OpenTabAndPollSession">Pick Photos</button>
                     </div>
                 </div>
@@ -66,8 +68,10 @@
                 {
                     <div class="alert alert-success">Message deleted successfully</div>
                 }
-                @if (Messages is not null && Messages.Count() > 0) // Messages?.Count() > 0
+                @if (Messages?.Count() > 0) 
                 {
+                    @* TO DO: Find a beter way of passing the message ID to the ModalComponent Callback *@
+                    <ModalComponent @ref="Modal" Message="Are you sure you want to delete? This will permanently delete the message!" Header="Delete message" Callback="@( async () => { if( !String.IsNullOrEmpty(SelectedMessageId) ){ await DeleteMessage (SelectedMessageId); Modal.Close(); }})"></ModalComponent>
                     foreach (var item in Messages)
                     {
                         <div class="row">
@@ -78,13 +82,12 @@
                                 <button class="btn btn-link">@item?.Payload?.Headers?.Where(x => x.Name == "Subject").FirstOrDefault()?.Value</button>
                             </div>
                             <div class="col-md-2">
-                                <button class="btn btn-link" @onclick="@(async () => await DeleteMessage(item.Id))">Delete mail</button>
-
+                                <button class="btn btn-link" @onclick="@( async () => { Modal.Open(); SelectedMessageId = item.Id; })">Delete mail</button>
+                                
                             </div>
                         </div>
                     }
                 }
-
             </ElementBody>
         </CollapsingElement>
     </div>
@@ -116,7 +119,11 @@
 
 @code
 {
+    private ModalComponent Modal { get; set; }
+
     private ExternalLoginInfo? ExternalLoginInfo;
+
+    private string? SelectedMessageId { get; set; }
 
     private string? Error { get; set; }
 
@@ -159,6 +166,7 @@
     {
         _logger.LogInformation($"** OnAfterRender called with firstrender = {firstRender} **");
     }
+
     private async Task GetMailMessages()
     {
         var httpClient = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager));
@@ -182,7 +190,7 @@
             }
         }
     }
-    // Requesting the Picker session
+    // Requests a Picker session
     private async Task GetPickerSession()
     {
         var httpClient = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager));
@@ -206,7 +214,7 @@
             }
         }
     }
-    // Method that opens the picker session in a new tab and starts a Web API call for polling the session
+    // Opens the picker session in a new tab and starts a Web API call that polls the session state
     private async Task OpenTabAndPollSession()
     {
         if (SessionData is not null)
@@ -216,7 +224,7 @@
         }
     }
 
-    // Calling the API method that polls the photo Picker session and returns the details of the picked media files
+    // Polls the Picker session and returns the details of the picked media files
     private async Task PollRequestPickerApi(string sessionId)
     {
         _logger.LogInformation($"Running PollRequest at {DateTime.UtcNow.ToShortTimeString()}");
@@ -252,7 +260,7 @@
             await DownloadFoto(file.MediaFile);
         }
     }
-    // Method that returns an API data stream for the clicked file. Tested only with fotos
+    // Downloads file from data stream. Tested only with photos
     private async Task DownloadFoto(MediaFile fileDetails) 
     { 
         _logger.LogInformation($"Running DownloadFoto at {DateTime.UtcNow.ToShortTimeString()}");

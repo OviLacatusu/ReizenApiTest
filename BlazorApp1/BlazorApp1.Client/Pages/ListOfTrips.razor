@@ -23,9 +23,14 @@
         <h4>Price</h4>
         <p>@Trip.PricePerPerson</p>
         <div >
-            <label for="FamilyName">Family name lookup:</label>
-            <InputText @bind-value="FamilyName" id="FamilyName"></InputText>
-            <button type="button" @onclick="(async () => await GetCustomers())" class="btn btn-primary">Zoek</button>
+            <EditForm Model="Model" OnValidSubmit="@(async () => await GetCustomers())">
+                <DataAnnotationsValidator/>
+                <label for="FamilyName">Family name lookup:</label>
+                <InputText @bind-value="Model.FamilyName" id="FamilyName"></InputText>
+                <button type="submit" class="btn btn-primary">Zoek</button>
+                <ValidationSummary />
+                
+            </EditForm>
         </div>
     }
     else 
@@ -70,7 +75,7 @@
 
     private TripDTO? Trip { get; set; }
 
-    private string? FamilyName { get; set; }
+    private ListOfTripsModel Model { get; set; } = new ListOfTripsModel();
 
     private IEnumerable<ClientDTO>? Clients;
 
@@ -94,11 +99,11 @@
 
     private async Task GetCustomers() 
     {
-        if (!String.IsNullOrEmpty(FamilyName))
+        if (!String.IsNullOrEmpty(Model.FamilyName))
         {
             using (var httpClient = _httpFactory.CreateClient())
             {
-                var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<ClientDTO>>($"api/clients/{FamilyName}", httpClient);
+                var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<ClientDTO>>($"api/clients/{Model.FamilyName}", httpClient);
                 if (result.IsSuccessful)
                 {
                     Clients = result.Value;

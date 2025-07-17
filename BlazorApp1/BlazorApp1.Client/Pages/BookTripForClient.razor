@@ -1,4 +1,5 @@
 ﻿@using BlazorApp1.Client.Components
+@using BlazorApp1.Client.Models
 @using Microsoft.AspNetCore.Authorization
 @using System.Text.Json;
 @using Reizen.CommonClasses.DTOs
@@ -59,42 +60,45 @@
             </div>
         </div>
         <h2>Booking</h2>
+        <EditForm Model="@Model" OnValidSubmit="@(() => Modal.Open())">
+            <DataAnnotationsValidator/>
+            <div class="row">
+                <div class="col-lg-3">
+                    <label for="aantalV">Number of adults</label>
+                </div>
+                <div class="col-lg-1">
+                    <InputNumber @bind-Value:get="(Model.NumberOfAdults)" @bind-Value:set="((value) => Model.NumberOfAdults=value)" id="aantalV"></InputNumber>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3">
+                    <label for="aantalK">Number of kids</label>
+                </div>
+                <div class="col-lg-1">
+                    <InputNumber @bind-Value:get="(Model.NumberOfMinors)" @bind-Value:set="((value) => Model.NumberOfMinors=value)" id="aantalK"></InputNumber>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3">
+                    <label>Cancellation insurance</label>
+                </div>
+                <div class="col-lg-1">
+                    <InputCheckbox id="annulatieV" @bind-Value="@Model.HasCancellationInsurance"></InputCheckbox>
+                </div>
+            </div>
+            <div class="row"><ValidationSummary/></div>
 
-        <div class="row">
-            <div class="col-lg-3">
-                <label for="aantalV">Number of adults</label>
-            </div>
-            <div class="col-lg-1">
-                <InputNumber @bind-Value:get="(Booking.NumberOfAdults)" @bind-Value:set="((value) => Booking.NumberOfAdults=value)" id="aantalV"></InputNumber>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-3">
-                <label for="aantalK">Number of kids</label>
-            </div>
-            <div class="col-lg-1">
-                <InputNumber @bind-Value:get="(Booking.NumberOfMinors)" @bind-Value:set="((value)=>{Booking.NumberOfMinors=value;})" id="aantalK"></InputNumber>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-3">
-                <label>Cancellation insurance</label>
-            </div>
-            <div class="col-lg-1">
-                <InputCheckbox id="annulatieV" @bind-Value="@Booking.HasCancellationInsurance"></InputCheckbox>
-            </div>
-        </div>
+            <div class="row">
+                <div class="col-lg-3">
 
-        <div class="row">
-            <div class="col-lg-3">
+                </div>
+                <div class="col-lg-2">
+                    <button type="submit" class="btn btn-primary" data-toggle="modal">Book trip</button>
+                </div>
 
+                <ModalComponent @ref="Modal" Message="Are you sure you want to book this trip?" Header="Confirmation" Callback="@(async () => await AddNewBooking())"></ModalComponent>
             </div>
-            <div class="col-lg-2">
-                <button type="submit" class="btn btn-primary" data-toggle="modal" @onclick="(() => Modal.Open())">Book trip</button>
-            </div>
-            <ModalComponent @ref="Modal" Message="Are you sure you want to book this trip?" Header="Confirmation" Callback="@(async ()=> await AddNewBooking())"></ModalComponent>
-        </div>
-
+        </EditForm>
     } 
     else 
     {
@@ -105,7 +109,8 @@
 @if (!String.IsNullOrEmpty(Error))
 {
     <div class="alert alert-danger">@Error</div>
-} else if (IsSuccessful)
+} 
+else if (IsSuccessful)
 {
     <div class="alert alert-success">Booking successful</div>
 }
@@ -124,7 +129,7 @@
 
     private TripDTO? Trip { get; set; }
 
-    private BookingDTO? Booking { get; set; } = new BookingDTO { NumberOfMinors = 0, NumberOfAdults = 0, HasCancellationInsurance = false };
+    private BookTripForClientModel Model { get; set; } = new BookTripForClientModel { NumberOfMinors = 0, NumberOfAdults = 0, HasCancellationInsurance = false };
 
     private string Error { get; set; }
 
@@ -183,12 +188,19 @@
 
     private async Task AddNewBooking() 
     {
-        Booking.BookedOnDate = DateOnly.FromDateTime(DateTime.Today);
-        Booking.TripId = TripId;
-        Booking.ClientId = ClientId;
+        var booking = new BookingDTO
+            {
+                NumberOfAdults = Model.NumberOfAdults,
+                NumberOfMinors = Model.NumberOfMinors,
+                HasCancellationInsurance = Model.HasCancellationInsurance,
+                BookedOnDate = DateOnly.FromDateTime(DateTime.Today),
+                TripId = TripId,
+                ClientId = ClientId
+            };
+
         using (var client = _httpFactory.CreateClient()) 
         { 
-            var httpContent = new StringContent(JsonSerializer.Serialize<BookingDTO>(Booking), Encoding.UTF8, "application/json");
+            var httpContent = new StringContent(JsonSerializer.Serialize<BookingDTO>(booking), Encoding.UTF8, "application/json");
             // POST request
             var response = await client.PostAsync($"/api/bookings", httpContent);
 
