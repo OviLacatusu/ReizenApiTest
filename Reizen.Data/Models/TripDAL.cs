@@ -37,7 +37,7 @@ public partial class TripDAL
         get; set;
     }
 
-    public virtual DestinationDAL Destination { get; set; } = null!;
+    public virtual DestinationDAL? Destination { get; set; }
 
     public virtual ICollection<BookingDAL> Bookings { get; set; } = new List<BookingDAL> ();
 }

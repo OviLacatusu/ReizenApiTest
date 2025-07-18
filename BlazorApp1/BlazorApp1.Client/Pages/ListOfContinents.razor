@@ -9,7 +9,7 @@
     <PageTitle>Continents</PageTitle>
     <h2>Choose the continent:</h2>
 
-    @if(Continents != null)
+    @if(Continents?.Count() > 0)
     {
         <ul>
             @foreach (var Continent in Continents)   

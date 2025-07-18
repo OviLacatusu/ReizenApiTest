@@ -10,11 +10,11 @@ public partial class ClientDAL
         get; set;
     }
 
-    public string FamilyName { get; set; } = null!;
+    public string? FamilyName { get; set; }
 
-    public string FirstName { get; set; } = null!;
+    public string? FirstName { get; set; }
 
-    public string Address { get; set; } = null!;
+    public string? Address { get; set; }
 
     public int ResidenceId
     {
@@ -23,5 +23,5 @@ public partial class ClientDAL
 
     public virtual ICollection<BookingDAL> Bookings { get; set; } = new List<BookingDAL> ();
 
-    public virtual ResidenceDAL Residence { get; set; } = null!;
+    public virtual ResidenceDAL? Residence { get; set; }
 }

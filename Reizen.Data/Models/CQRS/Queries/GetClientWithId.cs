@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Reizen.Data.Models.CQRS.Queries
 {
@@ -23,7 +24,7 @@ namespace Reizen.Data.Models.CQRS.Queries
                         return Result<ClientDAL>.Failure ("Invalid customer ID");
                     }
 
-                    var klant = await query.context.Clients.FindAsync (query.id);
+                    var klant = await query.context.Clients.Include (k => k.Residence).FirstOrDefaultAsync (c => c.Id == query.id);
 
                     return klant == null
                         ? Result<ClientDAL>.Failure ($"Customer with ID {query.id} not found")

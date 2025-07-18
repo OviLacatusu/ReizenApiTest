@@ -24,7 +24,7 @@ namespace Reizen.Data.Models.CQRS.Queries
                         return Result<IList<ClientDAL>>.Failure ("Name cannot be empty");
                     }
 
-                    var result = (await query.context.Clients.ToListAsync ())
+                    var result = (await query.context.Clients.Include(c => c.Residence).ToListAsync ())
                         .Where (k => k.FirstName.Contains (query.name, StringComparison.OrdinalIgnoreCase) ||
                                   k.FamilyName.Contains (query.name, StringComparison.OrdinalIgnoreCase))
                         .ToList ();

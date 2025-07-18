@@ -11,7 +11,7 @@
 
     <img src="/vlaggen/@(NameCountry).png" />
 
-    @if (Destinations != null)
+    @if (Destinations?.Count() > 0)
     {
         <ul>
             @foreach (var destination in Destinations)
@@ -24,7 +24,7 @@
                         <div class="col col-md-3">
                             @if (TripsToDestination?[destination.Code]?.Count() > 0) 
                             {
-                                <p> - @TripsToDestination?[destination.Code]?.Count() available trips</p>
+                                <p> - @TripsToDestination[destination.Code].Count() available trips</p>
                             }
                             else 
                             {
@@ -76,19 +76,22 @@
     }
     private async Task GetAvailableTripsForEachDestination()
     {
-        foreach (var destination in Destinations)
+        @if (Destinations?.Count() > 0)
         {
-            using var httpClient = _httpFactory.CreateClient();
+            foreach (var destination in Destinations)
+            {
+                using var httpClient = _httpFactory.CreateClient();
 
-            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<TripDTO>>($"api/Trips/{destination.Code}", httpClient);
-            if (result.IsSuccessful)
-            {
-                TripsToDestination.Add(destination.Code, result.Value);
-            }
-            else
-            {
-                TripsToDestination.Add(destination.Code, null);
-                //Error += result.Error;
+                var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<TripDTO>>($"api/Trips/{destination.Code}", httpClient);
+                if (result.IsSuccessful)
+                {
+                    TripsToDestination.Add(destination.Code, result.Value);
+                }
+                else
+                {
+                    TripsToDestination.Add(destination.Code, null);
+                    //Error += result.Error;
+                }
             }
         }
     }

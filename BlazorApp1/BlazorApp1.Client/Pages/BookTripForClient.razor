@@ -56,7 +56,7 @@
                 <p>@($"{Client.FirstName} {Client.FamilyName}")</p>
             </div>
             <div class="col-lg-1">
-                <p>@Client.Address</p>
+                <p>@Client.Address, @Client.Residence.PostalCode @Client.Residence.Name</p>
             </div>
         </div>
         <h2>Booking</h2>
@@ -67,7 +67,7 @@
                     <label for="aantalV">Number of adults</label>
                 </div>
                 <div class="col-lg-1">
-                    <InputNumber @bind-Value:get="(Model.NumberOfAdults)" @bind-Value:set="((value) => Model.NumberOfAdults=value)" id="aantalV"></InputNumber>
+                    <InputNumber @bind-Value:get="(Model.NumberOfAdults)" @bind-Value:set="((value) => Model.NumberOfAdults = value)" id="aantalV"></InputNumber>
                 </div>
             </div>
             <div class="row">
@@ -75,7 +75,7 @@
                     <label for="aantalK">Number of kids</label>
                 </div>
                 <div class="col-lg-1">
-                    <InputNumber @bind-Value:get="(Model.NumberOfMinors)" @bind-Value:set="((value) => Model.NumberOfMinors=value)" id="aantalK"></InputNumber>
+                    <InputNumber @bind-Value:get="(Model.NumberOfMinors)" @bind-Value:set="((value) => Model.NumberOfMinors = value)" id="aantalK"></InputNumber>
                 </div>
             </div>
             <div class="row">
@@ -96,7 +96,7 @@
                     <button type="submit" class="btn btn-primary" data-toggle="modal">Book trip</button>
                 </div>
 
-                <ModalComponent @ref="Modal" Message="Are you sure you want to book this trip?" Header="Confirmation" Callback="@(async () => await AddNewBooking())"></ModalComponent>
+                <ModalComponent @ref="Modal" Message="Are you sure you want to book this trip?" Header="Confirmation" Callback="@(async () => { await AddNewBooking(); Modal.Close(); })"></ModalComponent>
             </div>
         </EditForm>
     } 
@@ -139,48 +139,30 @@ else if (IsSuccessful)
     {
         if (TripId > 0) 
         {
-            using (var httpClient = _httpFactory.CreateClient()) 
-            {
-                var result = await httpClient.GetAsync($"/api/trips/{TripId}");
+            var httpClient = _httpFactory.CreateClient();
 
-                if (result.IsSuccessStatusCode)
-                {
-                    Trip = await result.Content.ReadFromJsonAsync<TripDTO>();
-                }
-                else 
-                { 
-                    var content = await result.Content.ReadAsStringAsync();
-                    if (!String.IsNullOrEmpty(content))
-                    {
-                        Error = content;
-                    }
-                    else
-                    {
-                        Error = "Something went wrong.";
-                    }
-                }
+            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<TripDTO>($"/api/trips/{TripId}", httpClient);
+            if (result.IsSuccessful)
+            {
+                Trip = result.Value;
+            }
+            else
+            {
+                Error = result.Error;
             }
         }
         if (ClientId > 0 && Trip != null)
-        { 
+        {   
             using (var httpClient = _httpFactory.CreateClient()) 
             {
-                var result = await httpClient.GetAsync($"/api/clients/{ClientId}");
-                if (result.IsSuccessStatusCode)
+                var result = await HelperRequest.SendGetRequestAndParseJsonAsync<ClientDTO>($"/api/clients/{ClientId}", httpClient);
+                if (result.IsSuccessful)
                 {
-                    Client = await result.Content.ReadFromJsonAsync<ClientDTO>();
+                    Client = result.Value;
                 }
                 else
                 {
-                    var content = await result.Content.ReadAsStringAsync();
-                    if (!String.IsNullOrEmpty(content))
-                    {
-                        Error = content;
-                    }
-                    else
-                    {
-                        Error = "Something went wrong.";
-                    }
+                    Error = result.Error;
                 }
             }
         }
@@ -216,7 +198,6 @@ else if (IsSuccessful)
             {
                 IsSuccessful = true;
             }
-            Modal.Close();
         }
     }
 }

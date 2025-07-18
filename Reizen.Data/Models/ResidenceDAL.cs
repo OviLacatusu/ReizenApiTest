@@ -13,7 +13,7 @@ public partial class ResidenceDAL
     {
         get; set;
     }
-    public string Name { get; set; } = null!;
+    public string? Name { get; set; }
 
     public virtual ICollection<ClientDAL> Clients { get; set; } = new List<ClientDAL> ();
 }

@@ -22,6 +22,7 @@ namespace Reizen.CommonClasses.DTOs
         public string? FirstName { get; set; }
 
         public string? Address { get; set; }
+        public ResidenceDTO? Residence { get; set; }
 
         //private ClientDTO (string firstname, string familyname, string address, int? id)
         //{

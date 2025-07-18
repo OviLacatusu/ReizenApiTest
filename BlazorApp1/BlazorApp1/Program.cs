@@ -43,7 +43,7 @@ builder.Services.AddCors ();
 
 builder.Services.AddHttpClient ("", client =>
 {
-    client.BaseAddress = new Uri (ConfigData.httpClientURI);
+    client.BaseAddress = new Uri (ConfigData.httpReizenApiUri);
 });
 
 builder.Services.AddControllers ()

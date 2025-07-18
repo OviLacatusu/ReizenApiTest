@@ -10,7 +10,7 @@ public partial class CountryDAL
         get; set;
     }
 
-    public string Name { get; set; } = null!;
+    public string? Name { get; set; }
 
     public int Continentid
     {
@@ -19,5 +19,5 @@ public partial class CountryDAL
 
     public virtual ICollection<DestinationDAL> Destinations { get; set; } = new List<DestinationDAL> ();
 
-    public virtual ContinentDAL Continent { get; set; } = null!;
+    public virtual ContinentDAL? Continent { get; set; }
 }

@@ -40,7 +40,7 @@ public partial class BookingDAL
         get; set;
     }
 
-    public virtual ClientDAL Client { get; set; } = null!;
+    public virtual ClientDAL? Client { get; set; }
 
-    public virtual TripDAL Trip { get; set; } = null!;
+    public virtual TripDAL? Trip { get; set; }
 }

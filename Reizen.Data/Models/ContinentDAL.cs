@@ -10,7 +10,7 @@ public partial class ContinentDAL
         get; set;
     }
 
-    public string Name { get; set; } = null!;
+    public string? Name { get; set; }
 
     public virtual ICollection<CountryDAL> Countries { get; set; } = new List<CountryDAL> ();
 }

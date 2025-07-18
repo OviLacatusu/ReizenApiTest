@@ -16,7 +16,6 @@
 
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
 
-
 @inject IJSRuntime JSRuntime;
 @inject SignInManager<ApplicationUser> SignInManager
 @inject ILogger<GoogleStuff> _logger;
@@ -38,7 +37,7 @@
                     </div>
                 </div>
 
-                @if (MediaItems is not null && MediaItems.MediaItems.Count() > 0)
+                @if (MediaItems?.MediaItems?.Count() > 0)
                 {
                     foreach (var item in MediaItems.MediaItems)
                     {
@@ -64,7 +63,8 @@
                 @if (Error != null) 
                 {
                     <div class="alert alert-danger">@Error</div>
-                } else if (IsSuccessfull)
+                } 
+                else if (IsSuccessfull)
                 {
                     <div class="alert alert-success">Message deleted successfully</div>
                 }
@@ -82,8 +82,7 @@
                                 <button class="btn btn-link">@item?.Payload?.Headers?.Where(x => x.Name == "Subject").FirstOrDefault()?.Value</button>
                             </div>
                             <div class="col-md-2">
-                                <button class="btn btn-link" @onclick="@( async () => { Modal.Open(); SelectedMessageId = item.Id; })">Delete mail</button>
-                                
+                                <button class="btn btn-link" @onclick="@( async () => { Modal.Open(); SelectedMessageId = item?.Id; })">Delete mail</button> 
                             </div>
                         </div>
                     }
@@ -91,7 +90,6 @@
             </ElementBody>
         </CollapsingElement>
     </div>
-
 
 </AuthorizeView>
 
@@ -115,7 +113,6 @@
     URL.revokeObjectURL(url);
     };
 </script>
-
 
 @code
 {
@@ -170,7 +167,7 @@
     private async Task GetMailMessages()
     {
         var httpClient = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager));
-        httpClient.BaseAddress = new Uri(ConfigData.httpClientURI);
+        httpClient.BaseAddress = new Uri(ConfigData.httpReizenApiUri);
 
         var response = await httpClient.GetAsync("/api/GoogleAccess/GetMessages");
         if (response.IsSuccessStatusCode)
@@ -194,7 +191,7 @@
     private async Task GetPickerSession()
     {
         var httpClient = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager));
-        httpClient.BaseAddress = new Uri(ConfigData.httpClientURI);
+        httpClient.BaseAddress = new Uri(ConfigData.httpReizenApiUri);
 
         var result = await httpClient.GetAsync("/api/GoogleAccess/GetPickerLink");
         if (result.IsSuccessStatusCode)
@@ -231,7 +228,7 @@
 
         using (var client = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager)))
         {
-            client.BaseAddress = new Uri(ConfigData.httpClientURI);
+            client.BaseAddress = new Uri(ConfigData.httpReizenApiUri);
             var response = await client.GetAsync($"api/GoogleAccess/GetPhotosWithPicker/{sessionId}");
             if (response.IsSuccessStatusCode)
             {
@@ -265,7 +262,7 @@
     { 
         _logger.LogInformation($"Running DownloadFoto at {DateTime.UtcNow.ToShortTimeString()}");
         using (var client = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager))) {
-            client.BaseAddress = new Uri(ConfigData.httpClientURI);
+            client.BaseAddress = new Uri(ConfigData.httpReizenApiUri);
 
             var response = await client.GetAsync($"api/GoogleAccess/downloadfoto/{HttpUtility.UrlEncode(fileDetails.BaseUrl)}/{HttpUtility.UrlEncode(fileDetails.MimeType)}");           //{HttpUtility.UrlEncode(url)}");
             if (response.IsSuccessStatusCode) 
@@ -287,7 +284,7 @@
         _logger.LogInformation($"Running DeleteMail - deleting mail message with ID: {messageId}");
         using (var client = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager)))
         {  
-            client.BaseAddress = new Uri(ConfigData.httpClientURI);
+            client.BaseAddress = new Uri(ConfigData.httpReizenApiUri);
 
             var result = await client.PostAsJsonAsync($"/api/GoogleAccess/deletemessage", messageId);
 
@@ -297,8 +294,8 @@
                 await GetMailMessages();
                 StateHasChanged();
             }
-            else {
-                
+            else 
+            {
                 IsSuccessfull = false;
                 Error = await result.Content.ReadAsStringAsync();
             }

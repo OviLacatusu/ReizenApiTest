@@ -8,7 +8,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault (args);
 builder.Services.AddHttpClient ("", client =>
 {
     //client.BaseAddress = new Uri ("https://ovilacatusu-002-site1.qtempurl.com/");
-    client.BaseAddress = new Uri (ConfigData.httpClientURI);
+    client.BaseAddress = new Uri (ConfigData.httpReizenApiUri);
 });
 //var config = await clientH.GetFromJsonAsync<GoogleAuthConfig> ("api/GetServerOauthConfig");
 
