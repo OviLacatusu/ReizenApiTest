@@ -21,7 +21,7 @@
             <div class="col-lg-3">   
                 <p style="font:bold">Destination:</p>
             </div>
-            <div class="col-lg-1">
+            <div class="col-lg-4">
                 <p>@Trip.Destination.PlaceName</p>
             </div>
         </div>
@@ -29,7 +29,7 @@
             <div class="col-lg-3">
                 <p style="font:bold">Departure:</p>
             </div>
-            <div class="col-lg-1"> 
+            <div class="col-lg-4"> 
                 <p>@Trip.DateOfDeparture</p>
             </div>
         </div>
@@ -37,7 +37,7 @@
             <div class="col-lg-3">
                 <p style="font:bold">Number of days:</p>
             </div>
-            <div class="col-lg-1">
+            <div class="col-lg-4">
                 <p>@Trip.NumberOfDays</p>
             </div>
         </div>
@@ -45,7 +45,7 @@
             <div class="col-lg-3">
                 <p style="font:bold">Price per person:</p>
             </div>
-            <div class="col-lg-1">
+            <div class="col-lg-4">
                 <p>@Trip.PricePerPerson</p>
             </div>
         </div>
@@ -55,7 +55,7 @@
             <div class="col-lg-3">
                 <p>@($"{Client.FirstName} {Client.FamilyName}")</p>
             </div>
-            <div class="col-lg-1">
+            <div class="col-lg-4">
                 <p>@Client.Address, @Client.Residence.PostalCode @Client.Residence.Name</p>
             </div>
         </div>
@@ -66,7 +66,7 @@
                 <div class="col-lg-3">
                     <label for="aantalV">Number of adults</label>
                 </div>
-                <div class="col-lg-1">
+                <div class="col-lg-4">
                     <InputNumber @bind-Value:get="(Model.NumberOfAdults)" @bind-Value:set="((value) => Model.NumberOfAdults = value)" id="aantalV"></InputNumber>
                 </div>
             </div>
@@ -74,7 +74,7 @@
                 <div class="col-lg-3">
                     <label for="aantalK">Number of kids</label>
                 </div>
-                <div class="col-lg-1">
+                <div class="col-lg-4">
                     <InputNumber @bind-Value:get="(Model.NumberOfMinors)" @bind-Value:set="((value) => Model.NumberOfMinors = value)" id="aantalK"></InputNumber>
                 </div>
             </div>
@@ -82,7 +82,7 @@
                 <div class="col-lg-3">
                     <label>Cancellation insurance</label>
                 </div>
-                <div class="col-lg-1">
+                <div class="col-lg-4">
                     <InputCheckbox id="annulatieV" @bind-Value="@Model.HasCancellationInsurance"></InputCheckbox>
                 </div>
             </div>
@@ -104,16 +104,17 @@
     {
         <p>Waiting for data</p>
     }
+    @if (!String.IsNullOrEmpty(Error))
+    {
+        <div class="alert alert-danger">@Error</div>
+    }
+    else if (IsSuccessful)
+    {
+        <div class="alert alert-success">Booking successful</div>
+    }
 </div>
 
-@if (!String.IsNullOrEmpty(Error))
-{
-    <div class="alert alert-danger">@Error</div>
-} 
-else if (IsSuccessful)
-{
-    <div class="alert alert-success">Booking successful</div>
-}
+
 
 @code 
 {

@@ -13,7 +13,6 @@ namespace GoogleAccess.Domain.Models
         public static void Set<T> (this ISession session, string key, T value)
         {
             session.SetString (key, JsonConvert.SerializeObject (value, _options));
-
         }
         public static T? Get<T> (this Microsoft.AspNetCore.Http.ISession session, string key)
         {

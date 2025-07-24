@@ -6,33 +6,34 @@
 @inject NavigationManager _navManager;
 
 <div class="container">
-<h3>EditAvailableCountries</h3>
+    <h3>EditAvailableCountries</h3>
 
-@if(Countries != null)
-{
-    foreach (var Country in Countries)
+    @if(Countries != null)
     {
-        <div class="row">
-            <div class="col-lg-1">
-                <label></label>
+        foreach (var Country in Countries)
+        {
+            <div>
+                <div class="col-lg-1">
+                    <label></label>
+                </div>
+                <div class="col-lg-3">
+                    <InputText @ref="@(Elements[Country.Name])"  @bind-Value:get="(Country.Name)" @bind-Value:set="((value) => {})"  ></InputText>
+                </div>
+                <div class="col-lg-1">
+                    <button class="btn btn-warning" @onclick="(() => ProcessEdit(Country.Name))">Edit</button>
+                </div>
+                <div class="col-lg-1">
+                    <button class="btn btn-danger">🗙</button>
+                </div>
             </div>
-            <div class="col-lg-3">
-                <InputText @ref="@(Elements[Country.Name])"  @bind-Value:get="(Country.Name)" @bind-Value:set="((value) => {})"  ></InputText>
-            </div>
-            <div class="col-lg-1">
-                <button class="btn btn-warning" @onclick="(() => ProcessEdit(Country.Name))">Edit</button>
-            </div>
-            <div class="col-lg-1">
-                <button class="btn btn-danger">🗙</button>
-            </div>
-        </div>
+        }
     }
-}
-@if (!String.IsNullOrEmpty(Error))
-{
-    <div class="alert alert-danger">@Error</div>
-}
+    @if (!String.IsNullOrEmpty(Error))
+    {
+        <div class="alert alert-danger">@Error</div>
+    }
 </div>
+
 @code {
     private InputText CurrentText { get; set; }
 

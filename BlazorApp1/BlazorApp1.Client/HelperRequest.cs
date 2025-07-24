@@ -13,19 +13,19 @@ namespace BlazorApp1.Client
                 if (result.IsSuccessStatusCode)
                 {
                     var content = await result.Content.ReadFromJsonAsync<T> ();
-                    return Result<T>.Success (content);
+                    return Result<T?>.Success (content);
                 }
                 else
                 {
                     var error = await result?.Content.ReadAsStringAsync ();
                     var statusCode = result?.StatusCode;
 
-                    return Result<T>.Failure ($"{statusCode}: {error}");
+                    return Result<T?>.Failure ($"{statusCode}: {error}");
                 }
             }
             catch (Exception ex) 
             {
-                return Result<T>.Failure ("Something went wrong");
+                return Result<T?>.Failure ("Something went wrong");
             }
         }
         // Not tested
@@ -38,19 +38,19 @@ namespace BlazorApp1.Client
                 if (result.IsSuccessStatusCode)
                 {
                     var content = await result.Content.ReadFromJsonAsync<T> ();
-                    return Result<T>.Success (content);
+                    return Result<T?>.Success (content);
                 }
                 else
                 {
                     var error = await result?.Content.ReadAsStringAsync ();
                     var statusCode = result?.StatusCode;
 
-                    return Result<T>.Failure ($"{statusCode}: {error}");
+                    return Result<T?>.Failure ($"{statusCode}: {error}");
                 }
             }
             catch (Exception ex)
             {
-                return Result<T>.Failure ("Something went wrong");
+                return Result<T?>.Failure ("Something went wrong");
             }
         }
 

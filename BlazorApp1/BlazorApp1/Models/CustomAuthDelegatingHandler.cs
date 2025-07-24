@@ -23,7 +23,7 @@ namespace BlazorApp1.Models
             if (request.RequestUri?.ToString ().ToLower ().Contains ("/api/googleaccess") is true && _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated is true)
             {
                 var currentUser = await _userManager.GetUserAsync (_httpContextAccessor.HttpContext.User);
-                var accessToken = await _userManager.GetAuthenticationTokenAsync (currentUser, "GoogleOpenIdConnect", "access_token");
+                var accessToken = await _userManager.GetAuthenticationTokenAsync (currentUser, "Google", "access_token");
 
                 if (accessToken is not null)
                 {

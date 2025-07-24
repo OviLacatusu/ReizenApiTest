@@ -19,6 +19,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 using Reizen.CommonClasses;
+using Google.Apis.Auth.AspNetCore3;
 
 var builder = WebApplication.CreateBuilder (args);
 
@@ -28,9 +29,12 @@ builder.Services.AddRazorComponents ()
     //.AddInteractiveWebAssemblyComponents ()
     .AddAuthenticationStateSerialization ();
 
-var clientID = builder.Configuration.GetSection ("OAuthConfig").GetValue<string> ("ClientID");
-var clientSecret = builder.Configuration.GetSection ("OAuthConfig").GetValue<string> ("ClientSecret");
-var scopes = builder.Configuration.GetSection ("OAuthConfig").GetSection ("OAuthScopes").Get<string[]>();
+var clientID = builder.Configuration.GetSection("Settings").GetSection ("OAuthSettings").GetValue<string> ("ClientID");
+var clientSecret = builder.Configuration.GetSection("Settings").GetSection ("OAuthSettings").GetValue<string> ("ClientSecret");
+var scopes = builder.Configuration.GetSection("Settings").GetSection ("OAuthSettings").GetSection ("OAuthScopes").Get<string[]>();
+
+var test = builder.Configuration.GetSection ("Settings");
+builder.Services.Configure<ConfigOptions> (test);
 
 builder.Services.AddBlazoredSessionStorage ();
 
@@ -43,7 +47,7 @@ builder.Services.AddCors ();
 
 builder.Services.AddHttpClient ("", client =>
 {
-    client.BaseAddress = new Uri (ConfigData.httpReizenApiUri);
+    client.BaseAddress = new Uri (ConfigOptions.httpReizenApiUri);
 });
 
 builder.Services.AddControllers ()
@@ -65,24 +69,27 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole> (options =>
     options.SignIn.RequireConfirmedAccount = false;
 })
 .AddEntityFrameworkStores<ApplicationDbContext> ()
-.AddSignInManager ();
+.AddSignInManager ()
+.AddDefaultTokenProviders();
 
 builder.Services.AddAuthentication (options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    //options.DefaultChallengeScheme = GoogleOpenIdConnectDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
     //options.DefaultForbidScheme = GoogleOpenIdConnectDefaults.AuthenticationScheme;
 
 }).AddCookie ()
-.AddGoogleOpenIdConnect (options =>
+.AddGoogle (options =>
 {
-    options.ReturnUrlParameter = "/";
+    //options.SignedOutRedirectUri = "/";
     options.ClientId = clientID;
     options.ClientSecret = clientSecret;
-    options.GetClaimsFromUserInfoEndpoint = true;
-
+    options.SaveTokens = true;
+    //options.GetClaimsFromUserInfoEndpoint = true;
+    //options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    //options.SignOutScheme = GoogleOpenIdConnectDefaults.AuthenticationScheme;
     options.ClaimActions.MapAll ();
-
+    
     // Adding scopes; could not find another way but to add them one by one
     scopes?.ToList ().ForEach (el => options.Scope.Add (el));
     options.SaveTokens = true;
@@ -135,4 +142,19 @@ app.MapRazorComponents<App> ()
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints ();
 
+app.MapPost ("/account/logout", async (HttpContext context) => 
+{
+   
+    try
+    {
+        await context.SignOutAsync (GoogleOpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = "/"});
+    }
+    catch (Exception ex) 
+    {
+        Console.WriteLine (ex.ToString ());
+    }
+    await context.SignOutAsync (CookieAuthenticationDefaults.AuthenticationScheme);
+    context.Response.Redirect ("/");
+
+}).RequireAuthorization();
 app.Run ();

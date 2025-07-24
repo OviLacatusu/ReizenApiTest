@@ -21,12 +21,12 @@ namespace GoogleAccess.Domain.Models
         public PickingConfig pickingConfig { get; set; }
 
         public PollingConfig pollingConfig { get; set; }
-        public class PollingConfig
+        public sealed class PollingConfig
         {
             public string pollInterval { get; set; }
             public string timeoutIn { get; set; }
         }
-        public class PickingConfig
+        public sealed class PickingConfig
         {
             public string maxItemCount { get; set; }
         }

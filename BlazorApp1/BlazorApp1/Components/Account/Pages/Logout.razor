@@ -1,0 +1,28 @@
+﻿@page "/a/Logout"
+
+@inject NavigationManager NavigationManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IHttpContextAccessor _context;
+@inject IHttpClientFactory _factory;
+
+@code {
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (HttpMethods.IsPost(_context?.HttpContext?.Request.Method))
+        {
+            await LogoutUser();
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
+    private async Task LogoutUser() 
+    {
+        // await SignInManager.SignOutAsync();
+        using var client = _factory.CreateClient();
+        await client.PostAsync("/account/logout", null);
+    }
+}

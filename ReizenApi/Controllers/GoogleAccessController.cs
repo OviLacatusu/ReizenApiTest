@@ -27,9 +27,6 @@ namespace ReizenApi.Controllers
         private const string GOOGLE_GMAIL_AUTHENTICATED_USER_URL = "https://www.googleapis.com/gmail/v1/users/me/profile";
         private const string GOOGLE_PICKER_PHOTOS_REQ = "https://photospicker.googleapis.com/v1/mediaItems";
 
-        private static string[] scopes = { SheetsService.Scope.SpreadsheetsReadonly };
-        private ImmutableDictionary<string, KZJobEntry> kzEntries;
-
         private readonly IHttpClientFactory _httpFactory;
         private readonly ILogger<GoogleAccessController> _logger;
 
@@ -76,7 +73,7 @@ namespace ReizenApi.Controllers
         }
         // TO DO
         [HttpGet("GetFiles")]
-        public async Task<ActionResult> GetListFiles([FromHeader] string Authorization,CancellationToken cancellationToken)
+        public async Task<ActionResult> GetListFiles([FromHeader] string Authorization, CancellationToken cancellationToken)
         {
             try
             {
@@ -118,7 +115,6 @@ namespace ReizenApi.Controllers
         {
             try
             {
-                
                 if (Authorization  is null)
                     throw new OAuth2Exception ("Access token not found! Session has probably expired.");
                 var accessToken = Authorization.Split(" ").Last ();
@@ -220,10 +216,11 @@ namespace ReizenApi.Controllers
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     _logger.LogInformation ($"Running PollRequest ->> while loop at {DateTime.UtcNow.ToShortTimeString ()}");
+                    // polling interval set to 3 sec.
                     await Task.Delay (3000, cancellationToken);
 
                     var session = await SendGetRequest<PickingSession> (url.ToString(), cancellationToken, true, accessToken);
-
+                    // polling until mediaItemsSet flag set to true server side
                     if (session?.mediaItemsSet == true)
                     {
                         break;
@@ -231,7 +228,6 @@ namespace ReizenApi.Controllers
                 }
                 _logger.LogInformation ($"Exited while loop in {nameof(GetListWithPicker)} at {DateTime.UtcNow.ToShortTimeString ()}");
                 // requesting the details of the media items chosen by the user 
-                // TODO: Add support for pagination
                 url = new Uri ($"{GOOGLE_PICKER_PHOTOS_REQ}?sessionId={sessionId}");
 
                 var details = await SendGetRequest<GPhotosDetailsFiles> (url.ToString(), cancellationToken, true, accessToken);
@@ -245,17 +241,17 @@ namespace ReizenApi.Controllers
             }
         }
         // Generic API GET request that returns deserialized JSON Objects
-        private async Task<T?> SendGetRequest<T> (string url, CancellationToken cancellationToken, bool WithBearerHeader, string? accessToken)
+        private async Task<T?> SendGetRequest<T> (string url, CancellationToken cancellationToken, bool withBearerHeader, string? accessToken)
         {
             try
             {
-                if (WithBearerHeader && String.IsNullOrEmpty (accessToken))
+                if (withBearerHeader && String.IsNullOrEmpty (accessToken))
                 {
                     throw new ArgumentNullException ("Access token missing!");
                 }
                 using (var client = _httpFactory.CreateClient ())
                 {
-                    if (WithBearerHeader)
+                    if (withBearerHeader)
                     {
                         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue ("Bearer", accessToken);
                     }

@@ -8,8 +8,8 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var clientID = builder.Configuration.GetSection ("OAuthConfig").GetValue<string> ("ClientID");
-var clientSecret = builder.Configuration.GetSection ("OAuthConfig").GetValue<string> ("ClientSecret");
+//var clientID = builder.Configuration.GetSection ("OAuthConfig").GetValue<string> ("ClientID");
+//var clientSecret = builder.Configuration.GetSection ("OAuthConfig").GetValue<string> ("ClientSecret");
 
 //builder.Services.AddDbContext<ReizenContext> (options => options.UseSqlServer (builder.Configuration.GetConnectionString ("ReizenDB")));
 builder.Services.AddDbContextFactory<ReizenContext> (options => options.UseSqlServer( builder.Configuration.GetConnectionString("ReizenDB2")));

@@ -7,6 +7,6 @@ namespace BlazorApp1.Client.Models
         [MinLength (3, ErrorMessage = "Please enter at least 3 characters")]
         [Required (ErrorMessage = "Field is required")]
         [StringLength (100)]
-        public string? FamilyName { get; set; }
+        public string? NameString { get; set; }
     }
 }

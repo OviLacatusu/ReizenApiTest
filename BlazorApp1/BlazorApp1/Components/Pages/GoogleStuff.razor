@@ -26,77 +26,79 @@
 @inject UserManager<ApplicationUser> UserManager;
 @inject Blazored.SessionStorage.ISessionStorageService _storage;
 
-<AuthorizeView>
-    <div class="container">
-        <CollapsingElement Title="Google Photos API">
-            <ElementBody>
-                <div class="row">
-                    <div class="col-md-2">
-                        @*Closing the picking session window before picking the fotos will have the polling loop run indefinately*@
-                        <button @onclick="OpenTabAndPollSession">Pick Photos</button>
-                    </div>
-                </div>
+<div class="container">
+    <AuthorizeView>
 
-                @if (MediaItems?.MediaItems?.Count() > 0)
-                {
-                    foreach (var item in MediaItems.MediaItems)
-                    {
-                        <div class="row">
-                            <div class="col-md-2">
-
-                                <button class="btn btn-link" @onclick="@(async () => await DownloadFoto(item.MediaFile))">@item.MediaFile?.Filename</button>
-                            </div>
-                        </div>
-                    }
-                    <div class="row">
+        @if (IsLoggedInWithGoogle(_httpContextAccessor.HttpContext?.User))
+        {
+            <CollapsingElement Title="Google Photos API">
+                <ElementBody>
+                    <div class="buttonPickerDiv">
                         <div class="col-md-2">
-                            <button @onclick="(async () => await DownloadFiles(MediaItems.MediaItems))">Download files</button>
-
+                            @*Closing the picking session window before picking the fotos will have the polling loop run indefinately*@
+                            <button @onclick="OpenTabAndPollSession">Open Picker Session</button>
                         </div>
                     </div>
-                } 
-            </ElementBody>
-        </CollapsingElement>
 
-        <CollapsingElement Title="Google Gmail API">
-            <ElementBody>
-                @if (Error != null) 
-                {
-                    <div class="alert alert-danger">@Error</div>
-                } 
-                else if (IsSuccessfull)
-                {
-                    <div class="alert alert-success">Message deleted successfully</div>
-                }
-                @if (Messages?.Count() > 0) 
-                {
-                    @* TO DO: Find a beter way of passing the message ID to the ModalComponent Callback *@
-                    <ModalComponent @ref="Modal" Message="Are you sure you want to delete? This will permanently delete the message!" Header="Delete message" Callback="@( async () => { if( !String.IsNullOrEmpty(SelectedMessageId) ){ await DeleteMessage (SelectedMessageId); Modal.Close(); }})"></ModalComponent>
-                    foreach (var item in Messages)
+                    @if (MediaItems?.MediaItems?.Count() > 0)
                     {
-                        <div class="row">
-                            <div class="col-md-3">
-                                <p>@item?.Payload?.Headers?.Where(x => x.Name == "From").First()?.Value</p>
+                        foreach (var item in MediaItems.MediaItems)
+                        {
+                            <div class="row">
+                                <div class="col-md-2">
+
+                                    <button class="btn btn-link" @onclick="@(async () => await DownloadFoto(item.MediaFile))">@item.MediaFile?.Filename</button>
+                                </div>
                             </div>
-                            <div class="col-lg-6">
-                                <button class="btn btn-link">@item?.Payload?.Headers?.Where(x => x.Name == "Subject").FirstOrDefault()?.Value</button>
-                            </div>
+                        }
+                        <div class="buttonDownloadAllDiv">
                             <div class="col-md-2">
-                                <button class="btn btn-link" @onclick="@( async () => { Modal.Open(); SelectedMessageId = item?.Id; })">Delete mail</button> 
+                                <button @onclick="(async () => await DownloadFiles(MediaItems.MediaItems))">Download files</button>
+
                             </div>
                         </div>
+                    } 
+                </ElementBody>
+            </CollapsingElement>
+
+            <CollapsingElement Title="Google Gmail API">
+                <ElementBody>
+                    @if (IsSuccessfull)
+                    {
+                        <div class="alert alert-success">Message deleted successfully</div>
                     }
-                }
-            </ElementBody>
+                    @if (Messages?.Count() > 0) 
+                    {
+                        @* TO DO: Find a beter way of passing the message ID to the ModalComponent Callback *@
+                        <ModalComponent @ref="Modal" Message="Are you sure you want to delete? This will permanently delete the message!" Header="Delete message" Callback="@( async () => { if( !String.IsNullOrEmpty(SelectedMessageId) ){ await DeleteMessage (SelectedMessageId); Modal.Close(); }})"></ModalComponent>
+                        foreach (var item in Messages)
+                        {
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <p>@item?.Payload?.Headers?.Where(x => x.Name == "From").First()?.Value</p>
+                                </div>
+                                <div class="col-lg-6">
+                                    <button class="btn btn-link">@item?.Payload?.Headers?.Where(x => x.Name == "Subject").FirstOrDefault()?.Value</button>
+                                </div>
+                                <div class="col-md-2">
+                                    <button class="btn btn-link" @onclick="@( async () => { Modal.Open(); SelectedMessageId = item?.Id; })">Delete mail</button> 
+                                </div>
+                            </div>
+                        }
+                    } 
+                    else if (Messages == null)
+                    {
+                        <div>Fetching messages...</div>
+                    }
+                </ElementBody>
         </CollapsingElement>
-    </div>
-
+        } 
 </AuthorizeView>
-
-@if (!String.IsNullOrEmpty(Error)) 
-{ 
-    <div class="alert alert-danger">@((MarkupString)Error) </div> 
+@if (!String.IsNullOrEmpty(Error))
+{
+    <div class="alert alert-danger">@((MarkupString)Error) </div>
 }
+</div>
 
 @* Suggested way of downloading files < 250 MB in size using JSInterop *@
 <script>
@@ -113,9 +115,19 @@
     URL.revokeObjectURL(url);
     };
 </script>
-
+<style>
+    .row:hover{
+        background-color: lightgray;
+    }
+</style>
 @code
-{
+{   
+    [Parameter]
+    public PickingSession? SessionData { get; set; }
+
+    [Parameter]
+    public string? AccessToken { get; set; }
+
     private ModalComponent Modal { get; set; }
 
     private ExternalLoginInfo? ExternalLoginInfo;
@@ -128,22 +140,16 @@
 
     private CancellationToken token = new();
 
-    [Parameter]
-    public PickingSession? SessionData { get; set; }
-
-    [Parameter]
-    public string? AccessToken { get; set; }
-
     private GPhotosDetailsFiles? MediaItems { get; set; }
 
-    private IEnumerable<Message> Messages { get; set; }
+    private IEnumerable<Message>? Messages { get; set; }
 
-    // Checking wether user is authenticated. If so, we assume there is a access token to request a Picker session - this is not always the case
     protected override async Task OnInitializedAsync()
     {
         _logger.LogInformation("-- OnInitialized called --");
-        //ExternalLoginInfo = await SignInManager.GetExternalLoginInfoAsync();
-        if (_httpContextAccessor?.HttpContext?.User?.Identity?.IsAuthenticated == true)
+        var user = _httpContextAccessor.HttpContext?.User;
+
+        if(IsLoggedInWithGoogle(user))
         {
             await GetPickerSession();
             await GetMailMessages();
@@ -152,6 +158,11 @@
         {
             Error = "Not authorized. Please log in with GoogleOpenIdConnect  <a href='/Account/Login'>Here</a>";
         }
+    }
+
+    private bool IsLoggedInWithGoogle(ClaimsPrincipal? user) 
+    { 
+       return (user?.FindFirst(ClaimTypes.AuthenticationMethod)?.Value?.Contains("google", StringComparison.OrdinalIgnoreCase) == true) ? true : false ;
     }
 
     protected override void OnParametersSet()
@@ -167,7 +178,7 @@
     private async Task GetMailMessages()
     {
         var httpClient = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager));
-        httpClient.BaseAddress = new Uri(ConfigData.httpReizenApiUri);
+        httpClient.BaseAddress = new Uri(ConfigOptions.httpReizenApiUri);
 
         var response = await httpClient.GetAsync("/api/GoogleAccess/GetMessages");
         if (response.IsSuccessStatusCode)
@@ -191,7 +202,7 @@
     private async Task GetPickerSession()
     {
         var httpClient = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager));
-        httpClient.BaseAddress = new Uri(ConfigData.httpReizenApiUri);
+        httpClient.BaseAddress = new Uri(ConfigOptions.httpReizenApiUri);
 
         var result = await httpClient.GetAsync("/api/GoogleAccess/GetPickerLink");
         if (result.IsSuccessStatusCode)
@@ -228,7 +239,7 @@
 
         using (var client = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager)))
         {
-            client.BaseAddress = new Uri(ConfigData.httpReizenApiUri);
+            client.BaseAddress = new Uri(ConfigOptions.httpReizenApiUri);
             var response = await client.GetAsync($"api/GoogleAccess/GetPhotosWithPicker/{sessionId}");
             if (response.IsSuccessStatusCode)
             {
@@ -262,7 +273,7 @@
     { 
         _logger.LogInformation($"Running DownloadFoto at {DateTime.UtcNow.ToShortTimeString()}");
         using (var client = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager))) {
-            client.BaseAddress = new Uri(ConfigData.httpReizenApiUri);
+            client.BaseAddress = new Uri(ConfigOptions.httpReizenApiUri);
 
             var response = await client.GetAsync($"api/GoogleAccess/downloadfoto/{HttpUtility.UrlEncode(fileDetails.BaseUrl)}/{HttpUtility.UrlEncode(fileDetails.MimeType)}");           //{HttpUtility.UrlEncode(url)}");
             if (response.IsSuccessStatusCode) 
@@ -284,7 +295,7 @@
         _logger.LogInformation($"Running DeleteMail - deleting mail message with ID: {messageId}");
         using (var client = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager)))
         {  
-            client.BaseAddress = new Uri(ConfigData.httpReizenApiUri);
+            client.BaseAddress = new Uri(ConfigOptions.httpReizenApiUri);
 
             var result = await client.PostAsJsonAsync($"/api/GoogleAccess/deletemessage", messageId);
 
