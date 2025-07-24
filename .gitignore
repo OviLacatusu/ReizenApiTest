@@ -373,3 +373,4 @@ FodyWeavers.xsd
 /Reizen.Data/Models/CQRS/Result.cs
 /BlazorApp1/BlazorApp1/Controllers/TestController.cs
 /BlazorApp1/BlazorApp1.Client/Pages/ListOfClients.razor
+/ReizenApi/appsettings.json
