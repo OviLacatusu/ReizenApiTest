@@ -10,10 +10,6 @@ builder.Services.AddHttpClient ("", client =>
     //client.BaseAddress = new Uri ("https://ovilacatusu-002-site1.qtempurl.com/");
     client.BaseAddress = new Uri (ConfigOptions.httpReizenApiUri);
 });
-//var config = await clientH.GetFromJsonAsync<GoogleAuthConfig> ("api/GetServerOauthConfig");
-
-//builder.Services.AddTransient<GoogleAuthConfig> (x => config);
-//builder.Services.AddTransient<GoogleAuthService> ();
 
 builder.Services.AddBlazoredSessionStorage ();
 

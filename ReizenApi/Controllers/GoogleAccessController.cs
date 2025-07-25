@@ -123,7 +123,7 @@ namespace ReizenApi.Controllers
                 {
                     // setting the access token in the authentication header; necessary for the request
                     client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue ("Bearer", accessToken);
-                    // sending an empty PickingSession object that will be returned with session details
+                    // sending an empty PickingSession object that will be populated by session details
                     var httpContent = new StringContent(JsonConvert.SerializeObject(new PickingSession()));
                     // POST request
                     var response = await client.PostAsync ($"{GOOGLE_PICKER_API_SESSION_REQ}", httpContent);

@@ -1,9 +1,11 @@
-﻿@implements IDisposable
+﻿@using Microsoft.Extensions.Options
+@implements IDisposable
 
 @inject AuthenticationStateProvider _authStateProvider;
 @inject IHttpContextAccessor _httpContextAccessor;
 @inject NavigationManager NavigationManager
 @inject UserManager<ApplicationUser> UserManager
+@inject IOptionsSnapshot<ConfigOptions> _config;
 
 @rendermode InteractiveServer
 

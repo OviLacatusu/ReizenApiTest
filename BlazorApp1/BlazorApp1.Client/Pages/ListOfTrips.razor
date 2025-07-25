@@ -11,27 +11,67 @@
 @rendermode InteractiveServer
 
 <div class="container">
-    <h2>Chosen trip:</h2>
+    <h2>Chosen trip</h2>
     @if(Trip != null)
     {
-        <h4>Destination</h4>
-        <p>@Trip.Destination?.PlaceName</p>
-        <h4>Departure date</h4>
-        <p>@Trip.DateOfDeparture</p>
-        <h4>Number of days</h4>
-        <p>@Trip.NumberOfDays</p>
-        <h4>Price</h4>
-        <p>@Trip.PricePerPerson</p>
-        <div>
+        <div class="row">
+            <div class="col-lg-3">
+                <span style="font-weight:bold;">Destination</span>
+            </div>
+
+            <div class="col-lg-3">
+            <span>@Trip.Destination?.PlaceName</span>
+            </div>
+        </div>
+        <div class="row">
+        <div class="col-lg-3">
+            <span style="font-weight:bold;">Departure date</span>
+        </div>
+        <div class="col-lg-3">
+            <span>@Trip.DateOfDeparture</span>
+            </div>
+        </div>
+        <div class="row">
+        <div class="col-lg-3">
+            <span style="font-weight:bold;">Number of days</span>
+        </div>
+        <div class="col-lg-3">
+            <span>@Trip.NumberOfDays</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3">
+                <span style="font-weight:bold;">Price</span>
+            </div>
+            <div class="col-lg-3">
+                <span>@Trip.PricePerPerson</span>
+            </div>
+        </div>
+        <div class="row">
+            <h2>Client search</h2>
+        </div>
             <EditForm Model="Model" OnValidSubmit="@(async () => await GetCustomers())">
                 <DataAnnotationsValidator/>
-                <label for="FamilyName">Name lookup:</label>
-                <InputText @bind-value="Model.NameString" id="Name"></InputText>
-                <button type="submit" class="btn btn-primary" @onclick="@(() => Error = "")">Search</button>
-                <ValidationSummary />
+            <div class="row">
+                <div class="input-group">
+                    <div class="col-lg-3">
+                    <span style="font-weight:bold;">Name lookup</span>
+                    </div>
+                    
+                    <div class="col-lg-3">
+                        <InputText class="form-control" @bind-value="Model.NameString" id="familyName"></InputText>
+                            <label for="familyName"><ValidationSummary /></label>
+                    </div>
+                    <div class="col-lg-1">
+                        <button type="submit" class="btn btn-primary" @onclick="@(() => Error = "")">Search</button>
+                    </div>
+                    
+                    </div>
+                </div>
+                
                 
             </EditForm>
-        </div>
+        
     }
     else 
     { 

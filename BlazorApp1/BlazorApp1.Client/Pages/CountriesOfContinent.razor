@@ -29,7 +29,7 @@
 
 @code {
     [Parameter]
-    public string? Name { get; set; }
+    public string? ContinentName { get; set; }
 
     private IEnumerable<CountryDTO>? Countries;
 
@@ -37,11 +37,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (!String.IsNullOrEmpty(Name))
+        if (!String.IsNullOrEmpty(ContinentName))
         {
             using var httpClient = _httpFactory.CreateClient();
 
-            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<CountryDTO>>($"api/Countries/{Name}", httpClient);
+            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<CountryDTO>>($"api/Countries/{ContinentName}", httpClient);
             if (result.IsSuccessful)
             {
                 Countries = result.Value;

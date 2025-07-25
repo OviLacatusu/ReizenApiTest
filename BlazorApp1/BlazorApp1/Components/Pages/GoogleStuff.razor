@@ -25,6 +25,8 @@
 @inject IHttpContextAccessor _httpContextAccessor;
 @inject UserManager<ApplicationUser> UserManager;
 @inject Blazored.SessionStorage.ISessionStorageService _storage;
+@inject IOptionsSnapshot<ConfigOptions> _config;
+@inject CustomAuthDelegatingHandler _oAuthHttpHandler;
 
 <div class="container">
     <AuthorizeView>
@@ -91,13 +93,13 @@
                         <div>Fetching messages...</div>
                     }
                 </ElementBody>
-        </CollapsingElement>
+            </CollapsingElement>
         } 
-</AuthorizeView>
-@if (!String.IsNullOrEmpty(Error))
-{
-    <div class="alert alert-danger">@((MarkupString)Error) </div>
-}
+    </AuthorizeView>
+    @if (!String.IsNullOrEmpty(Error))
+    {
+        <div class="alert alert-danger">@((MarkupString)Error) </div>
+    }
 </div>
 
 @* Suggested way of downloading files < 250 MB in size using JSInterop *@
@@ -115,13 +117,15 @@
     URL.revokeObjectURL(url);
     };
 </script>
+
 <style>
     .row:hover{
-        background-color: lightgray;
+    background-color: lightgray;
     }
 </style>
+
 @code
-{   
+{
     [Parameter]
     public PickingSession? SessionData { get; set; }
 
@@ -136,13 +140,15 @@
 
     private string? Error { get; set; }
 
-    private bool IsSuccessfull;
+    private bool IsSuccessfull = false;
 
     private CancellationToken token = new();
 
     private GPhotosDetailsFiles? MediaItems { get; set; }
 
     private IEnumerable<Message>? Messages { get; set; }
+
+    private ConfigOptions Options => _config.Value;
 
     protected override async Task OnInitializedAsync()
     {
@@ -177,8 +183,8 @@
 
     private async Task GetMailMessages()
     {
-        var httpClient = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager));
-        httpClient.BaseAddress = new Uri(ConfigOptions.httpReizenApiUri);
+        var httpClient = new HttpClient(_oAuthHttpHandler);
+        httpClient.BaseAddress = new Uri(Options.ApiUrl);
 
         var response = await httpClient.GetAsync("/api/GoogleAccess/GetMessages");
         if (response.IsSuccessStatusCode)
@@ -198,11 +204,12 @@
             }
         }
     }
+
     // Requests a Picker session
     private async Task GetPickerSession()
     {
-        var httpClient = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager));
-        httpClient.BaseAddress = new Uri(ConfigOptions.httpReizenApiUri);
+        var httpClient = new HttpClient(_oAuthHttpHandler);
+        httpClient.BaseAddress = new Uri(Options.ApiUrl);
 
         var result = await httpClient.GetAsync("/api/GoogleAccess/GetPickerLink");
         if (result.IsSuccessStatusCode)
@@ -222,6 +229,7 @@
             }
         }
     }
+
     // Opens the picker session in a new tab and starts a Web API call that polls the session state
     private async Task OpenTabAndPollSession()
     {
@@ -237,9 +245,9 @@
     {
         _logger.LogInformation($"Running PollRequest at {DateTime.UtcNow.ToShortTimeString()}");
 
-        using (var client = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager)))
+        using (var client = new HttpClient(_oAuthHttpHandler))
         {
-            client.BaseAddress = new Uri(ConfigOptions.httpReizenApiUri);
+            client.BaseAddress = new Uri(Options.ApiUrl);
             var response = await client.GetAsync($"api/GoogleAccess/GetPhotosWithPicker/{sessionId}");
             if (response.IsSuccessStatusCode)
             {
@@ -261,6 +269,7 @@
         _logger.LogInformation($"Exiting PollRequest at {DateTime.UtcNow.ToShortTimeString()}");
         StateHasChanged();
     }
+
     private async Task DownloadFiles(IEnumerable<PickedMediaItem> fileDetails) 
     {
         foreach (var file in fileDetails) 
@@ -268,12 +277,14 @@
             await DownloadFoto(file.MediaFile);
         }
     }
+
     // Downloads file from data stream. Tested only with photos
     private async Task DownloadFoto(MediaFile fileDetails) 
     { 
         _logger.LogInformation($"Running DownloadFoto at {DateTime.UtcNow.ToShortTimeString()}");
-        using (var client = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager))) {
-            client.BaseAddress = new Uri(ConfigOptions.httpReizenApiUri);
+        using (var client = new HttpClient(_oAuthHttpHandler))
+            {
+            client.BaseAddress = new Uri(Options.ApiUrl);
 
             var response = await client.GetAsync($"api/GoogleAccess/downloadfoto/{HttpUtility.UrlEncode(fileDetails.BaseUrl)}/{HttpUtility.UrlEncode(fileDetails.MimeType)}");           //{HttpUtility.UrlEncode(url)}");
             if (response.IsSuccessStatusCode) 
@@ -293,23 +304,22 @@
     private async Task DeleteMessage(string messageId) 
     {
         _logger.LogInformation($"Running DeleteMail - deleting mail message with ID: {messageId}");
-        using (var client = new HttpClient(new CustomAuthDelegatingHandler(_httpContextAccessor, UserManager)))
-        {  
-            client.BaseAddress = new Uri(ConfigOptions.httpReizenApiUri);
+        using (var client = new HttpClient(_oAuthHttpHandler))
+            {  
+                client.BaseAddress = new Uri(Options.ApiUrl);
 
-            var result = await client.PostAsJsonAsync($"/api/GoogleAccess/deletemessage", messageId);
+                var result = await client.PostAsJsonAsync($"/api/GoogleAccess/deletemessage", messageId);
 
-            if (result.IsSuccessStatusCode)
-            {
-                IsSuccessfull = true;
-                await GetMailMessages();
-                StateHasChanged();
+                if (result.IsSuccessStatusCode)
+                {
+                    IsSuccessfull = true;
+                    await GetMailMessages();
+                    StateHasChanged();
+                }
+                else 
+                {
+                    Error = await result.Content.ReadAsStringAsync();
+                }
             }
-            else 
-            {
-                IsSuccessfull = false;
-                Error = await result.Content.ReadAsStringAsync();
-            }
-        }
     }
 }

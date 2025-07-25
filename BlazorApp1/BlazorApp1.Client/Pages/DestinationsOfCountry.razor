@@ -24,11 +24,11 @@
                         <div class="col col-md-3">
                             @if (TripsToDestination?[destination.Code]?.Count() > 0) 
                             {
-                                <p> - @TripsToDestination[destination.Code].Count() available trips</p>
+                                <span> - @(TripsToDestination[destination.Code].Count()) available trips</span>
                             }
                             else 
                             {
-                                <p> - no available trips</p>
+                                <span> - no available trips</span>
                             }
                         </div>
                     </div>

@@ -19,44 +19,44 @@
         <div class="row">
 
             <div class="col-lg-3">   
-                <p style="font:bold">Destination:</p>
+                <span style="font-weight:bold;">Destination</span>
             </div>
             <div class="col-lg-4">
-                <p>@Trip.Destination.PlaceName</p>
+                <span>@Trip.Destination.PlaceName</span>
             </div>
         </div>
         <div class="row">
             <div class="col-lg-3">
-                <p style="font:bold">Departure:</p>
+                <span style="font-weight:bold;">Departure</span>
             </div>
             <div class="col-lg-4"> 
-                <p>@Trip.DateOfDeparture</p>
+                <span>@Trip.DateOfDeparture</span>
             </div>
         </div>
         <div class="row">
             <div class="col-lg-3">
-                <p style="font:bold">Number of days:</p>
+                <span style="font-weight:bold;">Number of days</span>
             </div>
             <div class="col-lg-4">
-                <p>@Trip.NumberOfDays</p>
+                <span>@Trip.NumberOfDays</span>
             </div>
         </div>
         <div class="row">
             <div class="col-lg-3">
-                <p style="font:bold">Price per person:</p>
+                <span style="font-weight:bold;">Price per person</span>
             </div>
             <div class="col-lg-4">
-                <p>@Trip.PricePerPerson</p>
+                <span>@Trip.PricePerPerson</span>
             </div>
         </div>
 
         <h2>Client</h2>
         <div class="row">
             <div class="col-lg-3">
-                <p>@($"{Client.FirstName} {Client.FamilyName}")</p>
+                <span>@($"{Client.FirstName} {Client.FamilyName}")</span>
             </div>
             <div class="col-lg-4">
-                <p>@Client.Address, @Client.Residence.PostalCode @Client.Residence.Name</p>
+                <span>@Client.Address, @Client.Residence.PostalCode @Client.Residence.Name</span>
             </div>
         </div>
         <h2>Booking</h2>
@@ -64,23 +64,25 @@
             <DataAnnotationsValidator/>
             <div class="row">
                 <div class="col-lg-3">
-                    <label for="aantalV">Number of adults</label>
+                    <span>Number of adults</span>
                 </div>
-                <div class="col-lg-4">
-                    <InputNumber @bind-Value:get="(Model.NumberOfAdults)" @bind-Value:set="((value) => Model.NumberOfAdults = value)" id="aantalV"></InputNumber>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-3">
-                    <label for="aantalK">Number of kids</label>
-                </div>
-                <div class="col-lg-4">
-                    <InputNumber @bind-Value:get="(Model.NumberOfMinors)" @bind-Value:set="((value) => Model.NumberOfMinors = value)" id="aantalK"></InputNumber>
+                <div class="col-lg-2">
+                    <InputNumber class="form-control" @bind-Value:get="(Model.NumberOfAdults)" @bind-Value:set="((value) => Model.NumberOfAdults = value)" id="numberAdults"></InputNumber>
+                    <label for="numberAdults"></label>
                 </div>
             </div>
             <div class="row">
                 <div class="col-lg-3">
-                    <label>Cancellation insurance</label>
+                    <span>Number of kids</span>
+                </div>
+                <div class="col-lg-2">
+                    <InputNumber class="form-control" @bind-Value:get="(Model.NumberOfMinors)" @bind-Value:set="((value) => Model.NumberOfMinors = value)" id="numberMinors"></InputNumber>
+                    <label for="numberMinors"></label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3">
+                    <span>Cancellation insurance</span>
                 </div>
                 <div class="col-lg-4">
                     <InputCheckbox id="annulatieV" @bind-Value="@Model.HasCancellationInsurance"></InputCheckbox>
@@ -97,7 +99,7 @@
                 </div>
 
                 <ModalComponent @ref="Modal" Message="Are you sure you want to book this trip?" Header="Confirmation" Callback="@(async () => { await AddNewBooking(); Modal.Close(); })"></ModalComponent>
-            </div>
+                </div>
         </EditForm>
     } 
     else 

@@ -1,25 +1,17 @@
 using BlazorApp1.Components;
 using BlazorApp1.Components.Account;
-using BlazorApp1.Components.Account.Pages;
 using BlazorApp1.Data;
 using BlazorApp1.Models;
 using Blazored.SessionStorage;
-using BlazorApp1.Client;
 using GoogleAccess.Domain.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
-using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
-using System.Text.Json.Serialization;
 using Reizen.CommonClasses;
-using Google.Apis.Auth.AspNetCore3;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder (args);
 
@@ -32,6 +24,12 @@ builder.Services.AddRazorComponents ()
 var clientID = builder.Configuration.GetSection("Settings").GetSection ("OAuthSettings").GetValue<string> ("ClientID");
 var clientSecret = builder.Configuration.GetSection("Settings").GetSection ("OAuthSettings").GetValue<string> ("ClientSecret");
 var scopes = builder.Configuration.GetSection("Settings").GetSection ("OAuthSettings").GetSection ("OAuthScopes").Get<string[]>();
+
+var connectionString = builder.Configuration.GetConnectionString ("ReizenDB2") ?? throw new InvalidOperationException ("Connection string not found.");
+
+builder.Services.AddDbContext<ApplicationDbContext> (options =>
+    options.UseSqlServer (connectionString));
+builder.Services.AddDatabaseDeveloperPageExceptionFilter ();
 
 var test = builder.Configuration.GetSection ("Settings");
 builder.Services.Configure<ConfigOptions> (test);
@@ -57,12 +55,8 @@ builder.Services.AddCascadingAuthenticationState ();
 builder.Services.AddScoped<SignInManager<ApplicationUser>> ();
 builder.Services.AddScoped<IdentityUserAccessor> ();
 builder.Services.AddScoped<IdentityRedirectManager> ();
+builder.Services.AddScoped<CustomAuthDelegatingHandler> ();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider> ();
-
-var connectionString = builder.Configuration.GetConnectionString ("ReizenDB2") ?? throw new InvalidOperationException ("Connection string not found.");
-builder.Services.AddDbContext<ApplicationDbContext> (options =>
-    options.UseSqlServer (connectionString));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter ();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole> (options =>
 {
@@ -76,23 +70,19 @@ builder.Services.AddAuthentication (options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+    
     //options.DefaultForbidScheme = GoogleOpenIdConnectDefaults.AuthenticationScheme;
 
 }).AddCookie ()
 .AddGoogle (options =>
 {
-    //options.SignedOutRedirectUri = "/";
     options.ClientId = clientID;
     options.ClientSecret = clientSecret;
     options.SaveTokens = true;
-    //options.GetClaimsFromUserInfoEndpoint = true;
-    //options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    //options.SignOutScheme = GoogleOpenIdConnectDefaults.AuthenticationScheme;
     options.ClaimActions.MapAll ();
-    
     // Adding scopes; could not find another way but to add them one by one
     scopes?.ToList ().ForEach (el => options.Scope.Add (el));
-    options.SaveTokens = true;
+    
     // Saving OAuth 2.0 tokens
     options.Events.OnTicketReceived = ctx =>
     {
@@ -143,17 +133,8 @@ app.MapRazorComponents<App> ()
 app.MapAdditionalIdentityEndpoints ();
 
 app.MapPost ("/account/logout", async (HttpContext context) => 
-{
-   
-    try
-    {
-        await context.SignOutAsync (GoogleOpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties { RedirectUri = "/"});
-    }
-    catch (Exception ex) 
-    {
-        Console.WriteLine (ex.ToString ());
-    }
-    await context.SignOutAsync (CookieAuthenticationDefaults.AuthenticationScheme);
+{   
+    await context.SignOutAsync (IdentityConstants.ApplicationScheme);
     context.Response.Redirect ("/");
 
 }).RequireAuthorization();

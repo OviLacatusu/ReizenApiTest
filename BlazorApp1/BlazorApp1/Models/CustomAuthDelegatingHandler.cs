@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.Extensions.Options;
+using Reizen.CommonClasses;
 
 namespace BlazorApp1.Models
 {
@@ -10,11 +12,13 @@ namespace BlazorApp1.Models
     {
         private IHttpContextAccessor _httpContextAccessor;
         private UserManager<ApplicationUser> _userManager;
-        public CustomAuthDelegatingHandler (IHttpContextAccessor context, UserManager<ApplicationUser> userManager)
+        private readonly ConfigOptions _config;
+        public CustomAuthDelegatingHandler (IHttpContextAccessor context, UserManager<ApplicationUser> userManager, IOptionsSnapshot<ConfigOptions> config)
         {
             InnerHandler = new HttpClientHandler ();
             _httpContextAccessor = context;
             _userManager = userManager;
+            _config = config.Value;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync (
@@ -23,7 +27,7 @@ namespace BlazorApp1.Models
             if (request.RequestUri?.ToString ().ToLower ().Contains ("/api/googleaccess") is true && _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated is true)
             {
                 var currentUser = await _userManager.GetUserAsync (_httpContextAccessor.HttpContext.User);
-                var accessToken = await _userManager.GetAuthenticationTokenAsync (currentUser, "Google", "access_token");
+                var accessToken = await _userManager.GetAuthenticationTokenAsync (currentUser, _config.ExternalAuthMethod, "access_token");
 
                 if (accessToken is not null)
                 {

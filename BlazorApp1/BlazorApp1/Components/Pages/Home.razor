@@ -52,17 +52,4 @@
 
 @code{
 
-    private string AccessToken { get; set; }
-
-    private async Task<string> GetAccessToken() 
-    { 
-        var user = await UserManager.GetUserAsync(_context?.HttpContext?.User);
-        return await UserManager.GetAuthenticationTokenAsync(user, "GoogleOpenIdConnect", "access_token");
-    }
-    protected override async Task OnInitializedAsync() 
-    {
-        if(_context.HttpContext?.User?.Identity?.IsAuthenticated == true)
-            AccessToken = await GetAccessToken();
-    }
-
 }
