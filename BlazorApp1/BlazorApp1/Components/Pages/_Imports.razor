@@ -7,7 +7,14 @@
 @using static Microsoft.AspNetCore.Components.Web.RenderMode
 @using Microsoft.AspNetCore.Components.Web.Virtualization
 @using Microsoft.JSInterop
-@using BlazorApp1.Client
-@using Reizen.CommonClasses.DTOs;
-@using System.Net.Http;
-@using System.Net;
+@using BlazorApp1
+@using BlazorApp1.Components
+@using Microsoft.AspNetCore.Identity
+@using Data
+@using Models
+@using Reizen.CommonClasses
+@using Reizen.CommonClasses.DTOs
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication.Google
+@using Microsoft.AspNetCore.Authentication.OpenIdConnect
+@using Microsoft.Extensions.Options

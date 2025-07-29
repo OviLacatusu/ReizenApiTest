@@ -1,0 +1,43 @@
+﻿
+@if (Options?.Count > 0)
+{
+    <div class="dropdown">
+        <label>@Label</label>
+        <select class="dropdown" @onchange="@((option) => OnOptionSelected(option))" value="@OptionSelected">
+            @if(Options.Count>0)
+            {
+                @foreach (var item in Options) 
+                {
+                    <option class="dropdown-item" value="@item.Key">@item.Key</option>
+                }
+            }
+        </select>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string? Label { get; set; }
+
+    [Parameter]
+    public Dictionary<string, int?> Options { get; set; }
+
+    [Parameter]
+    public string? OptionSelected { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OptionSelectedChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<string> AdditionalCallback { get; set; }
+
+    private async Task OnOptionSelected(ChangeEventArgs args)
+    {
+        OptionSelected = args?.Value?.ToString();
+        await OptionSelectedChanged.InvokeAsync(OptionSelected);
+        if (AdditionalCallback.HasDelegate)
+        {
+            await AdditionalCallback.InvokeAsync(OptionSelected);
+        }
+    }
+}

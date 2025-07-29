@@ -10,7 +10,7 @@
 @using Microsoft.AspNetCore.Identity;
 @using Data
 @using Google.Apis.Gmail.v1.Data
-@using BlazorApp1.Client.Components
+@using BlazorApp1.Components
 
 @page "/GoogleAccess"
 
@@ -104,23 +104,25 @@
 
 @* Suggested way of downloading files < 250 MB in size using JSInterop *@
 <script>
-    window.downloadFileFromStream = async (fileName, contentStreamReference) => {
-    const arrayBuffer = await contentStreamReference.arrayBuffer();
-    const blob = new Blob([arrayBuffer]);
-    const url = URL.createObjectURL(blob);
+    window.downloadFileFromStream = async (fileName, contentStreamReference) => 
+    {
+        const arrayBuffer = await contentStreamReference.arrayBuffer();
+        const blob = new Blob([arrayBuffer]);
+        const url = URL.createObjectURL(blob);
 
-    const anchorElement = document.createElement('a');
-    anchorElement.href = url;
-    anchorElement.download = fileName ?? '';
-    anchorElement.click();
-    anchorElement.remove();
-    URL.revokeObjectURL(url);
+        const anchorElement = document.createElement('a');
+        anchorElement.href = url;
+        anchorElement.download = fileName ?? '';
+        anchorElement.click();
+        anchorElement.remove();
+        URL.revokeObjectURL(url);
     };
 </script>
 
 <style>
-    .row:hover{
-    background-color: lightgray;
+    .row:hover
+    {
+        background-color: lightgray;
     }
 </style>
 

@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Json;
 using Reizen.CommonClasses;
 
-namespace BlazorApp1.Client
+namespace BlazorApp1.Models
 {
     public class HelperRequest
     {

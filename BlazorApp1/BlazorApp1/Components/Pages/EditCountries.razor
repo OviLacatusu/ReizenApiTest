@@ -46,10 +46,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await GetCountrys();
+        await GetCountries();
     }
 
-    private async Task GetCountrys() 
+    private async Task GetCountries() 
     { 
         using var httpClient = _httpFactory.CreateClient();
 

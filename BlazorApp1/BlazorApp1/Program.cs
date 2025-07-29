@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Reizen.CommonClasses;
 using System.Text.Json.Serialization;
 
@@ -35,6 +36,8 @@ var test = builder.Configuration.GetSection ("Settings");
 builder.Services.Configure<ConfigOptions> (test);
 
 builder.Services.AddBlazoredSessionStorage ();
+builder.Services.AddMemoryCache ();
+builder.Services.AddScoped<IMemoryCache, MemoryCache> ();
 
 builder.Logging.ClearProviders ();
 builder.Logging.AddConsole ();

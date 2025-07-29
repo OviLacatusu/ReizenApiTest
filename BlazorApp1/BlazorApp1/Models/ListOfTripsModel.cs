@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace BlazorApp1.Client.Models
+namespace BlazorApp1.Models
 {
     public class ListOfTripsModel
     {
