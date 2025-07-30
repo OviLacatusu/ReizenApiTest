@@ -2,28 +2,27 @@
 @using Reizen.CommonClasses
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 
-@rendermode InteractiveServer
-
 @page "/tripSelect"
+
+@rendermode InteractiveServer
 
 @inject IHttpClientFactory _httpFactory
 @inject ILogger<ListOfContinents> _logger
 @inject Blazored.SessionStorage.ISessionStorageService _sessionStorage
-@inject ProtectedSessionStorage ProtectedSessionStore
 @inject IMemoryCache _storage;
 
 <div class="container">
     <div class="row">
 
-        <div class="col col-md-3">
+        <div class="col col-md-4">
             <BlazorApp1.Components.DropdownWithCallback Options="optionsContinents" Label="Continent" @bind-OptionSelected="SelectedContinent" AdditionalCallback="ContinentChangeCallback"/>
         </div>        
-        <div class="col col-md-3">
+        <div class="col col-md-4">
             <BlazorApp1.Components.DropdownWithCallback Options="optionsCountries" Label="Country" @bind-OptionSelected="SelectedCountry" AdditionalCallback="CountryChangeCallback" />
         </div>
     </div>
     @if (countryDestinations?.Count() > 0) {
-        <h2>Choose the destination:</h2>
+        <h2>Choose your destination:</h2>
 
         <img src="/vlaggen/@(SelectedCountry).png" />
         <ul>
@@ -31,10 +30,10 @@
             {
                 <li>
                     <div class="row">
-                        <div class="col col-md-2">
+                        <div class="col col-md-4">
                             <a href="/@destination.Code/trips">@destination.PlaceName</a>
                         </div>
-                        <div class="col col-md-3">
+                        <div class="col col-md-4">
                             @if (tripsToDestination?[destination.Code]?.Count() > 0)
                             {
                                 <span> - @(tripsToDestination[destination.Code].Count()) available trips</span>
@@ -87,7 +86,6 @@
     {
         get
         {
-            
             return selectedContinent ??= _storage.Get<string>("selectedContinent");
         }
         set
@@ -102,26 +100,26 @@
 
     private string Error { get; set; }
 
-    private async Task ContinentChangeCallback(string option) 
+    private async Task ContinentChangeCallback(string optionContinent) 
     {
-        await PopulateCountriesDropdown(option);
+        await PopulateCountriesDropdownAsync(optionContinent);
+        SelectedCountry = optionsCountries.Keys.First();
+        await GetCountryDestinationsAsync(SelectedCountry);
     }
 
-    private async Task CountryChangeCallback(string option) 
+    private async Task CountryChangeCallback(string optionCountry) 
     {
-        await GetCountryDestinationsAsync(option);
+        await GetCountryDestinationsAsync(optionCountry);
     }
 
     protected async override Task OnInitializedAsync()
     {
-        await PopulateContinentsDropdown();
-
+        await PopulateContinentsDropdownAsync();
         if (SelectedContinent == null)
         {
             SelectedContinent = optionsContinents.Keys.First();
         }
-        await PopulateCountriesDropdown(SelectedContinent);
-
+        await PopulateCountriesDropdownAsync(SelectedContinent);
         if (SelectedCountry == null) 
         {
             SelectedCountry = optionsCountries.Keys.First();
@@ -130,7 +128,7 @@
 
     }
 
-    private async Task<Result<T?>> GetItemsFromApiRequest<T>(string apiRequestUrl) 
+    private async Task<Result<T?>> GetItemsFromApiRequestAsync<T>(string apiRequestUrl) 
     {
         using var client = _httpFactory.CreateClient();
         var result = await HelperRequest.SendGetRequestAndParseJsonAsync<T>(apiRequestUrl, client);
@@ -138,9 +136,9 @@
         return result;
     }
 
-    private async Task PopulateContinentsDropdown() 
+    private async Task PopulateContinentsDropdownAsync() 
     {
-        var result = await GetItemsFromApiRequest<IEnumerable<ContinentDTO>>("/api/continents");
+        var result = await GetItemsFromApiRequestAsync<IEnumerable<ContinentDTO>>("/api/continents");
         if (result.IsSuccessful)
         {
             optionsContinents = new Dictionary<string, int?>();
@@ -152,9 +150,9 @@
         }
     }
 
-    private async Task PopulateCountriesDropdown(string continent) 
+    private async Task PopulateCountriesDropdownAsync(string continent) 
     {
-        var result = await GetItemsFromApiRequest<IEnumerable<CountryDTO>>($"/api/countries/{continent}");
+        var result = await GetItemsFromApiRequestAsync<IEnumerable<CountryDTO>>($"/api/countries/{continent}");
         if (result.IsSuccessful)
         {
             optionsCountries = new Dictionary<string, int?>();

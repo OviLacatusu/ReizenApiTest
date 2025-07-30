@@ -38,7 +38,7 @@
                     <div class="buttonPickerDiv">
                         <div class="col-md-2">
                             @*Closing the picking session window before picking the fotos will have the polling loop run indefinately*@
-                            <button @onclick="OpenTabAndPollSession">Open Picker Session</button>
+                            <button @onclick="@(async()=>await OpenTabAndPollSession())">Open Picker Session</button>
                         </div>
                     </div>
 
@@ -49,7 +49,7 @@
                             <div class="row">
                                 <div class="col-md-2">
 
-                                    <button class="btn btn-link" @onclick="@(async () => await DownloadFoto(item.MediaFile))">@item.MediaFile?.Filename</button>
+                                    <button class="btn btn-link" @onclick="@(async () => await DownloadFotoAsync(item.MediaFile))">@item.MediaFile?.Filename</button>
                                 </div>
                             </div>
                         }
@@ -106,23 +106,23 @@
 <script>
     window.downloadFileFromStream = async (fileName, contentStreamReference) => 
     {
-        const arrayBuffer = await contentStreamReference.arrayBuffer();
-        const blob = new Blob([arrayBuffer]);
-        const url = URL.createObjectURL(blob);
+    const arrayBuffer = await contentStreamReference.arrayBuffer();
+    const blob = new Blob([arrayBuffer]);
+    const url = URL.createObjectURL(blob);
 
-        const anchorElement = document.createElement('a');
-        anchorElement.href = url;
-        anchorElement.download = fileName ?? '';
-        anchorElement.click();
-        anchorElement.remove();
-        URL.revokeObjectURL(url);
+    const anchorElement = document.createElement('a');
+    anchorElement.href = url;
+    anchorElement.download = fileName ?? '';
+    anchorElement.click();
+    anchorElement.remove();
+    URL.revokeObjectURL(url);
     };
 </script>
 
 <style>
     .row:hover
     {
-        background-color: lightgray;
+    background-color: lightgray;
     }
 </style>
 
@@ -170,7 +170,7 @@
 
     private bool IsLoggedInWithGoogle(ClaimsPrincipal? user) 
     { 
-       return (user?.FindFirst(ClaimTypes.AuthenticationMethod)?.Value?.Contains("google", StringComparison.OrdinalIgnoreCase) == true) ? true : false ;
+        return (user?.FindFirst(ClaimTypes.AuthenticationMethod)?.Value?.Contains("google", StringComparison.OrdinalIgnoreCase) == true) ? true : false ;
     }
 
     protected override void OnParametersSet()
@@ -185,7 +185,7 @@
 
     private async Task GetMailMessages()
     {
-        var httpClient = new HttpClient(_oAuthHttpHandler);
+        var httpClient = _factory.CreateClient("GoogleAccess");
         httpClient.BaseAddress = new Uri(Options.ApiUrl);
 
         var response = await httpClient.GetAsync("/api/GoogleAccess/GetMessages");
@@ -210,7 +210,7 @@
     // Requests a Picker session
     private async Task GetPickerSession()
     {
-        var httpClient = new HttpClient(_oAuthHttpHandler);
+        var httpClient = _factory.CreateClient("GoogleAccess");
         httpClient.BaseAddress = new Uri(Options.ApiUrl);
 
         var result = await httpClient.GetAsync("/api/GoogleAccess/GetPickerLink");
@@ -238,16 +238,16 @@
         if (SessionData is not null)
         {
             await JSRuntime.InvokeVoidAsync("open", $"{SessionData.pickerUri}", "_blank");
-            await PollRequestPickerApi(SessionData.id);
+            await PollRequestPickerApiAsync(SessionData.id);
         }
     }
 
     // Polls the Picker session and returns the details of the picked media files
-    private async Task PollRequestPickerApi(string sessionId)
+    private async Task PollRequestPickerApiAsync(string sessionId)
     {
         _logger.LogInformation($"Running PollRequest at {DateTime.UtcNow.ToShortTimeString()}");
 
-        using (var client = new HttpClient(_oAuthHttpHandler))
+        using (var client = _factory.CreateClient("GoogleAccess"))
         {
             client.BaseAddress = new Uri(Options.ApiUrl);
             var response = await client.GetAsync($"api/GoogleAccess/GetPhotosWithPicker/{sessionId}");
@@ -276,15 +276,16 @@
     {
         foreach (var file in fileDetails) 
         {
-            await DownloadFoto(file.MediaFile);
+            await DownloadFotoAsync(file.MediaFile);
         }
     }
 
     // Downloads file from data stream. Tested only with photos
-    private async Task DownloadFoto(MediaFile fileDetails) 
-    { 
-        _logger.LogInformation($"Running DownloadFoto at {DateTime.UtcNow.ToShortTimeString()}");
-        using (var client = new HttpClient(_oAuthHttpHandler))
+    private async Task DownloadFotoAsync(MediaFile fileDetails) 
+    {
+        //var token = new CancellationToken();
+        _logger.LogInformation($"Running DownloadFotoAsync at {DateTime.UtcNow.ToShortTimeString()}");
+        using (var client = _factory.CreateClient("GoogleAccess"))
             {
             client.BaseAddress = new Uri(Options.ApiUrl);
 
@@ -306,7 +307,7 @@
     private async Task DeleteMessage(string messageId) 
     {
         _logger.LogInformation($"Running DeleteMail - deleting mail message with ID: {messageId}");
-        using (var client = new HttpClient(_oAuthHttpHandler))
+        using (var client = _factory.CreateClient("GoogleAccess"))
             {  
                 client.BaseAddress = new Uri(Options.ApiUrl);
 

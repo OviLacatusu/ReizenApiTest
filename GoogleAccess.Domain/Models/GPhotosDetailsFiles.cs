@@ -4,7 +4,8 @@ using System.Text.Json.Serialization;
 
 namespace GoogleAccess.Domain.Models
 {
-    public class GPhotosDetailsFiles {
+    public class GPhotosDetailsFiles 
+    {
         [JsonPropertyName("mediaItems")]
         public IEnumerable<PickedMediaItem> MediaItems
         {

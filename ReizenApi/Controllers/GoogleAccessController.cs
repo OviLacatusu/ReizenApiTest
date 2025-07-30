@@ -213,7 +213,7 @@ namespace ReizenApi.Controllers
                 var url = new Uri ($"{GOOGLE_PICKER_API_SESSION_REQ}/{sessionId}");
 
                 // while loop for polling the session until mediaItemsSet is set to true
-                while (!cancellationToken.IsCancellationRequested)
+                while (true)//(!cancellationToken.IsCancellationRequested)
                 {
                     _logger.LogInformation ($"Running PollRequest ->> while loop at {DateTime.UtcNow.ToShortTimeString ()}");
                     // polling interval set to 3 sec.
@@ -236,7 +236,7 @@ namespace ReizenApi.Controllers
             }
             catch (Exception ex) 
             {
-                _logger.LogError ($"Error {ex.Message}");
+                _logger.LogError ($"Error GetPWithjPicker {ex.Message}");
                 return StatusCode (500, ex);
             }
         }
@@ -293,6 +293,7 @@ namespace ReizenApi.Controllers
                     // request to find the current authenticated user
                     var response = await client.GetAsync(GOOGLE_GMAIL_AUTHENTICATED_USER_URL); 
                     response.EnsureSuccessStatusCode ();
+
                     var profile = JsonConvert.DeserializeObject<GmailUserProfile> (await response.Content.ReadAsStringAsync());
                     // request to retrieving the id's of first 50 messages
                     var request = service.Users.Messages.List(profile?.EmailAddress);
@@ -303,6 +304,7 @@ namespace ReizenApi.Controllers
                     
                     var result = await request.ExecuteAsync ();
                     var listMessages = new List<Message> ();
+
                     int i = 0;
                     do
                     {
@@ -325,8 +327,8 @@ namespace ReizenApi.Controllers
                                 });
                         }
                         await batch.ExecuteAsync ();
-                        // Doing maximum 4 iterations atm
-                        if(String.IsNullOrEmpty(result.NextPageToken) || i == 3)
+                        // Doing maximum 2 iterations atm
+                        if(String.IsNullOrEmpty(result.NextPageToken) || i == 1)
                             break;
                         request.PageToken = result.NextPageToken;
                         result = await request.ExecuteAsync ();
@@ -334,11 +336,10 @@ namespace ReizenApi.Controllers
                     } while (true);
 
                     return Ok (listMessages);
-                    
                 }
             }
             catch (Exception ex) {
-                _logger.LogError ($"Error {ex.Message}"); 
+                _logger.LogError ($"Error in GetMessages {ex.Message}"); 
                 return StatusCode (500, ex);
             }
         }

@@ -42,14 +42,18 @@ builder.Services.AddScoped<IMemoryCache, MemoryCache> ();
 builder.Logging.ClearProviders ();
 builder.Logging.AddConsole ();
 
-builder.Services.AddTransient<IServiceProvider, ServiceProvider> ();
-
 builder.Services.AddCors ();
 
-builder.Services.AddHttpClient ("", client =>
+builder.Services.AddTransient<CustomAuthDelegatingHandler> ();
+builder.Services.AddHttpClient ("", client => 
+{ 
+    client.BaseAddress = new Uri (ConfigOptions.httpReizenApiUri); 
+});
+builder.Services.AddHttpClient ("GoogleAccess", client =>
 {
     client.BaseAddress = new Uri (ConfigOptions.httpReizenApiUri);
-});
+
+}).AddHttpMessageHandler<CustomAuthDelegatingHandler> ();
 
 builder.Services.AddControllers ()
     .AddJsonOptions (options => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
@@ -58,7 +62,7 @@ builder.Services.AddCascadingAuthenticationState ();
 builder.Services.AddScoped<SignInManager<ApplicationUser>> ();
 builder.Services.AddScoped<IdentityUserAccessor> ();
 builder.Services.AddScoped<IdentityRedirectManager> ();
-builder.Services.AddScoped<CustomAuthDelegatingHandler> ();
+
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider> ();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole> (options =>
@@ -128,9 +132,9 @@ app.UseAntiforgery ();
 
 app.MapStaticAssets ();
 app.MapRazorComponents<App> ()
-    .AddInteractiveServerRenderMode ()
-    //.AddInteractiveWebAssemblyRenderMode ()
-    .AddAdditionalAssemblies (typeof (BlazorApp1.Client._Imports).Assembly);
+    .AddInteractiveServerRenderMode ();
+    //.AddInteractiveWebAssemblyRenderMode ();
+    //.AddAdditionalAssemblies (typeof (BlazorApp1.Client._Imports).Assembly);
 
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints ();

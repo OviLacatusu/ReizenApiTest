@@ -14,7 +14,7 @@
         <ul>
             @foreach (var Continent in Continents)   
             {
-                <li><a @onclick="() => OnContinentSelected(new ChangeEventArgs{ Value = Continent.Name})">@Continent.Name  </a></li>
+                <li><a href="/CountriesOfContinent/@Continent.Name">@Continent.Name</a></li>
             }
         </ul>
     } 
@@ -30,21 +30,9 @@
 
 @code 
 {
-    [Parameter]
-    public string? SelectedContinent { get; set; }
-
-    [Parameter]
-    public EventCallback<string> ContinentSelected { get; set; }
-
     private string Error { get; set; }
 
     private IEnumerable<ContinentDTO>? Continents;
-
-    private async Task OnContinentSelected(ChangeEventArgs args) 
-    {
-        SelectedContinent = args?.Value?.ToString();
-        await ContinentSelected.InvokeAsync(SelectedContinent);
-    }
 
     protected override async Task OnInitializedAsync()
     {

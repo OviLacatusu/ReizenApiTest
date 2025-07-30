@@ -12,15 +12,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReizenApi", "ReizenApi\ReizenApi.csproj", "{1D8DBE40-DB10-4B5C-81A4-9690A7D6C106}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorApp1", "BlazorApp1\BlazorApp1\BlazorApp1.csproj", "{17AB7A94-F753-4054-BAE5-6348D5D8469E}"
-	ProjectSection(ProjectDependencies) = postProject
-		{1D8DBE40-DB10-4B5C-81A4-9690A7D6C106} = {1D8DBE40-DB10-4B5C-81A4-9690A7D6C106}
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorApp1.Client", "BlazorApp1\BlazorApp1.Client\BlazorApp1.Client.csproj", "{0781B803-19D0-4248-A4D9-1898779D19D7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reizen.CommonClasses", "Reizen.CommonClasses\Reizen.CommonClasses.csproj", "{EB80FFB2-A9B0-4F1E-B9F0-C64EF38A2734}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessagingReizen", "MessagingReizen\MessagingReizen.csproj", "{4A43FFB0-45A4-45FF-887B-9D070B83131B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorApp1.Client", "BlazorApp1\BlazorApp1.Client\BlazorApp1.Client.csproj", "{18A17BCD-EDE7-4039-AF8A-A840173F36CF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,12 +56,6 @@ Global
 		{17AB7A94-F753-4054-BAE5-6348D5D8469E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{17AB7A94-F753-4054-BAE5-6348D5D8469E}.Test|Any CPU.ActiveCfg = Release|Any CPU
 		{17AB7A94-F753-4054-BAE5-6348D5D8469E}.Test|Any CPU.Build.0 = Release|Any CPU
-		{0781B803-19D0-4248-A4D9-1898779D19D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0781B803-19D0-4248-A4D9-1898779D19D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0781B803-19D0-4248-A4D9-1898779D19D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0781B803-19D0-4248-A4D9-1898779D19D7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0781B803-19D0-4248-A4D9-1898779D19D7}.Test|Any CPU.ActiveCfg = Release|Any CPU
-		{0781B803-19D0-4248-A4D9-1898779D19D7}.Test|Any CPU.Build.0 = Release|Any CPU
 		{EB80FFB2-A9B0-4F1E-B9F0-C64EF38A2734}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EB80FFB2-A9B0-4F1E-B9F0-C64EF38A2734}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB80FFB2-A9B0-4F1E-B9F0-C64EF38A2734}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -77,6 +68,12 @@ Global
 		{4A43FFB0-45A4-45FF-887B-9D070B83131B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4A43FFB0-45A4-45FF-887B-9D070B83131B}.Test|Any CPU.ActiveCfg = Debug|Any CPU
 		{4A43FFB0-45A4-45FF-887B-9D070B83131B}.Test|Any CPU.Build.0 = Debug|Any CPU
+		{18A17BCD-EDE7-4039-AF8A-A840173F36CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18A17BCD-EDE7-4039-AF8A-A840173F36CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18A17BCD-EDE7-4039-AF8A-A840173F36CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18A17BCD-EDE7-4039-AF8A-A840173F36CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18A17BCD-EDE7-4039-AF8A-A840173F36CF}.Test|Any CPU.ActiveCfg = Test|Any CPU
+		{18A17BCD-EDE7-4039-AF8A-A840173F36CF}.Test|Any CPU.Build.0 = Test|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

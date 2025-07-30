@@ -1,11 +1,12 @@
 ﻿
 @if (Options?.Count > 0)
 {
-    <div class="dropdown">
+    <div class="container">
         <label>@Label</label>
-        <select class="dropdown" @onchange="@((option) => OnOptionSelected(option))" value="@OptionSelected">
+        <select class="form-select" @oninput="@(async (option) => await OnOptionSelectedAsync(option))" value="@OptionSelected">
             @if(Options.Count>0)
             {
+                @* <option class="dropdown-item"></option> *@
                 @foreach (var item in Options) 
                 {
                     <option class="dropdown-item" value="@item.Key">@item.Key</option>
@@ -31,7 +32,7 @@
     [Parameter]
     public EventCallback<string> AdditionalCallback { get; set; }
 
-    private async Task OnOptionSelected(ChangeEventArgs args)
+    private async Task OnOptionSelectedAsync(ChangeEventArgs args)
     {
         OptionSelected = args?.Value?.ToString();
         await OptionSelectedChanged.InvokeAsync(OptionSelected);
