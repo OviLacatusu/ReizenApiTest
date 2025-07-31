@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-//using Trips.Data.Models;
 using Reizen.Data.Models;
 using Reizen.CommonClasses.DTOs;
 

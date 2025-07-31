@@ -130,9 +130,10 @@
 
     }
 
-    private async Task<Result<T?>> GetItemsFromApiRequestAsync<T>(string apiRequestUrl) 
+    private async Task<Result<T?>> GetResultFromApiRequestAsync<T>(string apiRequestUrl) 
     {
         using var client = _httpFactory.CreateClient();
+
         var result = await HelperRequest.SendGetRequestAndParseJsonAsync<T>(apiRequestUrl, client);
 
         return result;
@@ -140,7 +141,7 @@
 
     private async Task PopulateContinentsDropdownAsync() 
     {
-        var result = await GetItemsFromApiRequestAsync<IEnumerable<ContinentDTO>>("/api/continents");
+        var result = await GetResultFromApiRequestAsync<IEnumerable<ContinentDTO>>("/api/continents");
         if (result.IsSuccessful)
         {
             optionsContinents = new Dictionary<string, int?>();
@@ -154,7 +155,7 @@
 
     private async Task PopulateCountriesDropdownAsync(string continent) 
     {
-        var result = await GetItemsFromApiRequestAsync<IEnumerable<CountryDTO>>($"/api/countries/{continent}");
+        var result = await GetResultFromApiRequestAsync<IEnumerable<CountryDTO>>($"/api/countries/{continent}");
         if (result.IsSuccessful)
         {
             optionsCountries = new Dictionary<string, int?>();

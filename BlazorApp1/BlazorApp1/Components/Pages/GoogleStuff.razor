@@ -39,7 +39,7 @@
                     <div class="buttonPickerDiv">
                         <div class="col-md-2">
                             @*Closing the picking session window before picking the fotos will have the polling loop run indefinately*@
-                            <button class="btn btn-primary" @onclick="@(async()=>await OpenTabAndPollSession())">Open Picker Session</button>
+                            <button class="btn btn-primary" @onclick="@(async()=>await OpenTabAndPollSessionAsync())">Open Picker Session</button>
                         </div>
                     </div>
 
@@ -72,8 +72,7 @@
                     @if (Messages?.Count() > 0) 
                     {
                         @* TO DO: Find a beter way of passing the message ID to the ModalComponent Callback  *@
-                        <BootstrapModalComponent @ref="Modal" Message="Are you sure you want to delete? This will permanently delete the message!" Header="Delete message" Callback="@( async () => { if( !String.IsNullOrEmpty(SelectedMessageId) ){ await DeleteMessage (SelectedMessageId); Modal.Close(); }})"></BootstrapModalComponent> 
-
+                        <BootstrapModalComponent @ref="Modal" Message="Are you sure you want to delete? This will permanently delete the message!" Header="Delete message" Callback="@( async () => { if( !String.IsNullOrEmpty(SelectedMessageId) ){ await DeleteMessageAsync (SelectedMessageId); Modal.Close(); }})"></BootstrapModalComponent> 
 
                         foreach (var item in Messages)  
                         {  
@@ -82,7 +81,7 @@
                                     <p>@item?.Payload?.Headers?.Where(x => x.Name == "From").First()?.Value</p>  
                                 </div>
                                 <div class="col-lg-6">
-                                    <BootstrapModalEmailComponent OnClick="@(async (str) => { var message = await GetMessageWithIdAsync(item.Id); var mime = ParseMimeMessage(message); ContentSelectedEmail = mime.HtmlBody;  })" Content="@ContentSelectedEmail" Header="@(@item?.Payload?.Headers?.Where(x => x.Name == "Subject").FirstOrDefault()?.Value)"></BootstrapModalEmailComponent>
+                                    <BootstrapModalEmailComponent OnClick="@(async () => {await OnSubjectLinkClickedHandler(item.Id);})" Content="@ContentSelectedEmail" Header="@(@item?.Payload?.Headers?.Where(x => x.Name == "Subject").FirstOrDefault()?.Value)"></BootstrapModalEmailComponent>
                                 </div>  
                                 <div class="col-md-2">  
                                     <button class="btn btn-link" @onclick="@( async () => { Modal.Open(); SelectedMessageId = item?.Id; })">Delete mail</button>   
@@ -102,7 +101,7 @@
     {
         // Find a beter way of showing login link
         <div class="alert alert-danger" >@((MarkupString)Error) </div>
-    }
+    } 
 </div>
 
 @* Suggested way of downloading files < 250 MB in size using JSInterop *@
@@ -131,8 +130,7 @@
 
 @code
 {
-    [Parameter]
-    public PickingSession? SessionData { get; set; }
+    private PickingSession? SessionData { get; set; }
 
     private ConfigOptions Options => _config.Value;
 
@@ -142,7 +140,9 @@
 
     private string? Error { get; set; }
 
-    private bool IsSuccessfull = false;
+    private bool IsSuccessfull { get; set; } = false;
+
+    private bool IsLoggedWithGoogle { get; set; } = false;
 
     private CancellationToken token = new();
 
@@ -154,6 +154,7 @@
 
     private string ContentSelectedEmail { get; set; }
 
+
     protected override async Task OnInitializedAsync()
     {
         _logger.LogInformation("-- OnInitialized called --");
@@ -163,8 +164,9 @@
 
             if (IsLoggedInWithGoogle(user))
             {
-                await GetPickerSession();
-                await GetMailMessages();
+                IsLoggedWithGoogle = true;
+                await GetPickerSessionAsync();
+                await GetMailMessagesAsync();
             }
             else
             {
@@ -178,11 +180,6 @@
         }
     }
 
-    private bool IsLoggedInWithGoogle(ClaimsPrincipal? user) 
-    { 
-        return (user?.FindFirst(ClaimTypes.AuthenticationMethod)?.Value?.Contains("google", StringComparison.OrdinalIgnoreCase) == true) ? true : false ;
-    }
-
     protected override void OnParametersSet()
     {
         _logger.LogInformation("++ OnParametersSet called ++");
@@ -193,7 +190,27 @@
         _logger.LogInformation($"** OnAfterRender called with firstrender = {firstRender} **");
     }
 
-    private async Task GetMailMessages()
+    private async Task OnSubjectLinkClickedHandler(string messageId) 
+    {
+        try
+        {
+            var message = await GetMessageWithIdAsync(messageId);
+            var mime = ParseMimeMessage(message);
+            ContentSelectedEmail = mime.HtmlBody;
+        }
+        catch (Exception ex) 
+        {
+            Error = "Something went wrong.";
+            _logger.LogWarning(ex.Message);
+        }
+    }
+
+    private bool IsLoggedInWithGoogle(ClaimsPrincipal? user) 
+    { 
+        return (user?.FindFirst(ClaimTypes.AuthenticationMethod)?.Value?.Contains("google", StringComparison.OrdinalIgnoreCase) == true) ? true : false ;
+    }
+
+    private async Task GetMailMessagesAsync()
     {
         var httpClient = _factory.CreateClient("GoogleAccess");
         httpClient.BaseAddress = new Uri(Options.ApiUrl);
@@ -237,19 +254,19 @@
             var bytes = Microsoft.AspNetCore.WebUtilities.Base64UrlTextEncoder.Decode(message.Raw);
             var parser = new MimeKit.MimeParser(new MemoryStream(bytes), false);
 
-            var test = parser.ParseMessage();
-            return test;
+            var result = parser.ParseMessage();
+            return result;
         }
         catch (Exception ex) 
         { 
             Error = "Something went wrong.";
-            _logger.LogWarning(ex, "Failed during OnInitialized");
+            _logger.LogWarning(ex, "Failed during parsing of mime message");
         }
         return null;
     }
 
     // Requests a Picker session
-    private async Task GetPickerSession()
+    private async Task GetPickerSessionAsync()
     {
         var httpClient = _factory.CreateClient("GoogleAccess");
         httpClient.BaseAddress = new Uri(Options.ApiUrl);
@@ -267,7 +284,7 @@
     }
 
     // Opens the Picker session in a new tab and starts a Web API call that polls the session state
-    private async Task OpenTabAndPollSession()
+    private async Task OpenTabAndPollSessionAsync()
     {
         if (SessionData is not null)
         {
@@ -333,7 +350,7 @@
         }
     }
 
-    private async Task DeleteMessage(string messageId) 
+    private async Task DeleteMessageAsync(string messageId) 
     {
         _logger.LogInformation($"Running DeleteMail - deleting mail message with ID: {messageId}");
         using (var httpClient = _factory.CreateClient("GoogleAccess"))
@@ -344,13 +361,13 @@
             if (result.IsSuccessStatusCode)
             {
                 IsSuccessfull = true;
-                await GetMailMessages();
+                await GetMailMessagesAsync();
                 StateHasChanged();
             }
             else 
             {
                 Error = await result.Content.ReadAsStringAsync();
-            _logger.LogWarning(Error);
+                _logger.LogWarning(Error);
             }
         }
     }

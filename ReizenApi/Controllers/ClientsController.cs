@@ -14,7 +14,7 @@ namespace ReizenApi.Controllers
 
         IClientsRepository _service, 
         IMapper _mapper,
-        ILogger<ClientsController> _logger): ControllerBase
+        ILogger<ClientsController> _logger): ControllerBase 
     {
         // GET: api/<ClientsController>
         [HttpGet]
