@@ -45,6 +45,7 @@ builder.Logging.AddConsole ();
 builder.Services.AddCors ();
 
 builder.Services.AddTransient<CustomAuthDelegatingHandler> ();
+
 builder.Services.AddHttpClient ("", client => 
 { 
     client.BaseAddress = new Uri (ConfigOptions.httpReizenApiUri); 
@@ -77,8 +78,6 @@ builder.Services.AddAuthentication (options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-    
-    //options.DefaultForbidScheme = GoogleOpenIdConnectDefaults.AuthenticationScheme;
 
 }).AddCookie ()
 .AddGoogle (options =>
@@ -134,7 +133,6 @@ app.MapStaticAssets ();
 app.MapRazorComponents<App> ()
     .AddInteractiveServerRenderMode ();
     //.AddInteractiveWebAssemblyRenderMode ();
-    //.AddAdditionalAssemblies (typeof (BlazorApp1.Client._Imports).Assembly);
 
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints ();

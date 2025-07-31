@@ -27,7 +27,7 @@ namespace Reizen.Data.Models.CQRS.Queries
                     var result = (await query.context.Trips
                         .Include (r => r.Destination)
                         .ToListAsync ())
-                        .Where (r => r.DestinationCode == query.destinationCode)
+                        .Where (r => r.DateOfDeparture > DateOnly.FromDateTime(DateTime.Now) && r.DestinationCode == query.destinationCode)
                         .ToList ();
 
                     return result.Count == 0

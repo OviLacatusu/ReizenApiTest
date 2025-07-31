@@ -21,7 +21,6 @@ namespace BlazorApp1.Models
             _config = config.Value;
             _logger = logger;
         }
-
         protected override async Task<HttpResponseMessage> SendAsync (HttpRequestMessage request, CancellationToken cancellationToken)
         {
             if (_httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated == true)
@@ -37,7 +36,6 @@ namespace BlazorApp1.Models
                 }
             }
             return await base.SendAsync (request, cancellationToken);
-
         }
     }
 }

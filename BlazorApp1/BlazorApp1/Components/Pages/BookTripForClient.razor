@@ -8,6 +8,7 @@
 
 @inject ILogger<BookTripForClient> _logger;
 @inject IHttpClientFactory _httpFactory
+@inject IMemoryCache _storage;
 
 @rendermode InteractiveServer
 
@@ -97,8 +98,8 @@
                     <button type="submit" class="btn btn-primary" data-toggle="modal">Book trip</button>
                 </div>
 
-                <ModalComponent @ref="Modal" Message="Are you sure you want to book this trip?" Header="Confirmation" Callback="@(async () => { await AddNewBooking(); Modal.Close(); })"></ModalComponent>
-                </div>
+                <BootstrapModalComponent @ref="Modal" Message="Are you sure you want to book this trip?" Header="Confirmation" Callback="@(async () => { await AddNewBooking(); Modal.Close(); })"></BootstrapModalComponent>
+            </div>
         </EditForm>
     } 
     else 
@@ -115,11 +116,9 @@
     }
 </div>
 
-
-
 @code 
 {
-    private ModalComponent Modal { get; set; }
+    private BootstrapModalComponent Modal { get; set; }
 
     [Parameter]
     public int TripId { get; init; }
@@ -131,7 +130,22 @@
 
     private TripDTO? Trip { get; set; }
 
-    private BookTripForClientModel Model { get; set; } = new BookTripForClientModel { NumberOfMinors = 0, NumberOfAdults = 0, HasCancellationInsurance = false };
+    private BookTripForClientModel model;
+    private BookTripForClientModel Model 
+    { 
+        get 
+        {
+            return model??=_storage.Get<BookTripForClientModel>("modelBookTrip") ?? new BookTripForClientModel { NumberOfMinors = 0, NumberOfAdults = 0, HasCancellationInsurance = false };
+        } 
+        set
+        {
+            if (value != null) 
+            {
+                model = value;
+                _storage.Set<BookTripForClientModel>("modelBookTrip", model);
+            }
+        } 
+    }
 
     private string Error { get; set; }
 

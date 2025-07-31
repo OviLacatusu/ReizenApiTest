@@ -12,12 +12,12 @@
     <ProjectReference Include="..\..\GoogleAccess.Domain\GoogleAccess.Domain.csproj" />
     <ProjectReference Include="..\..\Reizen.CommonClasses\Reizen.CommonClasses.csproj" />
     <ProjectReference Include="..\..\Reizen.Domain\Reizen.Domain.csproj" />
-	  <ProjectReference Include="..\BlazorApp1.Client\BlazorApp1.Client.csproj" />
-	  <PackageReference Include="AutoMapper" Version="14.0.0" />
+	  <PackageReference Include="AutoMapper" Version="15.0.1" />
 	  <PackageReference Include="Blazored.SessionStorage" Version="2.4.0" />
 	  <PackageReference Include="Google.Apis.Auth.AspNetCore3" Version="1.69.0" />
 	  <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.3.0" />
 	  <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.5" />
+	  <PackageReference Include="Microsoft.AspNetCore.Components" Version="9.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.5" />
@@ -28,6 +28,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="MimeKit" Version="4.13.0" />
   </ItemGroup>
 
   <ItemGroup>

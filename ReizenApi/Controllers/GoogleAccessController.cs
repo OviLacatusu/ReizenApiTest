@@ -220,7 +220,7 @@ namespace ReizenApi.Controllers
                     await Task.Delay (3000, cancellationToken);
 
                     var session = await SendGetRequest<PickingSession> (url.ToString(), cancellationToken, true, accessToken);
-                    // polling until mediaItemsSet flag set to true server side
+                    // polling until mediaItemsSet flag set to true, server side
                     if (session?.mediaItemsSet == true)
                     {
                         break;
@@ -312,8 +312,11 @@ namespace ReizenApi.Controllers
 
                         foreach (var elem in result.Messages)
                         {
+                            var request2 = service.Users.Messages.Get (profile.EmailAddress, elem.Id);
+                            //request2.Format = UsersResource.MessagesResource.GetRequest.FormatEnum.Raw;
+
                             batch.Queue<Message> (
-                                service.Users.Messages.Get (profile.EmailAddress, elem.Id),
+                                request2,
                                 async (content, error, i, message) =>
                                 {
                                     if (error == null)
@@ -343,6 +346,49 @@ namespace ReizenApi.Controllers
                 return StatusCode (500, ex);
             }
         }
+
+        [HttpGet ("GetMessage/{messageId}")]
+        public async Task<ActionResult> GetMessage ([FromHeader] string Authorization, string messageId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (Authorization == null)
+                    throw new OAuth2Exception ("Access token not found! Session has probably expired.");
+
+                var accessToken = Authorization.Split (" ").Last ();
+
+                var credentials = GoogleCredential.FromAccessToken (accessToken);
+                var service = new GmailService (new BaseClientService.Initializer ()
+                {
+                    HttpClientInitializer = credentials,
+                    ApplicationName = "Testing Gmail",
+                    ValidateParameters = false
+                });
+                using var client = _httpFactory.CreateClient ();
+                {
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue ("Bearer", accessToken);
+                    // request to find the current authenticated user
+                    var response = await client.GetAsync (GOOGLE_GMAIL_AUTHENTICATED_USER_URL);
+                    response.EnsureSuccessStatusCode ();
+
+                    var profile = JsonConvert.DeserializeObject<GmailUserProfile> (await response.Content.ReadAsStringAsync ());
+                    var request = service.Users.Messages.Get (profile?.EmailAddress, messageId);
+                    // Format is set to Raw to get the message in full
+                    request.Format = UsersResource.MessagesResource.GetRequest.FormatEnum.Raw;
+                    request.AccessToken = accessToken;
+
+                    var result = await request.ExecuteAsync ();
+                                
+                    return Ok (result);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError ($"Error in GetMessages {ex.Message}");
+                return StatusCode (500, ex);
+            }
+        }
+
         [HttpPost ("DeleteMessage")]
         public async Task<ActionResult> DeleteMessage ([FromHeader] string Authorization, [FromBody] string messageId, CancellationToken cancellationToken)
         {

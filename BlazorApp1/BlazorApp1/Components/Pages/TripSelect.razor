@@ -1,5 +1,6 @@
 ﻿@using Microsoft.Extensions.Caching.Memory
 @using Reizen.CommonClasses
+@using BlazorApp1.Components
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 
 @page "/tripSelect"
@@ -15,16 +16,17 @@
     <div class="row">
 
         <div class="col col-md-4">
-            <BlazorApp1.Components.DropdownWithCallback Options="optionsContinents" Label="Continent" @bind-OptionSelected="SelectedContinent" AdditionalCallback="ContinentChangeCallback"/>
+            <BootstrapDropdownWithCallback Options="optionsContinents" Label="Continent" @bind-OptionSelected="SelectedContinent" AdditionalCallback="ContinentChangeCallback"/>
         </div>        
         <div class="col col-md-4">
-            <BlazorApp1.Components.DropdownWithCallback Options="optionsCountries" Label="Country" @bind-OptionSelected="SelectedCountry" AdditionalCallback="CountryChangeCallback" />
+            <BootstrapDropdownWithCallback Options="optionsCountries" Label="Country" @bind-OptionSelected="SelectedCountry" AdditionalCallback="CountryChangeCallback" />
         </div>
     </div>
     @if (countryDestinations?.Count() > 0) {
-        <h2>Choose your destination:</h2>
-
         <img src="/vlaggen/@(SelectedCountry).png" />
+        <div class="row">
+        <h4>Available destinations:</h4>
+        </div>
         <ul>
             @foreach (var destination in countryDestinations)
             {

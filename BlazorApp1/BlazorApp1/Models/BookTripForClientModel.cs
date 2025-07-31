@@ -8,8 +8,7 @@ namespace BlazorApp1.Models
         [Range (1, 100, ErrorMessage = "Value should be greater than {1} and lower than {2}")]
         public int? NumberOfAdults
         {
-            get;
-            set;
+            get; set;
         }
         [Required (ErrorMessage = "Field is required")]
         [Range (0, 100, ErrorMessage = "Value should be greater than {1} and lower than {2}")]

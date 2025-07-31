@@ -1,0 +1,34 @@
+﻿<button type="button" class="btn btn-link" @onclick="@( async () => { await OnClick.InvokeAsync(); })" data-bs-toggle="modal" data-bs-target="#@modalName">@Header</button>
+<div class="modal @ModalSize" id="@modalName" tabindex="-1" role="dialog" aria-labelledby="@label" aria-hidden="true" >
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @((MarkupString)Content)
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Header { get; set; }
+    [Parameter]
+    public string Content { get; set; }
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+
+    private Guid guid = new Guid();
+    private string modalName => $"modal{guid}";
+    private string label => $"{modalName}Label";
+    private string ModalSize = "modal-xl";
+
+}

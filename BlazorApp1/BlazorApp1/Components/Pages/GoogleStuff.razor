@@ -1,6 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Http
 @using System.Web
 @using Newtonsoft.Json
+@using System.Text
 @using global::GoogleAccess.Domain.Models
 @using Microsoft.AspNetCore.WebUtilities
 @using Microsoft.AspNetCore.Authorization
@@ -11,6 +12,7 @@
 @using Data
 @using Google.Apis.Gmail.v1.Data
 @using BlazorApp1.Components
+@using MimeKit
 
 @page "/GoogleAccess"
 
@@ -33,12 +35,12 @@
 
         @if (IsLoggedInWithGoogle(_httpContextAccessor.HttpContext?.User))
         {
-            <CollapsingElement Title="Google Photos API">
+            <BootstrapCollapsingElement Title="Google Photos API">
                 <ElementBody>
                     <div class="buttonPickerDiv">
                         <div class="col-md-2">
                             @*Closing the picking session window before picking the fotos will have the polling loop run indefinately*@
-                            <button @onclick="@(async()=>await OpenTabAndPollSession())">Open Picker Session</button>
+                            <button class="btn btn-primary" @onclick="@(async()=>await OpenTabAndPollSession())">Open Picker Session</button>
                         </div>
                     </div>
 
@@ -55,15 +57,14 @@
                         }
                         <div class="buttonDownloadAllDiv">
                             <div class="col-md-2">
-                                <button @onclick="(async () => await DownloadFiles(MediaItems.MediaItems))">Download files</button>
-
+                                <button class="btn btn-primary" @onclick="(async () => await DownloadFiles(MediaItems.MediaItems))">Download files</button>
                             </div>
                         </div>
                     } 
                 </ElementBody>
-            </CollapsingElement>
+            </BootstrapCollapsingElement>
 
-            <CollapsingElement Title="Google Gmail API">
+            <BootstrapCollapsingElement Title="Google Gmail API">
                 <ElementBody>
                     @if (IsSuccessfull)
                     {
@@ -71,34 +72,52 @@
                     }
                     @if (Messages?.Count() > 0) 
                     {
-                        @* TO DO: Find a beter way of passing the message ID to the ModalComponent Callback *@
-                        <ModalComponent @ref="Modal" Message="Are you sure you want to delete? This will permanently delete the message!" Header="Delete message" Callback="@( async () => { if( !String.IsNullOrEmpty(SelectedMessageId) ){ await DeleteMessage (SelectedMessageId); Modal.Close(); }})"></ModalComponent>
-                        foreach (var item in Messages)
-                        {
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <p>@item?.Payload?.Headers?.Where(x => x.Name == "From").First()?.Value</p>
+                        @* TO DO: Find a beter way of passing the message ID to the ModalComponent Callback  *@
+                        <BootstrapModalComponent @ref="Modal" Message="Are you sure you want to delete? This will permanently delete the message!" Header="Delete message" Callback="@( async () => { if( !String.IsNullOrEmpty(SelectedMessageId) ){ await DeleteMessage (SelectedMessageId); Modal.Close(); }})"></BootstrapModalComponent> 
+
+
+                        foreach (var item in Messages)  
+                        {  
+                            <div class="row">  
+                                <div class="col-md-3">  
+                                    <p>@item?.Payload?.Headers?.Where(x => x.Name == "From").First()?.Value</p>  
                                 </div>
                                 <div class="col-lg-6">
-                                    <button class="btn btn-link">@item?.Payload?.Headers?.Where(x => x.Name == "Subject").FirstOrDefault()?.Value</button>
-                                </div>
-                                <div class="col-md-2">
-                                    <button class="btn btn-link" @onclick="@( async () => { Modal.Open(); SelectedMessageId = item?.Id; })">Delete mail</button> 
-                                </div>
-                            </div>
+                                    <BootstrapModalEmailComponent OnClick="@(async (str) => { var message = await GetMessageWithIdAsync(item.Id); var mime = ParseMimeMessage(message); ContentSelectedEmail = mime.HtmlBody;  })" Content="@ContentSelectedEmail" Header="@(@item?.Payload?.Headers?.Where(x => x.Name == "Subject").FirstOrDefault()?.Value)"></BootstrapModalEmailComponent>
+                                </div>  
+                                <div class="col-md-2">  
+                                    <button class="btn btn-link" @onclick="@( async () => { Modal.Open(); SelectedMessageId = item?.Id; })">Delete mail</button>   
+                                </div>  
+                            </div> 
                         }
+                        @* foreach (var item in MimeMessages) *@
+                        @* { *@
+                        @*     <div class="row"> *@
+                        @*         <div class="col-md-3"> *@
+                        @*             <p>@item?.From</p> *@
+                        @*         </div> *@
+                        @*         <div class="col-lg-6"> *@
+                        @*             <button class="btn btn-link" @onclick="@( () => {var text = item.HtmlBody;} )">@item?.Subject</button> *@
+                        @*         </div> *@
+                        @*         <div class="col-md-2"> *@
+                        @*             <button class="btn btn-link" @onclick="@( async () => { Modal.Open(); SelectedMessageId = item?.MessageId; })">Delete message</button> *@
+                        @*         </div> *@
+                        @*     </div> *@
+                        @* } *@
+
                     } 
                     else if (Messages == null)
                     {
                         <div>Fetching messages...</div>
                     }
                 </ElementBody>
-            </CollapsingElement>
+            </BootstrapCollapsingElement>
         } 
     </AuthorizeView>
     @if (!String.IsNullOrEmpty(Error))
     {
-        <div class="alert alert-danger">@((MarkupString)Error) </div>
+        // Find a beter way of showing login link
+        <div class="alert alert-danger" >@((MarkupString)Error) </div>
     }
 </div>
 
@@ -134,9 +153,7 @@
     [Parameter]
     public string? AccessToken { get; set; }
 
-    private ModalComponent Modal { get; set; }
-
-    private ExternalLoginInfo? ExternalLoginInfo;
+    private BootstrapModalComponent Modal { get; set; }
 
     private string? SelectedMessageId { get; set; }
 
@@ -150,7 +167,11 @@
 
     private IEnumerable<Message>? Messages { get; set; }
 
+    private IList<MimeMessage>? MimeMessages { get; set; } = new List<MimeMessage>();
+
     private ConfigOptions Options => _config.Value;
+
+    private string ContentSelectedEmail { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -164,7 +185,7 @@
         }
         else 
         {
-            Error = "Not authorized. Please log in with GoogleOpenIdConnect  <a href='/Account/Login'>Here</a>";
+            Error = "Not authorized. Please log in with Google  <a href='/Account/Login'>Here</a>";
         }
     }
 
@@ -185,6 +206,8 @@
 
     private async Task GetMailMessages()
     {
+        // MimeMessages = new List<MimeMessage>();
+
         var httpClient = _factory.CreateClient("GoogleAccess");
         httpClient.BaseAddress = new Uri(Options.ApiUrl);
 
@@ -192,6 +215,7 @@
         if (response.IsSuccessStatusCode)
         {
             Messages = JsonConvert.DeserializeObject<IList<Message>>(await response.Content.ReadAsStringAsync());
+            // Messages?.ToList().ForEach(x => { var message = ParseMessage(x); MimeMessages?.Add(message); });
         }
         else
         {
@@ -205,6 +229,42 @@
                 Error = "Something went wrong.";
             }
         }
+    }
+    private async Task<Message?> GetMessageWithIdAsync(string messageId) 
+    {
+        Message? message = null;
+
+        var httpClient = _factory.CreateClient("GoogleAccess");
+        httpClient.BaseAddress = new Uri(Options.ApiUrl);
+
+        var response = await httpClient.GetAsync($"/api/GoogleAccess/GetMessage/{messageId}");
+        if (response.IsSuccessStatusCode)
+        {
+            message = JsonConvert.DeserializeObject<Message>(await response.Content.ReadAsStringAsync());
+        }
+        else
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            if (!String.IsNullOrEmpty(content))
+            {
+                Error = content;
+            }
+            else
+            {
+                Error = "Something went wrong.";
+            }
+        }
+        return message;
+    }
+
+    private MimeKit.MimeMessage ParseMimeMessage(Message message)
+    {
+        var bytes = Microsoft.AspNetCore.WebUtilities.Base64UrlTextEncoder.Decode(message.Raw);
+        //var decoded = Encoding.UTF8.GetString(bytes);
+        var parser = new MimeKit.MimeParser(new MemoryStream(bytes), false);
+       
+        var test = parser.ParseMessage();
+        return test;
     }
 
     // Requests a Picker session
@@ -232,7 +292,7 @@
         }
     }
 
-    // Opens the picker session in a new tab and starts a Web API call that polls the session state
+    // Opens the Picker session in a new tab and starts a Web API call that polls the session state
     private async Task OpenTabAndPollSession()
     {
         if (SessionData is not null)
@@ -283,7 +343,6 @@
     // Downloads file from data stream. Tested only with photos
     private async Task DownloadFotoAsync(MediaFile fileDetails) 
     {
-        //var token = new CancellationToken();
         _logger.LogInformation($"Running DownloadFotoAsync at {DateTime.UtcNow.ToShortTimeString()}");
         using (var client = _factory.CreateClient("GoogleAccess"))
             {

@@ -17,8 +17,8 @@ namespace BlazorApp1.Models
                 }
                 else
                 {
-                    var error = await result?.Content.ReadAsStringAsync ();
-                    var statusCode = result?.StatusCode;
+                    var error = await result.Content.ReadAsStringAsync ();
+                    var statusCode = result.StatusCode;
 
                     return Result<T?>.Failure ($"{statusCode}: {error}");
                 }
@@ -42,8 +42,8 @@ namespace BlazorApp1.Models
                 }
                 else
                 {
-                    var error = await result?.Content.ReadAsStringAsync ();
-                    var statusCode = result?.StatusCode;
+                    var error = await result.Content.ReadAsStringAsync ();
+                    var statusCode = result.StatusCode;
 
                     return Result<T?>.Failure ($"{statusCode}: {error}");
                 }
