@@ -64,7 +64,7 @@
             <DataAnnotationsValidator/>
             <div class="row">
                 <div class="col-lg-3">
-                    <span>Number of adults</span>
+                    <span style="font-weight:bold;">Number of adults</span>
                 </div>
                 <div class="col-lg-2">
                     <InputNumber class="form-control" @bind-Value:get="(Model.NumberOfAdults)" @bind-Value:set="((value) => Model.NumberOfAdults = value)" id="numberAdults"></InputNumber>
@@ -73,7 +73,7 @@
             </div>
             <div class="row">
                 <div class="col-lg-3">
-                    <span>Number of kids</span>
+                        <span style="font-weight:bold;">Number of kids</span>
                 </div>
                 <div class="col-lg-2">
                     <InputNumber class="form-control" @bind-Value:get="(Model.NumberOfMinors)" @bind-Value:set="((value) => Model.NumberOfMinors = value)" id="numberMinors"></InputNumber>
@@ -82,7 +82,7 @@
             </div>
             <div class="row">
                 <div class="col-lg-3">
-                    <span>Cancellation insurance</span>
+                        <span style="font-weight:bold;">Cancellation insurance</span>
                 </div>
                 <div class="col-lg-4">
                     <InputCheckbox id="annulatieV" @bind-Value="@Model.HasCancellationInsurance"></InputCheckbox>

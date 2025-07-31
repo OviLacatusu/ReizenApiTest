@@ -32,7 +32,6 @@
 
 <div class="container">
     <AuthorizeView>
-
         @if (IsLoggedInWithGoogle(_httpContextAccessor.HttpContext?.User))
         {
             <BootstrapCollapsingElement Title="Google Photos API">
@@ -90,21 +89,6 @@
                                 </div>  
                             </div> 
                         }
-                        @* foreach (var item in MimeMessages) *@
-                        @* { *@
-                        @*     <div class="row"> *@
-                        @*         <div class="col-md-3"> *@
-                        @*             <p>@item?.From</p> *@
-                        @*         </div> *@
-                        @*         <div class="col-lg-6"> *@
-                        @*             <button class="btn btn-link" @onclick="@( () => {var text = item.HtmlBody;} )">@item?.Subject</button> *@
-                        @*         </div> *@
-                        @*         <div class="col-md-2"> *@
-                        @*             <button class="btn btn-link" @onclick="@( async () => { Modal.Open(); SelectedMessageId = item?.MessageId; })">Delete message</button> *@
-                        @*         </div> *@
-                        @*     </div> *@
-                        @* } *@
-
                     } 
                     else if (Messages == null)
                     {
@@ -153,6 +137,8 @@
     [Parameter]
     public string? AccessToken { get; set; }
 
+    private ConfigOptions Options => _config.Value;
+
     private BootstrapModalComponent Modal { get; set; }
 
     private string? SelectedMessageId { get; set; }
@@ -169,23 +155,29 @@
 
     private IList<MimeMessage>? MimeMessages { get; set; } = new List<MimeMessage>();
 
-    private ConfigOptions Options => _config.Value;
-
     private string ContentSelectedEmail { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         _logger.LogInformation("-- OnInitialized called --");
-        var user = _httpContextAccessor.HttpContext?.User;
+        try
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
 
-        if(IsLoggedInWithGoogle(user))
-        {
-            await GetPickerSession();
-            await GetMailMessages();
+            if (IsLoggedInWithGoogle(user))
+            {
+                await GetPickerSession();
+                await GetMailMessages();
+            }
+            else
+            {
+                Error = "Not authorized. Please log in with Google  <a href='/Account/Login'>Here</a>";
+            }
         }
-        else 
+        catch (Exception ex) 
         {
-            Error = "Not authorized. Please log in with Google  <a href='/Account/Login'>Here</a>";
+            _logger.LogWarning(ex, "Failed during OnInitialized");
+            Error = "Something went wrong.";
         }
     }
 
@@ -206,30 +198,21 @@
 
     private async Task GetMailMessages()
     {
-        // MimeMessages = new List<MimeMessage>();
-
         var httpClient = _factory.CreateClient("GoogleAccess");
         httpClient.BaseAddress = new Uri(Options.ApiUrl);
 
-        var response = await httpClient.GetAsync("/api/GoogleAccess/GetMessages");
-        if (response.IsSuccessStatusCode)
+        var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IList<Message>>("/api/GoogleAccess/GetMessages", httpClient);
+        if (result.IsSuccessful)
         {
-            Messages = JsonConvert.DeserializeObject<IList<Message>>(await response.Content.ReadAsStringAsync());
-            // Messages?.ToList().ForEach(x => { var message = ParseMessage(x); MimeMessages?.Add(message); });
+            Messages = result?.Value;
         }
         else
         {
-            var content = await response.Content.ReadAsStringAsync();
-            if (!String.IsNullOrEmpty(content))
-            {
-                Error = content;
-            }
-            else
-            {
-                Error = "Something went wrong.";
-            }
+            Error = result.Error;
+            _logger.LogWarning(result.Error);
         }
     }
+
     private async Task<Message?> GetMessageWithIdAsync(string messageId) 
     {
         Message? message = null;
@@ -237,34 +220,35 @@
         var httpClient = _factory.CreateClient("GoogleAccess");
         httpClient.BaseAddress = new Uri(Options.ApiUrl);
 
-        var response = await httpClient.GetAsync($"/api/GoogleAccess/GetMessage/{messageId}");
-        if (response.IsSuccessStatusCode)
+        var result = await HelperRequest.SendGetRequestAndParseJsonAsync<Message>($"/api/GoogleAccess/GetMessage/{messageId}", httpClient);
+        if (result.IsSuccessful)
         {
-            message = JsonConvert.DeserializeObject<Message>(await response.Content.ReadAsStringAsync());
+            message = result?.Value;
         }
         else
         {
-            var content = await response.Content.ReadAsStringAsync();
-            if (!String.IsNullOrEmpty(content))
-            {
-                Error = content;
-            }
-            else
-            {
-                Error = "Something went wrong.";
-            }
+            Error = result.Error;
+            _logger.LogWarning(result.Error);
         }
         return message;
     }
 
-    private MimeKit.MimeMessage ParseMimeMessage(Message message)
+    private MimeKit.MimeMessage? ParseMimeMessage(Message message)
     {
-        var bytes = Microsoft.AspNetCore.WebUtilities.Base64UrlTextEncoder.Decode(message.Raw);
-        //var decoded = Encoding.UTF8.GetString(bytes);
-        var parser = new MimeKit.MimeParser(new MemoryStream(bytes), false);
-       
-        var test = parser.ParseMessage();
-        return test;
+        try
+        {
+            var bytes = Microsoft.AspNetCore.WebUtilities.Base64UrlTextEncoder.Decode(message.Raw);
+            var parser = new MimeKit.MimeParser(new MemoryStream(bytes), false);
+
+            var test = parser.ParseMessage();
+            return test;
+        }
+        catch (Exception ex) 
+        { 
+            _logger.LogWarning(ex, "Failed during OnInitialized");
+            Error = "Something went wrong.";
+        }
+        return null;
     }
 
     // Requests a Picker session
@@ -273,22 +257,15 @@
         var httpClient = _factory.CreateClient("GoogleAccess");
         httpClient.BaseAddress = new Uri(Options.ApiUrl);
 
-        var result = await httpClient.GetAsync("/api/GoogleAccess/GetPickerLink");
-        if (result.IsSuccessStatusCode)
+        var result = await HelperRequest.SendGetRequestAndParseJsonAsync<PickingSession>("/api/GoogleAccess/GetPickerLink", httpClient);
+        if (result.IsSuccessful)
         {
-            SessionData = await System.Text.Json.JsonSerializer.DeserializeAsync<PickingSession>(await result.Content?.ReadAsStreamAsync());
+            SessionData = result?.Value;
         }
-        else
+        else 
         {
-            var content = await result.Content.ReadAsStringAsync();
-            if (!String.IsNullOrEmpty(content))
-            {
-                Error = content;
-            }
-            else
-            {
-                Error = "Something went wrong.";
-            }
+            Error = result.Error;
+            _logger.LogWarning(result.Error);
         }
     }
 
@@ -307,25 +284,19 @@
     {
         _logger.LogInformation($"Running PollRequest at {DateTime.UtcNow.ToShortTimeString()}");
 
-        using (var client = _factory.CreateClient("GoogleAccess"))
+        using (var httpClient = _factory.CreateClient("GoogleAccess"))
         {
-            client.BaseAddress = new Uri(Options.ApiUrl);
-            var response = await client.GetAsync($"api/GoogleAccess/GetPhotosWithPicker/{sessionId}");
-            if (response.IsSuccessStatusCode)
+            httpClient.BaseAddress = new Uri(Options.ApiUrl);
+
+            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<GPhotosDetailsFiles>($"api/GoogleAccess/GetPhotosWithPicker/{sessionId}", httpClient);
+            if (result.IsSuccessful)
             {
-                MediaItems = await System.Text.Json.JsonSerializer.DeserializeAsync<GPhotosDetailsFiles>(await response.Content?.ReadAsStreamAsync());
+                MediaItems = result?.Value;
             }
             else
             {
-                var content = await response.Content.ReadAsStringAsync();
-                if (!String.IsNullOrEmpty(content))
-                {
-                    Error = content;
-                }
-                else
-                {
-                    Error = "Something went wrong.";
-                };
+                Error = result.Error;
+                _logger.LogWarning(result.Error);
             }
         }
         _logger.LogInformation($"Exiting PollRequest at {DateTime.UtcNow.ToShortTimeString()}");
@@ -336,7 +307,7 @@
     {
         foreach (var file in fileDetails) 
         {
-            await DownloadFotoAsync(file.MediaFile);
+            await DownloadFotoAsync(file?.MediaFile);
         }
     }
 
@@ -344,11 +315,12 @@
     private async Task DownloadFotoAsync(MediaFile fileDetails) 
     {
         _logger.LogInformation($"Running DownloadFotoAsync at {DateTime.UtcNow.ToShortTimeString()}");
-        using (var client = _factory.CreateClient("GoogleAccess"))
-            {
-            client.BaseAddress = new Uri(Options.ApiUrl);
 
-            var response = await client.GetAsync($"api/GoogleAccess/downloadfoto/{HttpUtility.UrlEncode(fileDetails.BaseUrl)}/{HttpUtility.UrlEncode(fileDetails.MimeType)}");           //{HttpUtility.UrlEncode(url)}");
+        using (var httpClient = _factory.CreateClient("GoogleAccess"))
+        {
+            httpClient.BaseAddress = new Uri(Options.ApiUrl);
+
+            var response = await httpClient.GetAsync($"api/GoogleAccess/downloadfoto/{HttpUtility.UrlEncode(fileDetails.BaseUrl)}/{HttpUtility.UrlEncode(fileDetails.MimeType)}");           //{HttpUtility.UrlEncode(url)}");
             if (response.IsSuccessStatusCode) 
             {
                 var stream = await response.Content.ReadAsStreamAsync();
@@ -359,6 +331,7 @@
             else
             {
                 Error = "Failed to download file.";
+                _logger.LogWarning(Error);
             }
         }
     }
@@ -366,11 +339,11 @@
     private async Task DeleteMessage(string messageId) 
     {
         _logger.LogInformation($"Running DeleteMail - deleting mail message with ID: {messageId}");
-        using (var client = _factory.CreateClient("GoogleAccess"))
-            {  
-                client.BaseAddress = new Uri(Options.ApiUrl);
+        using (var httpClient = _factory.CreateClient("GoogleAccess"))
+        {  
+                httpClient.BaseAddress = new Uri(Options.ApiUrl);
 
-                var result = await client.PostAsJsonAsync($"/api/GoogleAccess/deletemessage", messageId);
+                var result = await httpClient.PostAsJsonAsync($"/api/GoogleAccess/deletemessage", messageId);
 
                 if (result.IsSuccessStatusCode)
                 {
@@ -381,6 +354,7 @@
                 else 
                 {
                     Error = await result.Content.ReadAsStringAsync();
+                _logger.LogWarning(Error);
                 }
             }
     }
