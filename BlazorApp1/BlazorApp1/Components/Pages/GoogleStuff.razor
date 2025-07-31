@@ -134,9 +134,6 @@
     [Parameter]
     public PickingSession? SessionData { get; set; }
 
-    [Parameter]
-    public string? AccessToken { get; set; }
-
     private ConfigOptions Options => _config.Value;
 
     private BootstrapModalComponent Modal { get; set; }
@@ -245,8 +242,8 @@
         }
         catch (Exception ex) 
         { 
-            _logger.LogWarning(ex, "Failed during OnInitialized");
             Error = "Something went wrong.";
+            _logger.LogWarning(ex, "Failed during OnInitialized");
         }
         return null;
     }
@@ -341,21 +338,20 @@
         _logger.LogInformation($"Running DeleteMail - deleting mail message with ID: {messageId}");
         using (var httpClient = _factory.CreateClient("GoogleAccess"))
         {  
-                httpClient.BaseAddress = new Uri(Options.ApiUrl);
+            httpClient.BaseAddress = new Uri(Options.ApiUrl);
 
-                var result = await httpClient.PostAsJsonAsync($"/api/GoogleAccess/deletemessage", messageId);
-
-                if (result.IsSuccessStatusCode)
-                {
-                    IsSuccessfull = true;
-                    await GetMailMessages();
-                    StateHasChanged();
-                }
-                else 
-                {
-                    Error = await result.Content.ReadAsStringAsync();
-                _logger.LogWarning(Error);
-                }
+            var result = await httpClient.PostAsJsonAsync($"/api/GoogleAccess/deletemessage", messageId);
+            if (result.IsSuccessStatusCode)
+            {
+                IsSuccessfull = true;
+                await GetMailMessages();
+                StateHasChanged();
             }
+            else 
+            {
+                Error = await result.Content.ReadAsStringAsync();
+            _logger.LogWarning(Error);
+            }
+        }
     }
 }

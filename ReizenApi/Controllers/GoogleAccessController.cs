@@ -40,7 +40,7 @@ namespace ReizenApi.Controllers
         }
 
         [HttpGet ("DownloadFoto/{encodedUrl}/{encodedMimeType}")]
-        public async Task<IActionResult> DownloadFoto ([FromHeader] string Authorization, string encodedUrl, string encodedMimeType, CancellationToken cancellationToken)
+        public async Task<IActionResult> DownloadFotoAsync ([FromHeader] string Authorization, string encodedUrl, string encodedMimeType, CancellationToken cancellationToken)
         {
             try
             {
@@ -73,7 +73,7 @@ namespace ReizenApi.Controllers
         }
         // TO DO
         [HttpGet("GetFiles")]
-        public async Task<ActionResult> GetListFiles([FromHeader] string Authorization, CancellationToken cancellationToken)
+        public async Task<ActionResult> GetListFilesAsync([FromHeader] string Authorization, CancellationToken cancellationToken)
         {
             try
             {
@@ -111,7 +111,7 @@ namespace ReizenApi.Controllers
         }
         // Method returning a link for the generated picker session. Once accessed, the link becomes invalid
         [HttpGet ("GetPickerLink")]
-        public async Task<ActionResult> GetPickerData ([FromHeader] string Authorization, [FromServices] IHttpContextAccessor context, CancellationToken cancellationToken)
+        public async Task<ActionResult> GetPickerDataAsync ([FromHeader] string Authorization, [FromServices] IHttpContextAccessor context, CancellationToken cancellationToken)
         {
             try
             {
@@ -142,7 +142,7 @@ namespace ReizenApi.Controllers
         }
         // This approach is not supported since around 1/05/2025
         //[HttpGet ("GetPhotos2")]
-        public async Task<ActionResult> GetListPhotos2 ([FromHeader] string Authorization, CancellationToken token)
+        public async Task<ActionResult> GetListPhotos2Async ([FromHeader] string Authorization, CancellationToken token)
         {
             try
             {                
@@ -159,7 +159,7 @@ namespace ReizenApi.Controllers
                     List<MediaFile> files = new List<MediaFile> ();
                     Boolean hasNextPage = true;
 
-                    var content = await SendGetRequest<GPhotosDetailsFiles> (urlRequest, token, false, null);
+                    var content = await SendGetRequestAsync<GPhotosDetailsFiles> (urlRequest, token, false, null);
                     //files.AddRange (content.mediaItems.ToList());
 
                     DateTime timeStart = DateTime.Now;
@@ -167,7 +167,7 @@ namespace ReizenApi.Controllers
                     {
                         if (!String.IsNullOrEmpty (content.NextPageToken))
                         {
-                            content = await SendGetRequest<GPhotosDetailsFiles> ($"{urlRequest}?&pageToken={content.NextPageToken}", token, false, null);
+                            content = await SendGetRequestAsync<GPhotosDetailsFiles> ($"{urlRequest}?&pageToken={content.NextPageToken}", token, false, null);
                             //files.AddRange (content.mediaItems.ToList ());
                         }
                         else
@@ -196,7 +196,7 @@ namespace ReizenApi.Controllers
             }
         }
         [HttpGet("GetPhotosWithPicker/{sessionId}")]
-        public async Task<ActionResult> GetListWithPicker (string sessionId, [FromHeader] string Authorization, CancellationToken cancellationToken)
+        public async Task<ActionResult> GetListWithPickerAsync (string sessionId, [FromHeader] string Authorization, CancellationToken cancellationToken)
         {
             try
             {
@@ -219,18 +219,18 @@ namespace ReizenApi.Controllers
                     // polling interval set to 3 sec.
                     await Task.Delay (3000, cancellationToken);
 
-                    var session = await SendGetRequest<PickingSession> (url.ToString(), cancellationToken, true, accessToken);
+                    var session = await SendGetRequestAsync<PickingSession> (url.ToString(), cancellationToken, true, accessToken);
                     // polling until mediaItemsSet flag set to true, server side
                     if (session?.mediaItemsSet == true)
                     {
                         break;
                     }
                 }
-                _logger.LogInformation ($"Exited while loop in {nameof(GetListWithPicker)} at {DateTime.UtcNow.ToShortTimeString ()}");
+                _logger.LogInformation ($"Exited while loop in {nameof(GetListWithPickerAsync)} at {DateTime.UtcNow.ToShortTimeString ()}");
                 // requesting the details of the media items chosen by the user 
                 url = new Uri ($"{GOOGLE_PICKER_PHOTOS_REQ}?sessionId={sessionId}");
 
-                var details = await SendGetRequest<GPhotosDetailsFiles> (url.ToString(), cancellationToken, true, accessToken);
+                var details = await SendGetRequestAsync<GPhotosDetailsFiles> (url.ToString(), cancellationToken, true, accessToken);
 
                 return Ok (details);
             }
@@ -241,7 +241,7 @@ namespace ReizenApi.Controllers
             }
         }
         // Generic API GET request that returns deserialized JSON Objects
-        private async Task<T?> SendGetRequest<T> (string url, CancellationToken cancellationToken, bool withBearerHeader, string? accessToken)
+        private async Task<T?> SendGetRequestAsync<T> (string url, CancellationToken cancellationToken, bool withBearerHeader, string? accessToken)
         {
             try
             {
@@ -268,7 +268,7 @@ namespace ReizenApi.Controllers
         }
         // Method retrieving gmail messages of the currently authenticated with Google user
         [HttpGet ("GetMessages")]
-        public async Task<ActionResult> GetMessages([FromHeader] string Authorization, CancellationToken cancellationToken)
+        public async Task<ActionResult> GetMessagesAsync([FromHeader] string Authorization, CancellationToken cancellationToken)
         {
             try
             {
@@ -348,7 +348,7 @@ namespace ReizenApi.Controllers
         }
 
         [HttpGet ("GetMessage/{messageId}")]
-        public async Task<ActionResult> GetMessage ([FromHeader] string Authorization, string messageId, CancellationToken cancellationToken)
+        public async Task<ActionResult> GetMessageAsync([FromHeader] string Authorization, string messageId, CancellationToken cancellationToken)
         {
             try
             {
@@ -390,7 +390,7 @@ namespace ReizenApi.Controllers
         }
 
         [HttpPost ("DeleteMessage")]
-        public async Task<ActionResult> DeleteMessage ([FromHeader] string Authorization, [FromBody] string messageId, CancellationToken cancellationToken)
+        public async Task<ActionResult> DeleteMessageAsync ([FromHeader] string Authorization, [FromBody] string messageId, CancellationToken cancellationToken)
         {
             try
             {
