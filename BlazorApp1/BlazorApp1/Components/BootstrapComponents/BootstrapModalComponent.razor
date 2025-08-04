@@ -12,7 +12,7 @@
                 <p>@Message</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" @onclick="@( async () => { await Callback.InvokeAsync(); Close(); })">Yes</button>
+                <button type="button" class="btn @ButtonTypeDescription" @onclick="@(async () => { await OnClickCallback.InvokeAsync(); Close(); })">Yes</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="(() => Close())">Close</button>
             </div>
         </div>
@@ -32,9 +32,24 @@
     public string Header { get; set; }
 
     [Parameter]
-    public EventCallback Callback { get; set; }
+    public EventCallback OnClickCallback { get; set; }
+    
+    [Parameter]
+    public ButtonTypes TypeButton {
+        get; set;
+    }
+    
+    public enum ButtonTypes { PRIMARY, SECONDARY, DANGER  }
 
-    // public string ModalSize = "modal-xl";
+    private readonly Dictionary<ButtonTypes, String> ButtonTypeDescriptions = new Dictionary<ButtonTypes, string>
+    {
+        {ButtonTypes.PRIMARY, "btn-primary"},
+        {ButtonTypes.DANGER, "btn-danger" },
+        {ButtonTypes.SECONDARY, "btn-secondary"}
+    };
+
+    private string ButtonTypeDescription => ButtonTypeDescriptions[TypeButton];
+
     public string ModalDisplay = "none;";
     public string ModalClass = "";
     public bool ShowBackdrop = false;

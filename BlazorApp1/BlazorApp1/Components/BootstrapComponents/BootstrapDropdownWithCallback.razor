@@ -2,7 +2,7 @@
 @if (Options?.Count > 0)
 {
     <div class="container">
-        <label>@Label</label>
+        <label >@Label</label>
         <select class="form-select" @oninput="@(async (option) => await OnOptionSelectedAsync(option))" value="@OptionSelected">
             @if(Options.Count>0)
             {

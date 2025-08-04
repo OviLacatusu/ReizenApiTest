@@ -30,23 +30,25 @@
 
 @code 
 {
-    private string Error { get; set; }
+    private string Error { get; set; } = String.Empty;
 
     private IEnumerable<ContinentDTO>? Continents;
 
     protected override async Task OnInitializedAsync()
     {
-        using var httpClient = _httpFactory.CreateClient();
+        using var httpClient = _httpFactory.CreateClient ();
         {
-            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<ContinentDTO>>("api/continents", httpClient);
+            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<ContinentDTO>> ("api/continents", httpClient);
             if (result.IsSuccessful)
             {
                 Continents = result.Value;
             }
-            else 
+            else
             {
                 Error = result.Error;
+                _logger.LogError ($"Error initializing component. {Error}");
             }
         }
+
     }
 }

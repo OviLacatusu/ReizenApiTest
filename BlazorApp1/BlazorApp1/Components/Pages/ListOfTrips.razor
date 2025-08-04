@@ -20,23 +20,23 @@
             </div>
 
             <div class="col-lg-3">
-            <span>@Trip.Destination?.PlaceName</span>
+                <span>@Trip.Destination?.PlaceName</span>
             </div>
         </div>
         <div class="row">
-        <div class="col-lg-3">
-            <span style="font-weight:bold;">Departure date</span>
-        </div>
-        <div class="col-lg-3">
-            <span>@Trip.DateOfDeparture</span>
+            <div class="col-lg-3">
+                <span style="font-weight:bold;">Departure date</span>
+            </div>
+            <div class="col-lg-3">
+                <span>@Trip.DateOfDeparture</span>
             </div>
         </div>
         <div class="row">
-        <div class="col-lg-3">
-            <span style="font-weight:bold;">Number of days</span>
-        </div>
-        <div class="col-lg-3">
-            <span>@Trip.NumberOfDays</span>
+            <div class="col-lg-3">
+                <span style="font-weight:bold;">Number of days</span>
+            </div>
+            <div class="col-lg-3">
+                <span>@Trip.NumberOfDays</span>
             </div>
         </div>
         <div class="row">
@@ -50,28 +50,28 @@
         <div class="row">
             <h2>Client search</h2>
         </div>
-            <EditForm Model="Model" OnValidSubmit="@(async () => await GetCustomers())">
-                <DataAnnotationsValidator/>
+        <EditForm Model="Model" OnValidSubmit="@(async () => await GetCustomers())">
+            <DataAnnotationsValidator/>
             <div class="row">
                 <div class="input-group">
                     <div class="col-lg-3">
-                    <span style="font-weight:bold;">Name lookup</span>
+                        <span style="font-weight:bold;">Name lookup</span>
                     </div>
-                    
+
                     <div class="col-lg-3">
                         <InputText class="form-control" @bind-value="Model.NameString" id="familyName"></InputText>
-                            <label for="familyName"><ValidationSummary /></label>
+                        <label for="familyName"><ValidationSummary /></label>
                     </div>
                     <div class="col-lg-1">
-                        <button type="submit" class="btn btn-primary" @onclick="@(() => Error = "")">Search</button>
+                        <button type="submit" class="btn btn-primary" @onclick="@(() => Error = String.Empty)">Search</button>
                     </div>
-                    
-                    </div>
+
                 </div>
-                
-                
-            </EditForm>
-        
+            </div>
+
+
+        </EditForm>
+
     }
     else 
     { 
@@ -82,37 +82,37 @@
         <div class="alert alert-danger">@Error</div>
     }
 
-@if (Clients is not null) 
-{
-    <table class="table table-striped" >
-        <thead>
-            <tr>
-                <th>Family name</th>
-                <th>First name</th>
-                <th>City of residence</th>
-                <th>Book Trip</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var klant in Clients)
-            {
+    @if (Clients is not null) 
+    {
+        <table class="table table-striped" >
+            <thead>
                 <tr>
-                    <td>@klant.FamilyName</td>
-                    <td>@klant.FirstName</td>
-                    <td>@klant.Address, @klant.Residence?.PostalCode @klant.Residence?.Name</td>
-                    <td><a href="/book/trip/@TripId/client/@klant.Id">Book trip</a></td>
+                    <th>Family name</th>
+                    <th>First name</th>
+                    <th>City of residence</th>
+                    <th>Book Trip</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
+            </thead>
+            <tbody>
+                @foreach (var klant in Clients)
+                {
+                    <tr>
+                        <td>@klant.FamilyName</td>
+                        <td>@klant.FirstName</td>
+                        <td>@klant.Address, @klant.Residence?.PostalCode @klant.Residence?.Name</td>
+                        <td><a href="/book/trip/@TripId/client/@klant.Id">Book trip</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
 </div>
 
 @code {
     [Parameter]
     public int TripId { get; init; }
 
-    private string? Error { get; set; }
+    private string? Error { get; set; } = String.Empty;
 
     private TripDTO? Trip { get; set; }
 
@@ -122,39 +122,46 @@
 
     protected override async Task OnInitializedAsync() 
     {
-        if (TripId > 0) 
+        if (TripId < 0)
         {
-            using var httpClient = _httpFactory.CreateClient();
-
-            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<TripDTO>($"api/trips/{TripId}", httpClient);
-            if (result.IsSuccessful)
-            {
-                Trip = result.Value;
-            }
-            else
-            {
-                Error = result.Error;
-            }
+            Error = $"Invalid trip id.";
+            return;
         }
+        using var httpClient = _httpFactory.CreateClient();
+
+        var result = await HelperRequest.SendGetRequestAndParseJsonAsync<TripDTO>($"api/trips/{TripId}", httpClient);
+        if (result.IsSuccessful)
+        {
+            Trip = result.Value;
+        }
+        else
+        {
+            Error = result.Error;
+        }
+
     }
 
     private async Task GetCustomers() 
     {
-        if (!String.IsNullOrEmpty(Model.NameString))
+        if (String.IsNullOrEmpty (Model.NameString))
         {
-            using (var httpClient = _httpFactory.CreateClient())
-            {
-                var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<ClientDTO>>($"api/clients/{Model.NameString}", httpClient);
-                if (result.IsSuccessful)
-                {
-                    Clients = result.Value;
-                }
-                else
-                {
-                    Error = result.Error;
-                }
-                //StateHasChanged();
-            }
+            Error = $"Invalid name.";
+            return;
         }
+        using var httpClient = _httpFactory.CreateClient ();
+        
+        var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<ClientDTO>>($"api/clients/{Model.NameString}", httpClient);
+        if (result.IsSuccessful)
+        {
+            Clients = result.Value;
+        }
+        else
+        {
+            Error = result.Error;
+            _logger.LogError ($"Failed to get customers with name containing: {Model.NameString}");
+        }
+            //StateHasChanged();
+        
+        
     }
 }

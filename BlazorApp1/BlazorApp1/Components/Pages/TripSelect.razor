@@ -1,7 +1,6 @@
 ﻿@using Microsoft.Extensions.Caching.Memory
 @using Reizen.CommonClasses
-@using BlazorApp1.Components
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using BlazorApp1.Components.BootstrapComponents
 
 @page "/tripSelect"
 
@@ -9,7 +8,6 @@
 
 @inject IHttpClientFactory _httpFactory
 @inject ILogger<ListOfContinents> _logger
-@inject Blazored.SessionStorage.ISessionStorageService _sessionStorage
 @inject IMemoryCache _storage;
 
 <div class="container">
@@ -25,7 +23,7 @@
     @if (countryDestinations?.Count() > 0) {
         <img src="/vlaggen/@(SelectedCountry).png" />
         <div class="row">
-        <h4>Available destinations:</h4>
+            <h4>Available destinations:</h4>
         </div>
         <ul>
             @foreach (var destination in countryDestinations)
@@ -36,7 +34,7 @@
                             <a href="/@destination.Code/trips">@destination.PlaceName</a>
                         </div>
                         <div class="col col-md-4">
-                            @if (tripsToDestination?[destination.Code]?.Count() > 0)
+                            @if (tripsToDestination?.ContainsKey (destination.Code) == true && tripsToDestination?[destination.Code]?.Count () > 0)
                             {
                                 <span> - @(tripsToDestination[destination.Code].Count()) available trips</span>
                             }
@@ -57,13 +55,13 @@
 </div>
 
 @code {
-    private Dictionary<string, int?> optionsContinents;
+    private Dictionary<string, int?> optionsContinents = new();
 
-    private Dictionary<string, int?> optionsCountries;
+    private Dictionary<string, int?> optionsCountries = new();
 
     private List<DestinationDTO>? countryDestinations = new List<DestinationDTO>();
 
-    private Dictionary<string, IEnumerable<TripDTO>> tripsToDestination;
+    private Dictionary<string, IEnumerable<TripDTO>> tripsToDestination = new();
 
     // Storing only selected continent and selected country serverside
     private string? selectedCountry;
@@ -100,33 +98,66 @@
         }
     }
 
-    private string Error { get; set; }
+    private string Error { get; set; } = String.Empty;
 
     private async Task ContinentChangeCallback(string optionContinent) 
     {
-        await PopulateCountriesDropdownAsync(optionContinent);
-        SelectedCountry = optionsCountries.Keys.First();
-        await GetCountryDestinationsAsync(SelectedCountry);
+        try
+        {
+            await PopulateCountriesDropdownAsync (optionContinent);
+            if (optionsCountries.Any ())
+            {
+                SelectedCountry = optionsCountries.Keys.First ();
+                await GetCountryDestinationsAsync (SelectedCountry);
+            }
+        }
+        catch (Exception ex)
+        {
+            Error = $"Error loading countries: {ex.Message}";
+            _logger.LogError (ex, "Error in ContinentChangeCallback");
+        }
     }
 
     private async Task CountryChangeCallback(string optionCountry) 
     {
-        await GetCountryDestinationsAsync(optionCountry);
+        try
+        {
+            await GetCountryDestinationsAsync (optionCountry);
+        }
+        catch (Exception ex) 
+        {
+            Error = $"Error loading destinations.";
+            _logger.LogError (ex, "Error in CountryChangeCallback");
+        }
     }
 
     protected async override Task OnInitializedAsync()
     {
-        await PopulateContinentsDropdownAsync();
-        if (SelectedContinent == null)
+        try
         {
-            SelectedContinent = optionsContinents.Keys.First();
+            await PopulateContinentsDropdownAsync ();
+            if (SelectedContinent == null && optionsContinents.Any())
+            {
+                SelectedContinent = optionsContinents.Keys.First ();
+            }
+            if (SelectedContinent != null)
+            {
+                await PopulateCountriesDropdownAsync (SelectedContinent);
+                if (SelectedCountry == null && optionsCountries.Any())
+                {
+                    SelectedCountry = optionsCountries.Keys.First ();
+                }
+                if (SelectedCountry != null)
+                {
+                    await GetCountryDestinationsAsync (SelectedCountry);
+                }
+            }
         }
-        await PopulateCountriesDropdownAsync(SelectedContinent);
-        if (SelectedCountry == null) 
+        catch (Exception ex)
         {
-            SelectedCountry = optionsCountries.Keys.First();
+            Error = $"Error initializing component.";
+            _logger.LogError (ex, "Error in OnInitializedAsync");
         }
-        await GetCountryDestinationsAsync(SelectedCountry);
 
     }
 
@@ -144,12 +175,13 @@
         var result = await GetResultFromApiRequestAsync<IEnumerable<ContinentDTO>>("/api/continents");
         if (result.IsSuccessful)
         {
-            optionsContinents = new Dictionary<string, int?>();
+            optionsContinents.Clear();
             result.Value?.ToList().ForEach(el => { optionsContinents.Add(el.Name, el.Id); });
         }
         else 
         {
             Error = result.Error;
+            _logger.LogError($"Failed to populate continents: {Error}");
         }
     }
 
@@ -158,12 +190,13 @@
         var result = await GetResultFromApiRequestAsync<IEnumerable<CountryDTO>>($"/api/countries/{continent}");
         if (result.IsSuccessful)
         {
-            optionsCountries = new Dictionary<string, int?>();
+            optionsCountries.Clear();
             result.Value?.ToList().ForEach(el => {  optionsCountries.Add(el.Name, el.Id); });
         }
         else 
         {
             Error = result.Error;
+            _logger.LogError ($"Failed to populate countries: {Error}");
         }
     }
 
@@ -182,15 +215,16 @@
             else
             {
                 Error = result.Error;
+                _logger.LogError ($"Failed to get destinations for country {countryName}");
             }
         }
     }
 
     private async Task GetAvailableTripsForEachDestinationAsync()
     {
-        @if (countryDestinations?.Count() > 0)
+        if (countryDestinations?.Count() > 0)
         {
-            tripsToDestination = new Dictionary<string, IEnumerable<TripDTO>>();
+            tripsToDestination.Clear();
             foreach (var destination in countryDestinations)
             {
                 using var httpClient = _httpFactory.CreateClient();
@@ -198,12 +232,13 @@
                 var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<TripDTO>>($"api/Trips/{destination.Code}", httpClient);
                 if (result.IsSuccessful)
                 {
-                    tripsToDestination.Add(destination.Code, result.Value);
+                    tripsToDestination.Add(destination.Code, result.Value ?? Enumerable.Empty<TripDTO>());
                 }
                 else
                 {
-                    tripsToDestination.Add(destination.Code, null);
+                    tripsToDestination.Add(destination.Code, Enumerable.Empty<TripDTO>());
                     Error = result.Error;
+                    _logger.LogWarning($"Failed to get trips for destination {destination.PlaceName}: {Error}");
                 }
             }
         }

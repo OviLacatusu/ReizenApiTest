@@ -2,7 +2,7 @@
     <div class="card">
         <div class="card-header" id="headingOne">
             <h5 class="mb-0">
-                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne" @onclick="Toggle">
+                <button class="btn btn-link" @onclick="OnEvent" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
                     @Title
                 </button>
                 @* @ElementHeader *@
@@ -29,9 +29,20 @@
     public RenderFragment ElementBody { get; set; }
     [Parameter]
     public bool ShowBody { get; set; } = false;
+    [Parameter]
+    public EventCallback OnClickCallback { get; set; }
 
     public void Toggle()
     {
         ShowBody = !ShowBody;
+    }
+
+    private async Task OnEvent()
+    {
+        Toggle ();
+        //if (ShowBody)
+        {
+            await OnClickCallback.InvokeAsync ();
+        }
     }
 }

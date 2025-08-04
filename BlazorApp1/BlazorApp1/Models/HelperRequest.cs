@@ -1,4 +1,6 @@
 ﻿using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
 using Reizen.CommonClasses;
 
 namespace BlazorApp1.Models
@@ -29,11 +31,12 @@ namespace BlazorApp1.Models
             }
         }
         // Not tested
-        public static async Task<Result<T?>> SendPostRequestAndParseJsonAsync<T> (string uri, HttpClient httpClient, string httpContent)
+        public static async Task<Result<T?>> SendPostRequestAndParseJsonAsync<T> (string uri, HttpClient httpClient, T objToSerialize)
         {
             try
             {
-                var postContent = new StringContent (httpContent);
+                var httpContent = JsonSerializer.Serialize<T> (objToSerialize);
+                var postContent = new StringContent (httpContent, Encoding.UTF8, "application/json");
                 var result = await httpClient.PostAsync (uri, postContent);
                 if (result.IsSuccessStatusCode)
                 {
