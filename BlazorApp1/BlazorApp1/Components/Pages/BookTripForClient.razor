@@ -56,7 +56,7 @@
                 <span>@($"{Client.FirstName} {Client.FamilyName}")</span>
             </div>
             <div class="col-lg-4">
-                <span>@Client.Address, @Client.Residence.PostalCode @Client.Residence.Name</span>
+                <span>@Client.Address, @Client?.Residence?.PostalCode @Client?.Residence?.Name</span>
             </div>
         </div>
         <h2>Booking</h2>
@@ -73,7 +73,7 @@
             </div>
             <div class="row">
                 <div class="col-lg-3">
-                        <span style="font-weight:bold;">Number of kids</span>
+                    <span style="font-weight:bold;">Number of kids</span>
                 </div>
                 <div class="col-lg-2">
                     <InputNumber class="form-control" @bind-Value:get="(Model.NumberOfMinors)" @bind-Value:set="((value) => Model.NumberOfMinors = value)" id="numberMinors"></InputNumber>
@@ -82,7 +82,7 @@
             </div>
             <div class="row">
                 <div class="col-lg-3">
-                        <span style="font-weight:bold;">Cancellation insurance</span>
+                    <span style="font-weight:bold;">Cancellation insurance</span>
                 </div>
                 <div class="col-lg-4">
                     <InputCheckbox id="annulatieV" @bind-Value="@Model.HasCancellationInsurance"></InputCheckbox>
@@ -98,7 +98,7 @@
                     <button type="submit" class="btn btn-primary" data-toggle="modal">Book trip</button>
                 </div>
 
-                <BootstrapModalComponent @ref="Modal" Message="Are you sure you want to book this trip?" Header="Confirmation" Callback="@(async () => { await AddNewBooking(); Modal.Close(); })"></BootstrapModalComponent>
+                <BootstrapModalComponent @ref="Modal" Message="Are you sure you want to book this trip?" Header="Confirmation" OnClickCallback="@(async () => { await AddNewBooking(); Modal.Close(); })"></BootstrapModalComponent>
             </div>
         </EditForm>
     } 
@@ -135,7 +135,12 @@
     { 
         get 
         {
-            return model??=_storage.Get<BookTripForClientModel>("modelBookTrip") ?? new BookTripForClientModel { NumberOfMinors = 0, NumberOfAdults = 0, HasCancellationInsurance = false };
+            return model ??= _storage.Get<BookTripForClientModel>("modelBookTrip") ?? new BookTripForClientModel 
+            { 
+                NumberOfMinors = 0, 
+                NumberOfAdults = 0, 
+                HasCancellationInsurance = false 
+            };
         } 
         set
         {
@@ -147,17 +152,22 @@
         } 
     }
 
-    private string Error { get; set; }
+    private string Error { get; set; } = String.Empty;
 
     private bool IsSuccessful { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
     {
-        if (TripId > 0) 
+        try
         {
-            var httpClient = _httpFactory.CreateClient();
+            if (TripId < 0 || ClientId < 0)
+            {
+                Error = "Invalid trip or client ID.";
+                return;
+            }
+            using var httpClient = _httpFactory.CreateClient ();
 
-            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<TripDTO>($"/api/trips/{TripId}", httpClient);
+            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<TripDTO> ($"/api/trips/{TripId}", httpClient);
             if (result.IsSuccessful)
             {
                 Trip = result.Value;
@@ -165,27 +175,40 @@
             else
             {
                 Error = result.Error;
+                _logger.LogError ($"Error getting trip: {TripId} {result.Error}");
+            }
+
+            if (Trip != null)
+            {
+                using (var httpClient2 = _httpFactory.CreateClient ())
+                {
+                    var result2 = await HelperRequest.SendGetRequestAndParseJsonAsync<ClientDTO> ($"/api/clients/{ClientId}", httpClient2);
+                    if (result2.IsSuccessful)
+                    {
+                        Client = result2.Value;
+                    }
+                    else
+                    {
+                        Error = result.Error;
+                        _logger.LogError ($"Error getting client: {TripId} {result.Error}");
+                    }
+                }
             }
         }
-        if (ClientId > 0 && Trip != null)
-        {   
-            using (var httpClient = _httpFactory.CreateClient()) 
-            {
-                var result = await HelperRequest.SendGetRequestAndParseJsonAsync<ClientDTO>($"/api/clients/{ClientId}", httpClient);
-                if (result.IsSuccessful)
-                {
-                    Client = result.Value;
-                }
-                else
-                {
-                    Error = result.Error;
-                }
-            }
+        catch (Exception ex)
+        {
+            Error = "Error initializing component";
+            _logger.LogError (ex, "Error in OnInitializedAsync");
         }
     }
 
     private async Task AddNewBooking() 
     {
+        if (Trip == null || Client == null)
+        {
+            Error = "Trip or client data is missing.";
+            return; 
+        }
         var booking = new BookingDTO
             {
                 NumberOfAdults = Model.NumberOfAdults,
@@ -195,25 +218,26 @@
                 TripId = TripId,
                 ClientId = ClientId
             };
-
-        using (var client = _httpFactory.CreateClient()) 
-        { 
-            var httpContent = new StringContent(JsonSerializer.Serialize<BookingDTO>(booking), Encoding.UTF8, "application/json");
-            // POST request
-            var response = await client.PostAsync($"/api/bookings", httpContent);
-
-            if (!response.IsSuccessStatusCode)
+        try
+        {
+            using (var client = _httpFactory.CreateClient ())
             {
-                var content = await response.Content.ReadAsStringAsync();
-                if (!String.IsNullOrEmpty(content))
+                var response = await HelperRequest.SendPostRequestAndParseJsonAsync<BookingDTO>($"/api/bookings", client, booking);
+                if (response.IsSuccessful)
                 {
-                    Error = content;
+                    IsSuccessful = true;
+                }
+                else
+                {
+                    Error = response.Error;
+                    _logger.LogError ($"Failed to create booking for client: {booking.ClientId} {Error}");
                 }
             }
-            else 
-            {
-                IsSuccessful = true;
-            }
+        }
+        catch (Exception ex)
+        {
+            Error = "Error while creating booking";
+            _logger.LogError (ex, $"Error creating booking for tripId: {TripId}, clientId: {ClientId}");
         }
     }
 }

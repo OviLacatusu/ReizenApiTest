@@ -9,63 +9,67 @@
 
 @* @attribute [Authorize] *@
 <div class="container">
-@if (Trips != null)
-{
-    <h3>@Trips.FirstOrDefault()?.Destination.PlaceName</h3>
-    <img src="/Bestemmingen/@(Trips.FirstOrDefault()?.Destination.PlaceName).jpg"/>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th scope="col">Date Of Departure</th>
-                <th scope="col">Price per person</th>
-                <th scope="col">Number of days</th>
-                <th scope="col">Book</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var trip in Trips)
-            {
+    @if (Trips != null)
+    {
+        <h3>@Trips.FirstOrDefault()?.Destination.PlaceName</h3>
+        <img src="/Bestemmingen/@(Trips.FirstOrDefault()?.Destination.PlaceName).jpg"/>
+        <table class="table table-striped">
+            <thead>
                 <tr>
-                    <td>@trip.DateOfDeparture.ToString()</td>
-                    <td>@trip.PricePerPerson</td>
-                    <td>@trip.NumberOfDays</td>
-                    <td><a href="/listoftrips/@trip.Id">Book</a></td>
+                    <th scope="col">Date Of Departure</th>
+                    <th scope="col">Price per person</th>
+                    <th scope="col">Number of days</th>
+                    <th scope="col">Book</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
-@if (!String.IsNullOrEmpty(Error))
-{
-    <div class="alert alert-danger">@Error</div>
-}
+            </thead>
+            <tbody>
+                @foreach (var trip in Trips)
+                {
+                    <tr>
+                        <td>@trip.DateOfDeparture.ToString()</td>
+                        <td>@trip.PricePerPerson</td>
+                        <td>@trip.NumberOfDays</td>
+                        <td><a href="/listoftrips/@trip.Id">Book</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    @if (!String.IsNullOrEmpty(Error))
+    {
+        <div class="alert alert-danger">@Error</div>
+    }
 </div>
 
 @code 
 {
     [Parameter]
-    public string DestinationCode { get; init; }
+    public string DestinationCode { get; init; } = String.Empty;
 
     private IEnumerable<TripDTO>? Trips;
 
-    private string Error { get; set; }
+    private string Error { get; set; } = String.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        if (!String.IsNullOrEmpty(DestinationCode))
+        if (String.IsNullOrEmpty (DestinationCode))
         {
-            using var httpClient = _httpFactory.CreateClient();
-
-            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<TripDTO>> ($"api/trips/{DestinationCode}", httpClient);
-            if (result.IsSuccessful)
-            {
-                Trips = result.Value;
-            }
-            else
-            {
-                Error = result.Error;
-            }
-            
+            Error = $"Invalid destination code.";
+            return;
         }
+        using var httpClient = _httpFactory.CreateClient();
+
+        var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<TripDTO>> ($"api/trips/{DestinationCode}", httpClient);
+        if (result.IsSuccessful)
+        {
+            Trips = result.Value;
+        }
+        else
+        {
+            Error = result.Error;
+            _logger.LogError ($"Error in OnInitializedAsync. {Error}");
+        }
+            
+        
     }
 }

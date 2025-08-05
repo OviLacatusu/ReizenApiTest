@@ -33,15 +33,20 @@
 
     private IEnumerable<CountryDTO>? Countries;
 
-    private string? Error { get; set; }
+    private string? Error { get; set; } = String.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        if (!String.IsNullOrEmpty(ContinentName))
+        if (String.IsNullOrEmpty (ContinentName))
         {
-            using var httpClient = _httpFactory.CreateClient();
+            Error = "Invalid name of continent";
+            return;
+        }
+        try
+        {
+            using var httpClient = _httpFactory.CreateClient ();
 
-            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<CountryDTO>>($"api/Countries/{ContinentName}", httpClient);
+            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<CountryDTO>> ($"api/Countries/{ContinentName}", httpClient);
             if (result.IsSuccessful)
             {
                 Countries = result.Value;
@@ -49,7 +54,13 @@
             else
             {
                 Error = result.Error;
+                _logger.LogError ($"Failed to initialize component. {Error}");
             }
+        }
+        catch (Exception ex)
+        {
+            Error = "Error initializing component";
+            _logger.LogError (ex, "Error in OnInitializedAsync");
         }
     }
 }

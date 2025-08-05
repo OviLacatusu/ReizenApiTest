@@ -11,7 +11,7 @@
 @using Microsoft.AspNetCore.Identity;
 @using Data
 @using Google.Apis.Gmail.v1.Data
-@using BlazorApp1.Components
+@using BlazorApp1.Components.BootstrapComponents
 @using MimeKit
 
 @page "/GoogleAccess"
@@ -34,7 +34,7 @@
     <AuthorizeView>
         @if (IsLoggedInWithGoogle(_httpContextAccessor.HttpContext?.User))
         {
-            <BootstrapCollapsingElement Title="Google Photos API">
+            <BootstrapCollapsingElement Title="Google Photos API" OnClickCallback="@(async () =>{await GetPickerSessionAsync();})">
                 <ElementBody>
                     <div class="buttonPickerDiv">
                         <div class="col-md-2">
@@ -63,16 +63,17 @@
                 </ElementBody>
             </BootstrapCollapsingElement>
 
-            <BootstrapCollapsingElement Title="Google Gmail API">
+            <BootstrapCollapsingElement Title="Google Gmail API" OnClickCallback="@(async ()=> {await GetMailMessagesAsync();})">
                 <ElementBody>
                     @if (IsSuccessfull)
                     {
+                        @* <BootstrapTimedErrorBox Error="Message deleted successfully!" TypeBox="BootstrapTimedErrorBox.Type.SUCCESS"></BootstrapTimedErrorBox> *@
                         <div class="alert alert-success">Message deleted successfully</div>
                     }
                     @if (Messages?.Count() > 0) 
                     {
                         @* TO DO: Find a beter way of passing the message ID to the ModalComponent Callback  *@
-                        <BootstrapModalComponent @ref="Modal" Message="Are you sure you want to delete? This will permanently delete the message!" Header="Delete message" Callback="@( async () => { if( !String.IsNullOrEmpty(SelectedMessageId) ){ await DeleteMessageAsync (SelectedMessageId); Modal.Close(); }})"></BootstrapModalComponent> 
+                        <BootstrapModalComponent @ref="Modal" TypeButton="BootstrapModalComponent.ButtonTypes.DANGER" Message="Are you sure you want to delete? This will permanently delete the message!" Header="Delete message" OnClickCallback="@( async () => { if( !String.IsNullOrEmpty(SelectedMessageId) ){ await DeleteMessageAsync (SelectedMessageId); Modal.Close(); }})"></BootstrapModalComponent> 
 
                         foreach (var item in Messages)  
                         {  
@@ -81,7 +82,7 @@
                                     <p>@item?.Payload?.Headers?.Where(x => x.Name == "From").First()?.Value</p>  
                                 </div>
                                 <div class="col-lg-6">
-                                    <BootstrapModalEmailComponent OnClick="@(async () => {await OnSubjectLinkClickedHandler(item.Id);})" Content="@ContentSelectedEmail" Header="@(@item?.Payload?.Headers?.Where(x => x.Name == "Subject").FirstOrDefault()?.Value)"></BootstrapModalEmailComponent>
+                                    <BootstrapModalEmailComponent OnClickCallback="@(async () => {await OnSubjectLinkClickedHandler(item.Id);})" Content="@ContentSelectedEmail" Header="@(@item?.Payload?.Headers?.Where(x => x.Name == "Subject").FirstOrDefault()?.Value)"></BootstrapModalEmailComponent>
                                 </div>  
                                 <div class="col-md-2">  
                                     <button class="btn btn-link" @onclick="@( async () => { Modal.Open(); SelectedMessageId = item?.Id; })">Delete mail</button>   
@@ -100,7 +101,7 @@
     @if (!String.IsNullOrEmpty(Error))
     {
         // Find a beter way of showing login link
-        <div class="alert alert-danger" >@((MarkupString)Error) </div>
+        <div class="alert alert-danger">@((MarkupString)Error) </div>
     } 
 </div>
 
@@ -152,8 +153,9 @@
 
     private IList<MimeMessage>? MimeMessages { get; set; } = new List<MimeMessage>();
 
-    private string ContentSelectedEmail { get; set; }
+    private string? ContentSelectedEmail { get; set; }
 
+    private bool IsErrorShown = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -165,8 +167,7 @@
             if (IsLoggedInWithGoogle(user))
             {
                 IsLoggedWithGoogle = true;
-                await GetPickerSessionAsync();
-                await GetMailMessagesAsync();
+                // await GetMailMessagesAsync();
             }
             else
             {
@@ -212,39 +213,58 @@
 
     private async Task GetMailMessagesAsync()
     {
-        var httpClient = _factory.CreateClient("GoogleAccess");
-        httpClient.BaseAddress = new Uri(Options.ApiUrl);
+        try
+        {
+            var httpClient = _factory.CreateClient ("GoogleAccess");
+            httpClient.BaseAddress = new Uri (Options.ApiUrl);
 
-        var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IList<Message>>("/api/GoogleAccess/GetMessages", httpClient);
-        if (result.IsSuccessful)
-        {
-            Messages = result?.Value;
+            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IList<Message>> ("/api/GoogleAccess/GetMessages", httpClient);
+            if (result.IsSuccessful)
+            {
+                Messages = result?.Value;
+            }
+            else
+            {
+                Error = result.Error;
+                _logger.LogWarning (result.Error);
+            }
         }
-        else
+        catch (Exception ex) 
         {
-            Error = result.Error;
-            _logger.LogWarning(result.Error);
+            Error = "Failed to retrieve mail messages.";
+            _logger.LogError (ex, "Error in GetMailMessagesAsync");
         }
     }
 
     private async Task<Message?> GetMessageWithIdAsync(string messageId) 
     {
-        Message? message = null;
-
-        var httpClient = _factory.CreateClient("GoogleAccess");
-        httpClient.BaseAddress = new Uri(Options.ApiUrl);
-
-        var result = await HelperRequest.SendGetRequestAndParseJsonAsync<Message>($"/api/GoogleAccess/GetMessage/{messageId}", httpClient);
-        if (result.IsSuccessful)
+        if (String.IsNullOrEmpty (messageId))
         {
-            message = result?.Value;
+            Error = "Invalid message id";
+            return null;
         }
-        else
+        try
         {
-            Error = result.Error;
-            _logger.LogWarning(result.Error);
+            var httpClient = _factory.CreateClient ("GoogleAccess");
+            httpClient.BaseAddress = new Uri (Options.ApiUrl);
+
+            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<Message> ($"/api/GoogleAccess/GetMessage/{messageId}", httpClient);
+            if (result.IsSuccessful)
+            {
+                return result?.Value;
+            }
+            else
+            {
+                Error = result.Error;
+                _logger.LogWarning (result.Error);
+            }
         }
-        return message;
+        catch (Exception ex)
+        {
+            Error = "Failed to retrieve message.";
+            _logger.LogError (ex, $"Error in GetMessageWithIdAsync for message {messageId}");
+        }
+        return null;
     }
 
     private MimeKit.MimeMessage? ParseMimeMessage(Message message)
@@ -259,7 +279,7 @@
         }
         catch (Exception ex) 
         { 
-            Error = "Something went wrong.";
+            Error = "Failed to parse message.";
             _logger.LogWarning(ex, "Failed during parsing of mime message");
         }
         return null;
@@ -268,28 +288,44 @@
     // Requests a Picker session
     private async Task GetPickerSessionAsync()
     {
-        var httpClient = _factory.CreateClient("GoogleAccess");
-        httpClient.BaseAddress = new Uri(Options.ApiUrl);
+        try
+        {
+            var httpClient = _factory.CreateClient ("GoogleAccess");
+            httpClient.BaseAddress = new Uri (Options.ApiUrl);
 
-        var result = await HelperRequest.SendGetRequestAndParseJsonAsync<PickingSession>("/api/GoogleAccess/GetPickerLink", httpClient);
-        if (result.IsSuccessful)
-        {
-            SessionData = result?.Value;
+            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<PickingSession> ("/api/GoogleAccess/GetPickerLink", httpClient);
+            if (result.IsSuccessful)
+            {
+                SessionData = result?.Value;
+            }
+            else
+            {
+                Error = result.Error;
+                _logger.LogWarning (result.Error);
+            }
         }
-        else 
+        catch (Exception ex)
         {
-            Error = result.Error;
-            _logger.LogWarning(result.Error);
+            Error = "Something went wrong.";
+            _logger.LogWarning (ex, "Failed to get a Picker session");
         }
     }
 
     // Opens the Picker session in a new tab and starts a Web API call that polls the session state
     private async Task OpenTabAndPollSessionAsync()
     {
-        if (SessionData is not null)
+        try
         {
-            await JSRuntime.InvokeVoidAsync("open", $"{SessionData.pickerUri}", "_blank");
-            await PollRequestPickerApiAsync(SessionData.id);
+            if (SessionData is not null)
+            {
+                await JSRuntime.InvokeVoidAsync ("open", $"{SessionData.pickerUri}", "_blank");
+                await PollRequestPickerApiAsync (SessionData.id);
+            }
+        }
+        catch (Exception ex) 
+        { 
+            Error = "Something went wrong.";
+            _logger.LogWarning (ex, "Error in OpenTabAndPollSession");
         }
     }
 
@@ -297,31 +333,48 @@
     private async Task PollRequestPickerApiAsync(string sessionId)
     {
         _logger.LogInformation($"Running PollRequest at {DateTime.UtcNow.ToShortTimeString()}");
-
-        using (var httpClient = _factory.CreateClient("GoogleAccess"))
+        try
         {
-            httpClient.BaseAddress = new Uri(Options.ApiUrl);
+            using (var httpClient = _factory.CreateClient ("GoogleAccess"))
+            {
+                httpClient.BaseAddress = new Uri (Options.ApiUrl);
 
-            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<GPhotosDetailsFiles>($"api/GoogleAccess/GetPhotosWithPicker/{sessionId}", httpClient);
-            if (result.IsSuccessful)
-            {
-                MediaItems = result?.Value;
+                var result = await HelperRequest.SendGetRequestAndParseJsonAsync<GPhotosDetailsFiles> ($"api/GoogleAccess/GetPhotosWithPicker/{sessionId}", httpClient);
+                if (result.IsSuccessful)
+                {
+                    MediaItems = result?.Value;
+                }
+                else
+                {
+                    Error = result.Error;
+                    _logger.LogWarning (result.Error);
+                }
             }
-            else
-            {
-                Error = result.Error;
-                _logger.LogWarning(result.Error);
-            }
+            _logger.LogInformation ($"Exiting PollRequest at {DateTime.UtcNow.ToShortTimeString ()}");
+            StateHasChanged ();
         }
-        _logger.LogInformation($"Exiting PollRequest at {DateTime.UtcNow.ToShortTimeString()}");
-        StateHasChanged();
+        catch (Exception ex)
+        {
+            Error = "Something went wrong.";
+            _logger.LogWarning(ex, $"Error in PollRequestPickerSession session: {sessionId}");    
+
+        }
     }
 
     private async Task DownloadFiles(IEnumerable<PickedMediaItem> fileDetails) 
     {
-        foreach (var file in fileDetails) 
+        if (fileDetails?.Any () != true)
         {
-            await DownloadFotoAsync(file?.MediaFile);
+            Error = "No files to download";
+            return;
+        }
+
+        foreach (var file in fileDetails)
+        {
+            if (file?.MediaFile != null)
+            {
+                await DownloadFotoAsync (file.MediaFile);
+            }
         }
     }
 
@@ -329,46 +382,70 @@
     private async Task DownloadFotoAsync(MediaFile fileDetails) 
     {
         _logger.LogInformation($"Running DownloadFotoAsync at {DateTime.UtcNow.ToShortTimeString()}");
-
-        using (var httpClient = _factory.CreateClient("GoogleAccess"))
+        if (fileDetails is null)
         {
-            httpClient.BaseAddress = new Uri(Options.ApiUrl);
-
-            var response = await httpClient.GetAsync($"api/GoogleAccess/downloadfoto/{HttpUtility.UrlEncode(fileDetails.BaseUrl)}/{HttpUtility.UrlEncode(fileDetails.MimeType)}");           //{HttpUtility.UrlEncode(url)}");
-            if (response.IsSuccessStatusCode) 
+            Error = "Invalid file details.";
+            return;
+        }
+        try
+        {
+            using (var httpClient = _factory.CreateClient ("GoogleAccess"))
             {
-                var stream = await response.Content.ReadAsStreamAsync();
-                using var streamRef = new DotNetStreamReference(stream: stream);
+                httpClient.BaseAddress = new Uri (Options.ApiUrl);
 
-                await JSRuntime.InvokeVoidAsync("downloadFileFromStream", $"{fileDetails.Filename}", streamRef);
+                var response = await httpClient.GetAsync ($"api/GoogleAccess/downloadfoto/{HttpUtility.UrlEncode (fileDetails.BaseUrl)}/{HttpUtility.UrlEncode (fileDetails.MimeType)}");           //{HttpUtility.UrlEncode(url)}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var stream = await response.Content.ReadAsStreamAsync ();
+                    using var streamRef = new DotNetStreamReference (stream: stream);
+
+                    await JSRuntime.InvokeVoidAsync ("downloadFileFromStream", $"{fileDetails.Filename}", streamRef);
+                }
+                else
+                {
+                    Error = "Failed to download file.";
+                    _logger.LogWarning ($"Failed to download file: {fileDetails.Filename} : {response.StatusCode}");
+                }
             }
-            else
-            {
-                Error = "Failed to download file.";
-                _logger.LogWarning(Error);
-            }
+        } catch (Exception ex)
+        {
+            Error = "Something went wrong.";
+            _logger.LogWarning (ex, $"Failed to download file {fileDetails.Filename}");
         }
     }
 
     private async Task DeleteMessageAsync(string messageId) 
     {
         _logger.LogInformation($"Running DeleteMail - deleting mail message with ID: {messageId}");
-        using (var httpClient = _factory.CreateClient("GoogleAccess"))
-        {  
-            httpClient.BaseAddress = new Uri(Options.ApiUrl);
+        if (string.IsNullOrEmpty (messageId))
+        {
+            Error = "Invalid message id.";
+            return;
+        }
+        try
+        {
+            using (var httpClient = _factory.CreateClient ("GoogleAccess"))
+            {
+                httpClient.BaseAddress = new Uri (Options.ApiUrl);
 
-            var result = await httpClient.PostAsJsonAsync($"/api/GoogleAccess/deletemessage", messageId);
-            if (result.IsSuccessStatusCode)
-            {
-                IsSuccessfull = true;
-                await GetMailMessagesAsync();
-                StateHasChanged();
+                var result = await httpClient.PostAsJsonAsync ($"/api/GoogleAccess/deletemessage", messageId);
+                if (result.IsSuccessStatusCode)
+                {
+                    IsSuccessfull = true;
+                    await GetMailMessagesAsync ();
+                    StateHasChanged ();
+                }
+                else
+                {
+                    Error = await result.Content.ReadAsStringAsync ();
+                    _logger.LogWarning ($"Failed to delete message {messageId} {Error}");
+                }
             }
-            else 
-            {
-                Error = await result.Content.ReadAsStringAsync();
-                _logger.LogWarning(Error);
-            }
+        }
+        catch (Exception ex)
+        {
+            Error = "Failed to delete message.";
+            _logger.LogWarning (ex, $"Failed to delete message {messageId}");
         }
     }
 }

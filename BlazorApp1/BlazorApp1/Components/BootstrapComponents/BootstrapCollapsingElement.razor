@@ -34,9 +34,20 @@
     public RenderFragment ElementBody { get; set; }
     [Parameter]
     public bool ShowBody { get; set; } = false;
+    [Parameter]
+    public EventCallback OnClickCallback { get; set; }
 
     public void Toggle()
     {
         ShowBody = !ShowBody;
+    }
+
+    private async Task OnEvent()
+    {
+        Toggle ();
+        //if (ShowBody)
+        {
+            await OnClickCallback.InvokeAsync ();
+        }
     }
 }

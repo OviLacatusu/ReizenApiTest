@@ -11,10 +11,10 @@
 
     <img src="/vlaggen/@(NameCountry).png" />
 
-    @if (Destinations?.Count() > 0)
+    @if (destinations?.Count() > 0)
     {
         <ul>
-            @foreach (var destination in Destinations)
+            @foreach (var destination in destinations)
             {
                 <li>
                     <div class="row">
@@ -22,9 +22,9 @@
                             <a href="/@destination.Code/trips">@destination.PlaceName</a>
                         </div>
                         <div class="col col-md-3">
-                            @if (TripsToDestination?[destination.Code]?.Count() > 0) 
+                            @if (tripsToDestination?[destination.Code]?.Count() > 0) 
                             {
-                                <span> - @(TripsToDestination[destination.Code].Count()) available trips</span>
+                                <span> - @(tripsToDestination[destination.Code].Count()) available trips</span>
                             }
                             else 
                             {
@@ -50,47 +50,60 @@
     [Parameter]
     public string? NameCountry { get; set; }
 
-    private string? Error { get; set; }
+    private string? Error { get; set; } = String.Empty;
 
-    private IEnumerable<DestinationDTO>? Destinations;
+    private IEnumerable<DestinationDTO>? destinations;
 
-    private IDictionary<string,IEnumerable<TripDTO>>? TripsToDestination = new Dictionary<string,IEnumerable<TripDTO>>();
+    private Dictionary<string,IEnumerable<TripDTO>>? tripsToDestination = new ();
 
     protected override async Task OnInitializedAsync()
     {
-        if (!String.IsNullOrEmpty(NameCountry))
+        if (String.IsNullOrEmpty (NameCountry))
         {
-            using var httpClient = _httpFactory.CreateClient();
+            Error = "Invalid country name";
+            return;
+        }
+        try
+        {
+            using var httpClient = _httpFactory.CreateClient ();
 
-            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<DestinationDTO>>($"api/Destinations/{NameCountry}", httpClient);
+            var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<DestinationDTO>> ($"api/destinations/{NameCountry}", httpClient);
             if (result.IsSuccessful)
             {
-                Destinations = result.Value;
-                await GetAvailableTripsForEachDestination();
+                destinations = result.Value;
+                await GetAvailableTripsForEachDestinationAsync ();
             }
             else
             {
                 Error = result.Error;
+                _logger.LogError ($"Failed to initialize component. {Error}");
             }
         }
-    }
-    private async Task GetAvailableTripsForEachDestination()
-    {
-        @if (Destinations?.Count() > 0)
+        catch (Exception ex)
         {
-            foreach (var destination in Destinations)
+            Error = $"An error occurred while initializing component.";
+            _logger.LogError ($"Error in OnInitializedAsync. {Error}");
+        }
+    }
+    private async Task GetAvailableTripsForEachDestinationAsync ()
+    {
+        if (destinations?.Count () > 0)
+        {
+            tripsToDestination.Clear ();
+            foreach (var destination in destinations)
             {
-                using var httpClient = _httpFactory.CreateClient();
+                using var httpClient = _httpFactory.CreateClient ();
 
-                var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<TripDTO>>($"api/Trips/{destination.Code}", httpClient);
+                var result = await HelperRequest.SendGetRequestAndParseJsonAsync<IEnumerable<TripDTO>> ($"api/Trips/{destination.Code}", httpClient);
                 if (result.IsSuccessful)
                 {
-                    TripsToDestination.Add(destination.Code, result.Value);
+                    tripsToDestination.Add (destination.Code, result.Value ?? Enumerable.Empty<TripDTO> ());
                 }
                 else
                 {
-                    TripsToDestination.Add(destination.Code, null);
-                    //Error += result.Error;
+                    tripsToDestination.Add (destination.Code, Enumerable.Empty<TripDTO> ());
+                    Error = result.Error;
+                    _logger.LogWarning ($"Failed to get trips for destination {destination.PlaceName}: {Error}");
                 }
             }
         }

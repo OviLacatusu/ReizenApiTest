@@ -1,0 +1,50 @@
+﻿
+<div class="alert alert-@TypeDescription @((IsVisible)?"visible":"invisible")" >@Error</div>
+
+@code {
+    [Parameter]
+    public string Error
+    {
+        get; set;
+    }
+    [Parameter]
+    public EventCallback OnCallback
+    {
+        get; set;
+    }
+    [Parameter]
+    public Type TypeBox 
+    {
+        get;set;
+    }
+
+    public enum Type { SUCCESS , WARNING, DANGER };
+
+    private readonly Dictionary<Type, string> TypeAlert = new Dictionary<Type, string>
+    {
+        { Type.SUCCESS, "success"},
+        { Type.WARNING, "warning"},
+        { Type.DANGER, "danger"}
+    };
+
+    private string TypeDescription => TypeAlert[TypeBox];
+
+    private bool IsVisible = true;
+
+    private System.Timers.Timer Timer { get; set; }
+
+    protected override void OnInitialized ()
+    {
+        Timer = new System.Timers.Timer { Interval = 4000, AutoReset = false };
+        Timer.Elapsed += async (source, args) => { IsVisible = false; await InvokeAsync (StateHasChanged); };
+    }
+
+    public void Show ()
+    {
+        IsVisible = true;
+        StateHasChanged ();
+        Timer.Start ();
+    }
+
+
+}
