@@ -20,6 +20,10 @@ namespace Reizen.Data.Models.CQRS.Commands
             {
                 try
                 {
+                    if (command.Country == null)
+                    {
+                        return Result<CountryDAL>.Failure ("Invalid country data");
+                    }
                     using (var transaction = await command.context.Database.BeginTransactionAsync ())
                     {
                         try

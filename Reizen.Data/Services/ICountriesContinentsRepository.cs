@@ -13,8 +13,8 @@ namespace Reizen.Data.Services
     {
         Task<Result<IList<ContinentDAL>>> GetContinentsAsync ();
         Task<Result<IList<CountryDAL>>> GetCountriesOfContinentAsync (string? ContinentName);
-        Task<Result<IList<CountryDAL>>> GetCountriesAsync();
-        Task<Result<IList<DestinationDAL>>> GetDestinationsOfCountryAsync (string? Countryname);
+        Task<Result<IList<CountryDAL>>> GetCountriesAsync(); //
+        Task<Result<IList<DestinationDAL>>> GetDestinationsOfCountryAsync (string? Countryname); //
         Task<Result<IList<DestinationDAL>>> GetDestinationsAsync ();
         Task<Result<DestinationDAL>> AddDestinationAsync (DestinationDAL Destination);
         Task<Result<CountryDAL>> GetCountryWithIdAsync (int id);

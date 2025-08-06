@@ -21,9 +21,8 @@ namespace Reizen.Data.Models.CQRS.Queries
                 {
                     if (query.id <= 0)
                     {
-                        return Result<CountryDAL>.Failure ("Invalid Country ID");
+                        return Result<CountryDAL>.Failure ("Invalid Id");
                     }
-
                     var result = await query.context.Countries.FindAsync (query.id);
 
                     return result == null

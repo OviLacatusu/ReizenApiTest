@@ -40,14 +40,14 @@ namespace ReizenApi.Controllers
         // GET: api/<CountriesController>/Asia
 
         [HttpGet ("{name}")]
-        public async Task<ActionResult> GetOfContinent ( string name)
+        public async Task<ActionResult> GetCountriesOfContinent ( string name)
         {
             try
             {
                 if (string.IsNullOrEmpty(name))
                 {
                     _logger.LogWarning ("Invalid value provided");
-                    return BadRequest ();
+                    return BadRequest ("Invalid name");
                 }
                 var result = await _service.GetCountriesOfContinentAsync (name);
                 if (!result.IsSuccessful)
@@ -66,14 +66,14 @@ namespace ReizenApi.Controllers
 
         // GET: api/<CountriesController>/5
         [HttpGet ("{id:int}")]
-        public async Task<ActionResult> Get (int id)
+        public async Task<ActionResult> GetCountryWithId (int id)
         {
             try
             {
                 if (id < 0)
                 {
                     _logger.LogWarning ("Invalid value provided");
-                    return BadRequest ();
+                    return BadRequest ("Invalid Id");
                 }
                 var result = await _service.GetCountryWithIdAsync (id);
                 if (!result.IsSuccessful)
@@ -100,7 +100,7 @@ namespace ReizenApi.Controllers
                 if (CountryDto is null)
                 {
                     _logger.LogWarning ("Invalid data provided");
-                    return BadRequest ();
+                    return BadRequest ("Invalid country data");
                 }
                 var Country = _mapper.Map<CountryDAL> (CountryDto);
                 var result = await _service.AddCountryAsync (Country);
@@ -110,12 +110,8 @@ namespace ReizenApi.Controllers
                     _logger.LogError ($"Error while trying to add Country: {result.Error}");
                     return StatusCode (500, $"An error occurred while processing your request");
                 }
-                var dto = _mapper.Map<CountryDTO> (Country);
-                return CreatedAtAction (nameof (Post), new 
-                {
-                    Name = dto.Name,
-                    Continent = dto.Continent,
-                }, dto);
+                var dto = _mapper.Map<CountryDTO> (result.Value);
+                return CreatedAtAction (nameof (Post), dto);
             }
             catch (Exception ex)
             {
@@ -149,7 +145,7 @@ namespace ReizenApi.Controllers
                     _logger.LogError ($"Error while updating Country: {result.Error}");
                     return StatusCode (500, "An error occurred while processing your request");
                 }
-                var dto = _mapper.Map<CountryDTO> (Country);
+                var dto = _mapper.Map<CountryDTO> (result.Value);
                 return Ok (dto);
             }
             catch (Exception ex) 
