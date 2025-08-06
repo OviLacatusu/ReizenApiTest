@@ -39,14 +39,14 @@ namespace ReizenApi.Controllers
         }
         // GET: api/<ClientsController>/van
         [HttpGet ("{name}")]
-        public async Task<ActionResult> GetWithName (string name)
+        public async Task<ActionResult> GetClientsWithNameAsync (string name)
         {
             try
             {
                 if (string.IsNullOrEmpty(name))
                 {
                     _logger.LogWarning ("Invalid name provided");
-                    return BadRequest ();
+                    return BadRequest ("Invalid name");
                 }
                 var result = await _service.GetClientsWithNameAsync (name);
 
@@ -67,14 +67,14 @@ namespace ReizenApi.Controllers
         }
         // GET: api/<ClientsController>/5
         [HttpGet ("{id:int}")]
-        public async Task<ActionResult> GetWithId (int id)
+        public async Task<ActionResult> GetClientWithIdAsync (int id)
         {
             try
             {
                 if (id < 0)
                 {
                     _logger.LogWarning ("Invalid id");
-                    return BadRequest ();
+                    return BadRequest ("Invalid id");
                 }
                 var result = await _service.GetClientWithIdAsync (id);
                 if (!result.IsSuccessful)
@@ -101,7 +101,7 @@ namespace ReizenApi.Controllers
                 if (clientDto is null)
                 {
                     _logger.LogWarning ("Invalid data provided");
-                    return BadRequest ();
+                    return BadRequest ("Invalid client data");
                 }
                 var client = _mapper.Map<ClientDAL> (clientDto);
                 var result = await _service.AddClientAsync (client);
@@ -111,8 +111,8 @@ namespace ReizenApi.Controllers
                     _logger.LogError ($"Error while trying to add Client: {result.Error}");
                     return StatusCode (500, $"An error occurred while processing your request");
                 }
-                var dto = _mapper.Map<ClientDTO> (client);
-                return CreatedAtAction(nameof(Post), new{ clientFirstName = dto.FirstName, clientFamiliname = dto.FamilyName }, dto);
+                var dto = _mapper.Map<ClientDTO> (result.Value);
+                return CreatedAtAction(nameof(Post), dto);
             }
             catch (Exception ex)
             {
@@ -130,7 +130,12 @@ namespace ReizenApi.Controllers
                 if (clientDto is null)
                 {
                     _logger.LogWarning ("Invalid data provided");
-                    return BadRequest ();
+                    return BadRequest ("Invalid data provided");
+                }
+                if (id < 0)
+                {
+                    _logger.LogWarning ("Invalid client id provided");
+                    return BadRequest ("Invalid id");
                 }
                 var client = _mapper.Map<ClientDAL> (clientDto);
                 var existingClient = await _service.GetClientWithIdAsync (id);
@@ -146,7 +151,7 @@ namespace ReizenApi.Controllers
                     _logger.LogError ($"Error while trying to update Client: {result.Error}");
                     return StatusCode (500, $"An error occurred while processing your request:");
                 }
-                var dto = _mapper.Map<ClientDTO> (client);
+                var dto = _mapper.Map<ClientDTO> (result.Value);
                 return Ok (dto);
             }
             catch (Exception ex)

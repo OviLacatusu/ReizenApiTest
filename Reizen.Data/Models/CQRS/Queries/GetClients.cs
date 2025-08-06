@@ -20,7 +20,7 @@ namespace Reizen.Data.Models.CQRS.Queries
                 try
                 {
                     var klanten = await query.context.Clients.Include(c => c.Residence).ToListAsync ();
-                    return Result<IList<ClientDAL>>.Success (klanten);
+                    return (klanten.Count() == 0) ? Result<IList<ClientDAL>>.Failure("No clients found") : Result<IList<ClientDAL>>.Success (klanten);
                 }
                 catch (Exception ex)
                 {

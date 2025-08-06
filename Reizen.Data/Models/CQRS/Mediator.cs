@@ -10,7 +10,7 @@ using Reizen.Data.Models.CQRS.Queries;
 using static Reizen.Data.Models.CQRS.Queries.GetDestinationsOfCountry;
 using static Reizen.Data.Models.CQRS.Queries.GetClients;
 using static Reizen.Data.Models.CQRS.Queries.GetClientWithId;
-using static Reizen.Data.Models.CQRS.Queries.GetClientWithName;
+using static Reizen.Data.Models.CQRS.Queries.GetClientsWithName;
 using static Reizen.Data.Models.CQRS.Queries.GetCountriesOfContinent;
 using static Reizen.Data.Models.CQRS.Queries.GetContinents;
 using Reizen.Data.Models.CQRS.Commands;
@@ -90,7 +90,7 @@ namespace Reizen.Data.Models.CQRS
             mediator.Register<GetDestinationsOfCountryQuery, Result<IList<DestinationDAL>>> (new GetDestinationsOfCountryQueryHandler());
             mediator.Register<GetClientsQuery, Result<IList<ClientDAL>>> (new GetClientsQueryHandler ());
             mediator.Register<GetClientWithIdQuery, Result<ClientDAL>> (new GetClientWithIdQueryHandler());
-            mediator.Register<GetClientWithNameQuery, Result<IList<ClientDAL>>> (new GetClientWithNameQueryHandler ());
+            mediator.Register<GetClientsWithNameQuery, Result<IList<ClientDAL>>> (new GetClientsWithNameQueryHandler ());
             mediator.Register<GetCountriesOfContinentQuery, Result<IList<CountryDAL>>> (new GetCountriesOfContinentQueryHandler());
             mediator.Register<GetContinentsQuery, Result<IList<ContinentDAL>>> (new GetContinentsQueryHandler());
             mediator.Register<AddDestinationToCountryCommand, Result<DestinationDAL>> (new AddDestinationToCountryCommandHandler ());

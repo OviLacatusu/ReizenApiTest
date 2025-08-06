@@ -39,21 +39,21 @@ namespace ReizenApi.Controllers
 
         // GET: api/<ContinentsController>/Europa
         [HttpGet ("{continentName}")]
-        public async Task<ActionResult> GetCountriesAsync (string continentName)
+        public async Task<ActionResult> GetCountriesOfContinentAsync (string continentName)
         {
             try
             {
                 if (string.IsNullOrEmpty (continentName))
                 {
                     _logger.LogWarning ("Invalid continent name provided");
-                    return BadRequest ();
+                    return BadRequest ("Invalid continent name");
                 }
                 var result = await _service.GetCountriesOfContinentAsync (continentName);
 
                 if (!result.IsSuccessful)
                 {
                     _logger.LogInformation ($"No countries found for continent: {continentName}" );
-                    return NotFound ();
+                    return NotFound ("No countries found for continent");
                 }
                 var dtos = _mapper.Map<ICollection<CountryDTO>> (result.Value);
                 return Ok (dtos);

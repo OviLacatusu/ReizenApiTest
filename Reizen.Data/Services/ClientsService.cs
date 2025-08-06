@@ -15,7 +15,7 @@ using static Reizen.Data.Models.CQRS.Commands.DeleteClient;
 using static Reizen.Data.Models.CQRS.Commands.UpdateClient;
 using static Reizen.Data.Models.CQRS.Queries.GetClients;
 using static Reizen.Data.Models.CQRS.Queries.GetClientWithId;
-using static Reizen.Data.Models.CQRS.Queries.GetClientWithName;
+using static Reizen.Data.Models.CQRS.Queries.GetClientsWithName;
 using ClientDAL = Reizen.Data.Models.ClientDAL;
 
 namespace Reizen.Data.Services
@@ -40,7 +40,7 @@ namespace Reizen.Data.Services
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteQuery<GetClientWithNameQuery, Result<IList<ClientDAL>>> (new GetClientWithNameQuery (context, name));
+                return await mediator.ExecuteQuery<GetClientsWithNameQuery, Result<IList<ClientDAL>>> (new GetClientsWithNameQuery (context, name));
             }
         }
 

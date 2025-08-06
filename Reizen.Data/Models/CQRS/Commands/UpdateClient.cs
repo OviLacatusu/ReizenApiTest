@@ -19,6 +19,12 @@ namespace Reizen.Data.Models.CQRS.Commands
             {
                 try
                 {
+                    if (command.klantData is null)
+                        return Result<ClientDAL>.Failure ("Invalid client data");
+                    if (command.klantId < 0)
+                    {
+                        return Result<ClientDAL>.Failure ("Invalid id");
+                    }
                     using (var transaction = await command.context.Database.BeginTransactionAsync ())
                     {
                         try

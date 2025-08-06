@@ -20,7 +20,7 @@ using static Reizen.Data.Models.CQRS.Queries.GetDestinations;
 using static Reizen.Data.Models.CQRS.Queries.GetDestinationsOfCountry;
 using static Reizen.Data.Models.CQRS.Queries.GetClients;
 using static Reizen.Data.Models.CQRS.Queries.GetClientWithId;
-using static Reizen.Data.Models.CQRS.Queries.GetClientWithName;
+using static Reizen.Data.Models.CQRS.Queries.GetClientsWithName;
 using static Reizen.Data.Models.CQRS.Queries.GetCountries;
 using static Reizen.Data.Models.CQRS.Queries.GetCountriesOfContinent;
 using static Reizen.Data.Models.CQRS.Queries.GetCountryWithId;
