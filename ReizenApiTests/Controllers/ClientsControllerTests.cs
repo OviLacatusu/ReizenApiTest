@@ -197,5 +197,69 @@ namespace ReizenApiTests.Controllers
             Assert.IsInstanceOfType (result, typeof (ObjectResult));
             Assert.AreEqual (500, (result as ObjectResult)?.StatusCode);
         }
+        [TestMethod ()]
+        public async Task Put_WithValidData_ReturnsOkResult ()
+        {
+            int id = 2;
+            var clientDTO = new ClientDTO { FamilyName = "New2FamName", FirstName = "New2FirstName", Residence = null, Id = 2 };
+            var clientDAL = new ClientDAL { FamilyName = "New2FamName", FirstName = "New2FirstName", Residence = null, Id = 2 };
+            var updatedClientDAL = new ClientDAL { FamilyName = "New2FamName", FirstName = "New2FirstName", Residence = null, Id = 2 };
+            var updatedClientDTO = new ClientDTO { FamilyName = "New2FamName", FirstName = "New2FirstName", Residence = null, Id = 2 };
+            _mockMapper.Setup (m => m.Map<ClientDAL> (clientDTO)).Returns (clientDAL);
+            _mockClientsRepository.Setup (repo => repo.GetClientWithIdAsync (id)).ReturnsAsync (Result<ClientDAL>.Success(clientDAL));
+            _mockClientsRepository.Setup (repo => repo.UpdateClientAsync (id, clientDAL)).ReturnsAsync(Result<ClientDAL>.Success(updatedClientDAL));
+            _mockMapper.Setup (m => m.Map<ClientDTO> (updatedClientDAL)).Returns (updatedClientDTO);
+
+            var result = await _clientsController.Put (clientDTO, id, CancellationToken.None);
+
+            Assert.IsInstanceOfType (result, typeof (OkObjectResult));
+            Assert.AreEqual (updatedClientDTO, (result as OkObjectResult)?.Value);
+        }
+        [TestMethod]
+        public async Task Put_WithNullClientDto_ReturnsBadRequest ()
+        {
+            // Arrange
+            ClientDTO clientDto = null;
+            var id = 1;
+            var cancellationToken = CancellationToken.None;
+
+            // Act
+            var result = await _clientsController.Put (clientDto, id, cancellationToken);
+
+            // Assert
+            Assert.IsInstanceOfType (result, typeof (BadRequestObjectResult));
+        }
+        [TestMethod]
+        public async Task Delete_WithValidId_ReturnsOkResult ()
+        {
+            // Arrange
+            var id = 1;
+            var client = new ClientDAL { Id = 1, FirstName = "John", FamilyName = "Doe" };
+            var clientDTO = new ClientDTO { Id = 1, FirstName = "John", FamilyName = "Doe" };
+            _mockClientsRepository.Setup (repo => repo.GetClientWithIdAsync (id))
+                .ReturnsAsync (Result<ClientDAL>.Success (client));
+            _mockClientsRepository.Setup (repo => repo.DeleteClientAsync (id))
+                .ReturnsAsync (Result<ClientDAL>.Success (client));
+            _mockMapper.Setup (m => m.Map<ClientDTO> (client)).Returns (clientDTO);
+            // Act
+            var result = await _clientsController.Delete (id);
+
+            // Assert
+            Assert.IsInstanceOfType (result, typeof (OkObjectResult));
+            Assert.AreEqual (clientDTO, (result as OkObjectResult)?.Value);
+        }
+
+        [TestMethod]
+        public async Task Delete_WithNegativeId_ReturnsBadRequest ()
+        {
+            // Arrange
+            var id = -1;
+
+            // Act
+            var result = await _clientsController.Delete (id);
+
+            // Assert
+            Assert.IsInstanceOfType (result, typeof (BadRequestResult));
+        }
     }
 }

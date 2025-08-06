@@ -130,7 +130,12 @@ namespace ReizenApi.Controllers
                 if (clientDto is null)
                 {
                     _logger.LogWarning ("Invalid data provided");
-                    return BadRequest ();
+                    return BadRequest ("Invalid data provided");
+                }
+                if (id < 0)
+                {
+                    _logger.LogWarning ("Invalid client id provided");
+                    return BadRequest ("Invalid id");
                 }
                 var client = _mapper.Map<ClientDAL> (clientDto);
                 var existingClient = await _service.GetClientWithIdAsync (id);
@@ -146,7 +151,7 @@ namespace ReizenApi.Controllers
                     _logger.LogError ($"Error while trying to update Client: {result.Error}");
                     return StatusCode (500, $"An error occurred while processing your request:");
                 }
-                var dto = _mapper.Map<ClientDTO> (client);
+                var dto = _mapper.Map<ClientDTO> (result.Value);
                 return Ok (dto);
             }
             catch (Exception ex)
