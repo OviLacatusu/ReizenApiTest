@@ -23,7 +23,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                         try
                         {
                             if (command.klant is null)
-                                return Result<ClientDAL>.Failure ("Client cannot be null");
+                                return Result<ClientDAL>.Failure ("Invalid client data");
 
                             var result = await command.context.Clients.AddAsync (command.klant);
                             await command.context.SaveChangesAsync ();

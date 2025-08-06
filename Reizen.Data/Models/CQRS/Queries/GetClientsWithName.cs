@@ -9,19 +9,19 @@ using Reizen.CommonClasses;
 
 namespace Reizen.Data.Models.CQRS.Queries
 {
-    public sealed class GetClientWithName
+    public sealed class GetClientsWithName
     {
-        public record GetClientWithNameQuery(ReizenContext context, string name) : IQuery<Result<IList<ClientDAL>>>;
+        public record GetClientsWithNameQuery(ReizenContext context, string name) : IQuery<Result<IList<ClientDAL>>>;
 
-        public class GetClientWithNameQueryHandler : IQueryHandler<GetClientWithNameQuery, Result<IList<ClientDAL>>>
+        public class GetClientsWithNameQueryHandler : IQueryHandler<GetClientsWithNameQuery, Result<IList<ClientDAL>>>
         {
-            public async Task<Result<IList<ClientDAL>>> Handle (GetClientWithNameQuery query)
+            public async Task<Result<IList<ClientDAL>>> Handle (GetClientsWithNameQuery query)
             {
                 try
                 {
                     if (string.IsNullOrEmpty (query.name))
                     {
-                        return Result<IList<ClientDAL>>.Failure ("Name cannot be empty");
+                        return Result<IList<ClientDAL>>.Failure ("Invalid name");
                     }
 
                     var result = (await query.context.Clients.Include(c => c.Residence).ToListAsync ())
