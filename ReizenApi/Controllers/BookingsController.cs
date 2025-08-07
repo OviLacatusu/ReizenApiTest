@@ -75,10 +75,10 @@ namespace ReizenApi.Controllers
                     _logger.LogWarning ("Provided booking is null");
                     return BadRequest ();
                 }
-                if (bookingDto.NumberOfAdults <= 0 && bookingDto.NumberOfMinors <= 0)
+                if (bookingDto.NumberOfAdults <= 0 || bookingDto.NumberOfMinors < 0)
                 {
                     _logger.LogWarning ("Provided booking is null");
-                    return BadRequest ("Please enter the number of persons");
+                    return BadRequest ("Number of adults or minors invalid");
                 }
                 var booking = _mapper.Map<BookingDAL> (bookingDto);
                 var result = await _service.AddBookingAsync (booking);
@@ -94,7 +94,7 @@ namespace ReizenApi.Controllers
             catch (Exception ex) 
             {
                 _logger.LogError ($"Error adding booking: {ex.Message}");
-                return StatusCode (500, $"An error occurred while processing your request: {ex.Message}");
+                return StatusCode (500, $"An error occurred while processing your request");
             }
         }
 
@@ -129,7 +129,7 @@ namespace ReizenApi.Controllers
             catch (Exception ex)
             {
                 _logger.LogError ($"Error adding booking: {ex.Message}");
-                return StatusCode (500, $"An error occurred while processing your request: {ex.Message}");
+                return StatusCode (500, $"An error occurred while processing your request");
             }
         }
 
