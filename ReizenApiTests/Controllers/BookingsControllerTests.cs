@@ -312,7 +312,6 @@ namespace ReizenApiTests.Controllers
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ObjectResult));
-            //Assert.AreEqual(500, objectResult?.StatusCode);
             Assert.AreEqual (objectResult?.Value, (result as ObjectResult)?.Value);
         }
 

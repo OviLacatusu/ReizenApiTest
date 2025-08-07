@@ -94,7 +94,7 @@ namespace ReizenApi.Controllers
                     return StatusCode (500, "An error occurred while processing your request");
                 }
                 var dto = _mapper.Map<TripDTO> (result.Value);
-                return Ok (dto);
+                return CreatedAtAction (nameof(Post), dto);
             }
             catch (Exception ex)
             {

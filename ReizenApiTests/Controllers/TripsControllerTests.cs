@@ -46,14 +46,13 @@ namespace ReizenApiTests.Controllers
                 .ReturnsAsync(Result<IList<TripDAL>>.Success(trips));
             _mockMapper.Setup(x => x.Map<ICollection<TripDTO>>(trips))
                 .Returns(tripDtos);
-
+            var okResult = new OkObjectResult(tripDtos);
             // Act
             var result = await _controller.Get(destinationCode);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(OkObjectResult));
-            var okResult = result as OkObjectResult;
-            Assert.AreEqual(tripDtos, okResult.Value);
+            Assert.AreEqual(okResult.Value, (result as OkObjectResult)?.Value);
         }
 
         [TestMethod]
@@ -61,7 +60,6 @@ namespace ReizenApiTests.Controllers
         {
             // Arrange
             string destinationCode = "";
-
             // Act
             var result = await _controller.Get(destinationCode);
 
@@ -74,7 +72,6 @@ namespace ReizenApiTests.Controllers
         {
             // Arrange
             string destinationCode = null;
-
             // Act
             var result = await _controller.Get(destinationCode);
 
@@ -91,14 +88,13 @@ namespace ReizenApiTests.Controllers
 
             _mockTripsRepository.Setup(x => x.GetTripsToDestinationAsync(destinationCode))
                 .ReturnsAsync(Result<IList<TripDAL>>.Failure(errorMessage));
-
+            var notFoundResult = new NotFoundObjectResult(errorMessage);
             // Act
             var result = await _controller.Get(destinationCode);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
-            var notFoundResult = result as NotFoundObjectResult;
-            Assert.AreEqual(errorMessage, notFoundResult.Value);
+            Assert.AreEqual(errorMessage, (result as NotFoundObjectResult)?.Value);
         }
 
         [TestMethod]
@@ -110,15 +106,14 @@ namespace ReizenApiTests.Controllers
 
             _mockTripsRepository.Setup(x => x.GetTripsToDestinationAsync(destinationCode))
                 .ThrowsAsync(new Exception(exceptionMessage));
-
+            var objectResult = new ObjectResult(exceptionMessage);
             // Act
             var result = await _controller.Get(destinationCode);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ObjectResult));
-            var objectResult = result as ObjectResult;
-            Assert.AreEqual(500, objectResult.StatusCode);
-            Assert.IsTrue(objectResult.Value.ToString().Contains(exceptionMessage));
+            Assert.AreEqual(500, (result as ObjectResult)?.StatusCode);
+            Assert.IsTrue((result as ObjectResult)?.Value?.ToString()?.Contains(exceptionMessage));
         }
 
         [TestMethod]
@@ -133,14 +128,13 @@ namespace ReizenApiTests.Controllers
                 .ReturnsAsync(Result<TripDAL>.Success(trip));
             _mockMapper.Setup(x => x.Map<TripDTO>(trip))
                 .Returns(tripDto);
-
+            var okResult = new OkObjectResult(tripDto);
             // Act
             var result = await _controller.Get(id);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(OkObjectResult));
-            var okResult = result as OkObjectResult;
-            Assert.AreEqual(tripDto, okResult.Value);
+            Assert.AreEqual(okResult.Value, (result as OkObjectResult)?.Value);
         }
 
         [TestMethod]
@@ -148,7 +142,6 @@ namespace ReizenApiTests.Controllers
         {
             // Arrange
             var id = -1;
-
             // Act
             var result = await _controller.Get(id);
 
@@ -165,14 +158,13 @@ namespace ReizenApiTests.Controllers
 
             _mockTripsRepository.Setup(x => x.GetTripWithIdAsync(id))
                 .ReturnsAsync(Result<TripDAL>.Failure(errorMessage));
-
+            var notFoundResult = new NotFoundObjectResult(errorMessage);
             // Act
             var result = await _controller.Get(id);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
-            var notFoundResult = result as NotFoundObjectResult;
-            Assert.AreEqual(errorMessage, notFoundResult.Value);
+            Assert.AreEqual(notFoundResult.Value, (result as NotFoundObjectResult)?.Value);
         }
 
         [TestMethod]
@@ -193,14 +185,13 @@ namespace ReizenApiTests.Controllers
             _mockTripsRepository.Setup(x => x.AddTripToDestinationAsync(tripDAL, destinationDAL))
                 .ReturnsAsync(Result<TripDAL>.Success(createdTrip));
             _mockMapper.Setup(x => x.Map<TripDTO>(createdTrip)).Returns(createdTripDto);
-
+            var createdResult = new CreatedAtActionResult("Post", nameof(TripsController), null, createdTripDto);
             // Act
             var result = await _controller.Post(tripDestinationDto);
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(OkObjectResult));
-            var okResult = result as OkObjectResult;
-            Assert.AreEqual(createdTripDto, okResult.Value);
+            Assert.IsInstanceOfType(result, typeof(CreatedAtActionResult));
+            Assert.AreEqual(createdResult.Value, (result as CreatedAtActionResult)?.Value);
         }
 
         [TestMethod]
@@ -210,7 +201,6 @@ namespace ReizenApiTests.Controllers
             TripDTO tripDto = null;
             var destinationDto = new DestinationDTO {  Code = "Test Destination" };
             var tripDestinationDto = (tripDto, destinationDto);
-
             // Act
             var result = await _controller.Post(tripDestinationDto);
 
@@ -225,7 +215,6 @@ namespace ReizenApiTests.Controllers
             var tripDto = new TripDTO { Id = 1, DestinationCode = "Test Trip" };
             DestinationDTO destinationDto = null;
             var tripDestinationDto = (tripDto, destinationDto);
-
             // Act
             var result = await _controller.Post(tripDestinationDto);
 
@@ -249,14 +238,13 @@ namespace ReizenApiTests.Controllers
             _mockMapper.Setup(x => x.Map<DestinationDAL>(destinationDto)).Returns(destinationDAL);
             _mockTripsRepository.Setup(x => x.AddTripToDestinationAsync(tripDAL, destinationDAL))
                 .ReturnsAsync(Result<TripDAL>.Failure(errorMessage));
-
+            var objectResult = new ObjectResult("");
             // Act
             var result = await _controller.Post(tripDestinationDto);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ObjectResult));
-            var objectResult = result as ObjectResult;
-            Assert.AreEqual(500, objectResult.StatusCode);
+            Assert.AreEqual(500, (result as ObjectResult)?.StatusCode);
         }
 
         [TestMethod]
@@ -270,7 +258,6 @@ namespace ReizenApiTests.Controllers
                 .ReturnsAsync(Result<TripDAL>.Success(trip));
             _mockTripsRepository.Setup(x => x.DeleteTripWithIdAsync(id))
                 .ReturnsAsync(Result<TripDAL>.Success(trip));
-
             // Act
             var result = await _controller.Delete(id);
 
@@ -283,7 +270,6 @@ namespace ReizenApiTests.Controllers
         {
             // Arrange
             var id = -1;
-
             // Act
             var result = await _controller.Delete(id);
 
@@ -300,13 +286,12 @@ namespace ReizenApiTests.Controllers
 
             _mockTripsRepository.Setup(x => x.GetTripWithIdAsync(id))
                 .ReturnsAsync(Result<TripDAL>.Failure(errorMessage));
-
+            var notFoundResult = new NotFoundObjectResult(errorMessage);
             // Act
             var result = await _controller.Delete(id);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
-            var notFoundResult = result as NotFoundObjectResult;
             Assert.AreEqual(errorMessage, notFoundResult.Value);
         }
 
@@ -322,14 +307,12 @@ namespace ReizenApiTests.Controllers
                 .ReturnsAsync(Result<TripDAL>.Success(trip));
             _mockTripsRepository.Setup(x => x.DeleteTripWithIdAsync(id))
                 .ReturnsAsync(Result<TripDAL>.Failure(errorMessage));
-
             // Act
             var result = await _controller.Delete(id);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ObjectResult));
-            var objectResult = result as ObjectResult;
-            Assert.AreEqual(500, objectResult.StatusCode);
+            Assert.AreEqual(500, (result as ObjectResult)?.StatusCode);
         }
     }
 } 

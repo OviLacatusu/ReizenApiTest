@@ -47,14 +47,13 @@ namespace ReizenApiTests.Controllers
                 .ReturnsAsync(Result<IList<DestinationDAL>>.Success(destinations));
             _mockMapper.Setup(x => x.Map<ICollection<DestinationDTO>>(destinations))
                 .Returns(destinationDtos);
-
+            var okResult = new OkObjectResult(destinationDtos);
             // Act
             var result = await _controller.GetAll();
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(OkObjectResult));
-            var okResult = result as OkObjectResult;
-            Assert.AreEqual(destinationDtos, okResult.Value);
+            Assert.AreEqual((result as OkObjectResult)?.Value, okResult.Value);
         }
 
         [TestMethod]
@@ -65,14 +64,13 @@ namespace ReizenApiTests.Controllers
 
             _mockRepository.Setup(x => x.GetDestinationsAsync())
                 .ReturnsAsync(Result<IList<DestinationDAL>>.Failure(errorMessage));
-
+            var notFoundResult = new NotFoundObjectResult(errorMessage);          
             // Act
             var result = await _controller.GetAll();
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
-            var notFoundResult = result as NotFoundObjectResult;
-            Assert.AreEqual(errorMessage, notFoundResult.Value);
+            Assert.AreEqual((result as NotFoundObjectResult)?.Value, notFoundResult.Value);
         }
 
         [TestMethod]
@@ -83,15 +81,14 @@ namespace ReizenApiTests.Controllers
 
             _mockRepository.Setup(x => x.GetDestinationsAsync())
                 .ThrowsAsync(new Exception(exceptionMessage));
-
+            var objectResult = new ObjectResult(exceptionMessage);
             // Act
             var result = await _controller.GetAll();
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ObjectResult));
-            var objectResult = result as ObjectResult;
-            Assert.AreEqual(500, objectResult.StatusCode);
-            Assert.IsTrue(objectResult.Value.ToString().Contains(exceptionMessage));
+            Assert.AreEqual(500, (result as ObjectResult)?.StatusCode);
+            Assert.IsTrue((result as ObjectResult).Value.ToString().Contains(exceptionMessage));
         }
 
         [TestMethod]
@@ -114,14 +111,13 @@ namespace ReizenApiTests.Controllers
                 .ReturnsAsync(Result<IList<DestinationDAL>>.Success(destinations));
             _mockMapper.Setup(x => x.Map<ICollection<DestinationDTO>>(destinations))
                 .Returns(destinationDtos);
-
+            var okResult = new OkObjectResult(destinationDtos);
             // Act
             var result = await _controller.GetByCountry(countryName);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(OkObjectResult));
-            var okResult = result as OkObjectResult;
-            Assert.AreEqual(destinationDtos, okResult.Value);
+            Assert.AreEqual((result as OkObjectResult).Value, okResult.Value);
         }
 
         [TestMethod]
@@ -129,7 +125,6 @@ namespace ReizenApiTests.Controllers
         {
             // Arrange
             string countryName = "";
-
             // Act
             var result = await _controller.GetByCountry(countryName);
 
@@ -142,7 +137,6 @@ namespace ReizenApiTests.Controllers
         {
             // Arrange
             string countryName = null;
-
             // Act
             var result = await _controller.GetByCountry(countryName);
 
@@ -158,7 +152,6 @@ namespace ReizenApiTests.Controllers
 
             _mockRepository.Setup(x => x.GetDestinationsOfCountryAsync(countryName))
                 .ReturnsAsync(Result<IList<DestinationDAL>>.Failure("No destinations found"));
-
             // Act
             var result = await _controller.GetByCountry(countryName);
 
@@ -175,14 +168,14 @@ namespace ReizenApiTests.Controllers
 
             _mockRepository.Setup(x => x.GetDestinationsOfCountryAsync(countryName))
                 .ThrowsAsync(new Exception(exceptionMessage));
-
+            var objectResult = new ObjectResult(exceptionMessage);
+            objectResult.StatusCode = 500;
             // Act
             var result = await _controller.GetByCountry(countryName);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ObjectResult));
-            var objectResult = result as ObjectResult;
-            Assert.AreEqual(500, objectResult.StatusCode);
+            Assert.AreEqual(500, (result as ObjectResult).StatusCode);
         }
 
         [TestMethod]
@@ -216,30 +209,29 @@ namespace ReizenApiTests.Controllers
             _mockRepository.Setup(x => x.AddDestinationAsync(destinationDAL))
                 .ReturnsAsync(Result<DestinationDAL>.Success(createdDestination));
             _mockMapper.Setup(x => x.Map<DestinationDTO>(createdDestination)).Returns(createdDestinationDto);
-
+            var createdAtResult = new CreatedAtActionResult("Post", "DestinationsController", null, createdDestinationDto);
             // Act
             var result = await _controller.Post(destinationDto);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(CreatedAtActionResult));
-            var createdAtResult = result as CreatedAtActionResult;
-            Assert.AreEqual(createdDestinationDto, createdAtResult.Value);
-            Assert.AreEqual("GetByCountry", createdAtResult.ActionName);
+            Assert.AreEqual((result as CreatedAtActionResult).Value, createdAtResult.Value);
+            Assert.AreEqual((result as CreatedAtActionResult).ActionName, createdAtResult.ActionName);
         }
 
         [TestMethod]
         public async Task Post_WithNullDestinationDto_ReturnsBadRequest()
         {
+            var errorMessage = "Invalid data";
             // Arrange
             DestinationDTO destinationDto = null;
-
+            var badRequestResult = new BadRequestObjectResult(errorMessage);
             // Act
             var result = await _controller.Post(destinationDto);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
-            var badRequestResult = result as BadRequestObjectResult;
-            Assert.AreEqual("Invalid data", badRequestResult.Value);
+            Assert.AreEqual((result as BadRequestObjectResult).Value, badRequestResult.Value);
         }
 
         [TestMethod]
@@ -261,14 +253,12 @@ namespace ReizenApiTests.Controllers
             _mockMapper.Setup(x => x.Map<DestinationDAL>(destinationDto)).Returns(destinationDAL);
             _mockRepository.Setup(x => x.AddDestinationAsync(destinationDAL))
                 .ReturnsAsync(Result<DestinationDAL>.Failure("Failed to add destination"));
-
             // Act
             var result = await _controller.Post(destinationDto);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ObjectResult));
-            var objectResult = result as ObjectResult;
-            Assert.AreEqual(500, objectResult.StatusCode);
+            Assert.AreEqual(500, (result as ObjectResult).StatusCode);
         }
 
         [TestMethod]
@@ -284,14 +274,12 @@ namespace ReizenApiTests.Controllers
 
             _mockMapper.Setup(x => x.Map<DestinationDAL>(destinationDto))
                 .Throws(new Exception(exceptionMessage));
-
             // Act
             var result = await _controller.Post(destinationDto);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ObjectResult));
-            var objectResult = result as ObjectResult;
-            Assert.AreEqual(500, objectResult.StatusCode);
+            Assert.AreEqual(500, (result as ObjectResult).StatusCode);
         }
     }
 } 

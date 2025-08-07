@@ -83,7 +83,7 @@ namespace ReizenApi.Controllers
                     return StatusCode (500, $"An error occurred while processing your request");
                 }
                 var createdDto = _mapper.Map<DestinationDTO> (result.Value);
-                return CreatedAtAction (nameof (GetByCountry), new { CountryName = createdDto.Country.Name  }, createdDto);
+                return CreatedAtAction (nameof (Post), new { CountryName = createdDto.Country.Name  }, createdDto);
             }
             catch (Exception ex) 
             {
