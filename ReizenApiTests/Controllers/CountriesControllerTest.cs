@@ -113,6 +113,7 @@ namespace ReizenApiTests.Controllers
 
             Assert.IsInstanceOfType (result, typeof (NotFoundObjectResult));
         }
+
         [TestMethod ()]
         public async Task GetCountryWithId_WithCountriesAndValidId_ReturnsOkResult ()
         {

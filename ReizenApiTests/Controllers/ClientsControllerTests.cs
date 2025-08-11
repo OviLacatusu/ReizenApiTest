@@ -38,10 +38,12 @@ namespace ReizenApiTests.Controllers
         {
             var clientsDAL = new List<ClientDAL>() {
                 new ClientDAL { FamilyName = "Test1FamName", FirstName = "Test1FirstName", Residence = null, Id = 1 }, 
-                new ClientDAL { FamilyName = "Test2FamName", FirstName = "Test2FirstName", Residence = null, Id = 2 }};
+                new ClientDAL { FamilyName = "Test2FamName", FirstName = "Test2FirstName", Residence = null, Id = 2 }
+            };
             var clientsDTO = new List<ClientDTO>() {
                 new ClientDTO { FamilyName = "Test1FamName", FirstName = "Test1FirstName", Residence = null, Id = 1 },
-                new ClientDTO { FamilyName = "Test2FamName", FirstName = "Test2FirstName", Residence = null, Id = 2 }};
+                new ClientDTO { FamilyName = "Test2FamName", FirstName = "Test2FirstName", Residence = null, Id = 2 }
+            };
             
             _mockClientsRepository.Setup (repo => repo.GetClientsAsync ()).ReturnsAsync (Result<IList<ClientDAL>>.Success (clientsDAL));
             _mockMapper.Setup (m => m.Map<ICollection<ClientDTO>> (clientsDAL)).Returns(clientsDTO);
@@ -68,10 +70,8 @@ namespace ReizenApiTests.Controllers
         public async Task GetClientWithIdAsync_WithValidId_ReturnsOkResult ()
         {
             var idArg = 2;
-            var clientDAL = 
-                new ClientDAL { FamilyName = "Test2FamName", FirstName = "Test2FirstName", Residence = null, Id = 2 };
-            var clientDTO = 
-                new ClientDTO { FamilyName = "Test2FamName", FirstName = "Test2FirstName", Residence = null, Id = 2 };
+            var clientDAL = new ClientDAL { FamilyName = "Test2FamName", FirstName = "Test2FirstName", Residence = null, Id = 2 };
+            var clientDTO = new ClientDTO { FamilyName = "Test2FamName", FirstName = "Test2FirstName", Residence = null, Id = 2 };
 
             _mockClientsRepository.Setup (repo => repo.GetClientWithIdAsync (idArg)).ReturnsAsync (Result<ClientDAL>.Success (clientDAL));
             _mockMapper.Setup (m => m.Map<ClientDTO> (clientDAL)).Returns (clientDTO);
@@ -115,10 +115,12 @@ namespace ReizenApiTests.Controllers
             var nameArg = "2FamName";
             var clientsDAL = new List<ClientDAL> () {
                 new ClientDAL { FamilyName = "Test2FamName", FirstName = "Test1FirstName", Residence = null, Id = 1 },
-                new ClientDAL { FamilyName = "Test2FamName", FirstName = "Test2FirstName", Residence = null, Id = 2 }};
+                new ClientDAL { FamilyName = "Test2FamName", FirstName = "Test2FirstName", Residence = null, Id = 2 }
+            };
             var clientsDTO = new List<ClientDTO> () {
                 new ClientDTO { FamilyName = "Test2FamName", FirstName = "Test1FirstName", Residence = null, Id = 1 },
-                new ClientDTO { FamilyName = "Test2FamName", FirstName = "Test2FirstName", Residence = null, Id = 2 }};
+                new ClientDTO { FamilyName = "Test2FamName", FirstName = "Test2FirstName", Residence = null, Id = 2 }
+            };
 
             _mockClientsRepository.Setup (repo => repo.GetClientsWithNameAsync (nameArg)).ReturnsAsync (Result<IList<ClientDAL>>.Success (clientsDAL));
             _mockMapper.Setup (m => m.Map<ICollection<ClientDTO>> (clientsDAL)).Returns (clientsDTO);
