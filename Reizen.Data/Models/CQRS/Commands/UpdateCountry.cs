@@ -12,7 +12,7 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class UpdateCountry
     {
-        public record UpdateCountryCommand (int id, CountryDAL CountryData, ReizenContext context ) : ICommand<Result<CountryDAL>>;
+        public record UpdateCountryCommand (int id, CountryDAL countryData, ReizenContext context ) : ICommand<Result<CountryDAL>>;
 
         public class UpdateClassCommandHandler : ICommandHandler<UpdateCountryCommand, Result<CountryDAL>>
         {
@@ -20,6 +20,14 @@ namespace Reizen.Data.Models.CQRS.Commands
             {
                 try
                 {
+                    if (command.id < 0)
+                    {
+                        return Result<CountryDAL>.Failure ("Invalid id");
+                    }
+                    if (command.countryData is null)
+                    {
+                        return Result<CountryDAL>.Failure ("Iinvalid country data");
+                    }
                     using (var transaction = await command.context.Database.BeginTransactionAsync ())
                     {
                         try
@@ -29,8 +37,8 @@ namespace Reizen.Data.Models.CQRS.Commands
                             {
                                 return Result<CountryDAL>.Failure ($"Cannot find Country with ID");
                             }
-                            Country.Continent = command.CountryData.Continent;
-                            Country.Name = command.CountryData.Name;
+                            Country.Continent = command.countryData.Continent;
+                            Country.Name = command.countryData.Name;
                             Country.Destinations = Country.Destinations;
 
                             await command.context.SaveChangesAsync ();

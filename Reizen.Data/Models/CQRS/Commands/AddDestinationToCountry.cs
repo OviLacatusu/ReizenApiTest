@@ -10,7 +10,7 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class AddDestinationToCountry
     {
-        public record AddDestinationToCountryCommand (DestinationDAL Destination, CountryDAL Country, ReizenContext context) : ICommand<Result<DestinationDAL>>;
+        public record AddDestinationToCountryCommand (DestinationDAL destination, CountryDAL country, ReizenContext context) : ICommand<Result<DestinationDAL>>;
 
         public class AddDestinationToCountryCommandHandler : ICommandHandler<AddDestinationToCountryCommand, Result<DestinationDAL>>
         {
@@ -18,26 +18,34 @@ namespace Reizen.Data.Models.CQRS.Commands
             {
                 try
                 {
+                    if (command.country is null)
+                    {
+                        return Result<DestinationDAL>.Failure ($"Invalid country data");
+                    }
+                    if (command.destination is null)
+                    {
+                        return Result<DestinationDAL>.Failure ($"Invalid destination data");
+                    }
                     using var transaction = await command.context.Database.BeginTransactionAsync ();
                     {
                         try
                         {
-                            var Country = await command.context.Countries.FindAsync (command.Country.Id);
+                            var Country = await command.context.Countries.FindAsync (command.country.Id);
                             
                             if (Country == null)
                             {
-                                return Result<DestinationDAL>.Failure ($"Country does not exist"); 
+                                return Result<DestinationDAL>.Failure ($"Country not found"); 
                             }
-                            if (Country?.Destinations.Where (el => el.PlaceName == command.Destination.PlaceName).Count () > 0)
+                            if (Country?.Destinations.Where (el => el.PlaceName == command.destination.PlaceName).Count () > 0)
                             {
                                 return Result<DestinationDAL>.Failure ($"Destination already exists for this Country");
                             }
 
-                            Country.Destinations.Add(command.Destination);
+                            Country.Destinations.Add(command.destination);
                             await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
 
-                            return Result<DestinationDAL>.Success(command.Destination);
+                            return Result<DestinationDAL>.Success(command.destination);
                         }
                         catch
                         {

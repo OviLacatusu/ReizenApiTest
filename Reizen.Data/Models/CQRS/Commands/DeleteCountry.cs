@@ -19,6 +19,10 @@ namespace Reizen.Data.Models.CQRS.Commands
             {
                 try
                 {
+                    if (command.id < 0)
+                    {
+                        return Result<CountryDAL>.Failure ("Invalid id");
+                    }
                     using (var transaction = await command.context.Database.BeginTransactionAsync ())
                     {
                         try

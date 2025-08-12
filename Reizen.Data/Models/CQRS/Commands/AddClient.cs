@@ -25,7 +25,6 @@ namespace Reizen.Data.Models.CQRS.Commands
                     {
                         try
                         {
-
                             var result = await command.context.Clients.AddAsync (command.klant);
                             await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();

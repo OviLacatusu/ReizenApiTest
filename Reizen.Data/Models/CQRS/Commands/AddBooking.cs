@@ -19,6 +19,9 @@ namespace Reizen.Data.Models.CQRS.Commands
             {
                 try
                 {
+                    if (command.boeking is null)
+                        return Result<BookingDAL>.Failure ("Invalid booking data");
+
                     using (var transaction = await command.context.Database.BeginTransactionAsync ())
                     {
                         try

@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Reizen.CommonClasses\Reizen.CommonClasses.csproj" />
+    <ProjectReference Include="..\Reizen.Data\Reizen.Data.csproj" />
+  </ItemGroup>
+
 </Project>

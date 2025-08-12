@@ -11,7 +11,7 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class AddCountryToContinent
     {
-        public record AddCountryToContinentCommand(CountryDAL Country, ContinentDAL deel, ReizenContext context): ICommand<Result<CountryDAL>>;
+        public record AddCountryToContinentCommand(CountryDAL country, ContinentDAL deel, ReizenContext context): ICommand<Result<CountryDAL>>;
 
         public class AddCountryToContinentCommandHandler : ICommandHandler<AddCountryToContinentCommand, Result<CountryDAL>>
         {
@@ -19,11 +19,12 @@ namespace Reizen.Data.Models.CQRS.Commands
             {
                 try
                 {
+                    if (command.country is null)
+                        return Result<CountryDAL>.Failure ("Invalid country data");
                     using var transaction = await command.context.Database.BeginTransactionAsync ();
                     {
                         try
                         {
-
                             var deelw = await command.context.Continents.FindAsync (command.deel.Id);
 
                             if (deelw == null)
@@ -31,15 +32,15 @@ namespace Reizen.Data.Models.CQRS.Commands
                                 return Result<CountryDAL>.Failure ($"Continent with ID not found");
                             }
 
-                            if (deelw?.Countries.Where (l => command.Country.Name == l.Name).Count () > 0)
+                            if (deelw?.Countries.Where (l => command.country.Name == l.Name).Count () > 0)
                             {
                                 return Result<CountryDAL>.Failure ($"Country already exists on this continent");
                             }
 
-                            deelw.Countries.Add (command.Country);
+                            deelw.Countries.Add (command.country);
                             await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
-                            return Result<CountryDAL>.Success(command.Country);
+                            return Result<CountryDAL>.Success(command.country);
                         }
                         catch
                         {

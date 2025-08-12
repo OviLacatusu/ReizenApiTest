@@ -18,13 +18,17 @@ namespace Reizen.Data.Models.CQRS.Commands
             {
                 try
                 {
+                    if (String.IsNullOrEmpty (command.code))
+                    {
+                        return Result<DestinationDAL>.Failure ("Invalid code");
+                    }
                     using var transaction = await command.context.Database.BeginTransactionAsync ();
                     try
                     {
-                        var Destination = await command.context.Destinations.FindAsync (command.code);
-                        if (Destination == null)
+                        var destinationWithCode = await command.context.Destinations.FindAsync (command.code);
+                        if (destinationWithCode == null)
                             return Result<DestinationDAL>.Failure ($"Destination with code not found");
-                        if (Destination.Trips.Where (r => r.DateOfDeparture > DateOnly.FromDateTime (DateTime.Today)).Any ())
+                        if (destinationWithCode.Trips.Where (r => r.DateOfDeparture > DateOnly.FromDateTime (DateTime.Today)).Any ())
                             return Result<DestinationDAL>.Failure ($"Cannot delete destination with active trips");
 
                         var toDelete = new DestinationDAL { Code = command.code };

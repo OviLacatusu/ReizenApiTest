@@ -1,4 +1,4 @@
-﻿namespace MessagingTrips
+﻿namespace MessagingReizen
 {
     public interface IMessage
     {

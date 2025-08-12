@@ -16,16 +16,14 @@ namespace Reizen.Data.Models.CQRS.Commands
         {
             public async Task<Result<DestinationDAL>> Handle (AddDestinationCommand command)
             {
-                var result = await command.context.Destinations.AddAsync (command.Destination);
-                await command.context.SaveChangesAsync();
+                if (command.Destination is null || command.Destination.Country is null)
+                                return Result<DestinationDAL>.Failure ($"Destination or the country of this destination cannot be null");
                 try
                 {
                     using (var transaction = await command.context.Database.BeginTransactionAsync())
                     {
                         try
-                        {
-                            if (command.Destination is null || command.Destination.Country is null)
-                                return Result<DestinationDAL>.Failure ($"Destination or the country of this destination cannot be null");
+                        { 
                             if (command.context.Destinations.Any (b => b.PlaceName == command.Destination.PlaceName))
                                 return Result<DestinationDAL>.Failure ($"Destination already present");
 

@@ -12,7 +12,7 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class AddCountry
     {
-        public record AddCountryCommand (CountryDAL Country, ReizenContext context) : ICommand<Result<CountryDAL>>;
+        public record AddCountryCommand (CountryDAL country, ReizenContext context) : ICommand<Result<CountryDAL>>;
 
         public class AddCountryCommandHandler : ICommandHandler<AddCountryCommand, Result<CountryDAL>> 
         {
@@ -20,7 +20,7 @@ namespace Reizen.Data.Models.CQRS.Commands
             {
                 try
                 {
-                    if (command.Country == null)
+                    if (command.country is null)
                     {
                         return Result<CountryDAL>.Failure ("Invalid country data");
                     }
@@ -28,17 +28,17 @@ namespace Reizen.Data.Models.CQRS.Commands
                     {
                         try
                         {
-                            var result = command.context.Countries.Where (l => String.Equals(command.Country.Name, l.Name, StringComparison.OrdinalIgnoreCase));
+                            var result = command.context.Countries.Where (l => String.Equals(command.country.Name, l.Name, StringComparison.OrdinalIgnoreCase));
                             if (result != null)
                             {
                                 return Result<CountryDAL>.Failure ($"Country already exists");
                             }
 
-                            await command.context.Countries.AddAsync (command.Country);
+                            await command.context.Countries.AddAsync (command.country);
                             await command.context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
 
-                            return Result<CountryDAL>.Success(command.Country);
+                            return Result<CountryDAL>.Success(command.country);
                         }
                         catch {
                             transaction.Rollback ();

@@ -82,7 +82,7 @@ namespace Reizen.Data.Models.CQRS
             _queryHandlers.Add (handler);
         }
 
-        // Not all queries and commands are plugged in
+        // Not all query and command handlers are plugged in
         public static IMediator? MediatorFactory ()
         {
             var mediator = new Mediator ();
@@ -103,8 +103,6 @@ namespace Reizen.Data.Models.CQRS
             mediator.Register<GetTripWithIdQuery, Result<TripDAL>> (new GetTripWithIdQueryHandler ());
             mediator.Register<GetCountriesQuery, Result<IList<CountryDAL>>> (new GetCountriesQueryHandler ());
             mediator.Register<GetTripsToDestinationQuery, Result<IList<TripDAL>>> (new GetTripsToDestinationQueryHandler());
-
-            //Console.WriteLine (mediator.GetHashCode());
 
             return mediator;
         }
