@@ -11,23 +11,29 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class DeleteCountry
     {
-        public record DeleteCountryCommand (int id, ReizenContext context) : ICommand<Result<CountryDAL>>;
+        public record DeleteCountryCommand (int id) : ICommand<Result<CountryDAL>>;
 
-        public class DeleteCountryCommandHandler (int id) : ICommandHandler<DeleteCountryCommand, Result<CountryDAL>>
+        public class DeleteCountryCommandHandler : ICommandHandler<DeleteCountryCommand, Result<CountryDAL>>
         {
-            public async Task<Result<CountryDAL>> Handle (DeleteCountryCommand command)
+            private ReizenContext _context;
+
+            public DeleteCountryCommandHandler(ReizenContext context)
+            {
+                _context = context;
+            }
+        public async Task<Result<CountryDAL>> Handle (DeleteCountryCommand command)
             {
                 try
                 {
-                    if (command.id < 0)
-                    {
-                        return Result<CountryDAL>.Failure ("Invalid id");
-                    }
-                    using (var transaction = await command.context.Database.BeginTransactionAsync ())
+                    //if (command.id < 0)
+                    //{
+                    //    return Result<CountryDAL>.Failure ("Invalid id");
+                    //}
+                    using (var transaction = await _context.Database.BeginTransactionAsync ())
                     {
                         try
                         {
-                            var existingCountry = await command.context.Countries.FindAsync (command.id);
+                            var existingCountry = await _context.Countries.FindAsync (command.id);
                             if (existingCountry == null)
                             {
                                 return Result<CountryDAL>.Failure ($"Country with ID not found");
@@ -38,9 +44,9 @@ namespace Reizen.Data.Models.CQRS.Commands
                             }
                             CountryDAL? Country = new CountryDAL { Id = command.id };
 
-                            command.context.Attach (Country);
-                            command.context.Countries.Remove (Country);
-                            await command.context.SaveChangesAsync ();
+                            _context.Attach (Country);
+                            _context.Countries.Remove (Country);
+                            await _context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
                             return Result<CountryDAL>.Success(Country);
                         }

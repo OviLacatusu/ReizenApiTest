@@ -11,21 +11,27 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class AddCountryToContinent
     {
-        public record AddCountryToContinentCommand(CountryDAL country, ContinentDAL deel, ReizenContext context): ICommand<Result<CountryDAL>>;
+        public record AddCountryToContinentCommand(CountryDAL country, ContinentDAL deel): ICommand<Result<CountryDAL>>;
 
         public class AddCountryToContinentCommandHandler : ICommandHandler<AddCountryToContinentCommand, Result<CountryDAL>>
         {
+            private ReizenContext _context;
+
+            public AddCountryToContinentCommandHandler (ReizenContext context)
+            {
+                _context = context;
+            }
             public async Task<Result<CountryDAL>> Handle (AddCountryToContinentCommand command)
             {
                 try
                 {
-                    if (command.country is null)
-                        return Result<CountryDAL>.Failure ("Invalid country data");
-                    using var transaction = await command.context.Database.BeginTransactionAsync ();
+                    //if (command.country is null)
+                    //    return Result<CountryDAL>.Failure ("Invalid country data");
+                    using var transaction = await _context.Database.BeginTransactionAsync ();
                     {
                         try
                         {
-                            var deelw = await command.context.Continents.FindAsync (command.deel.Id);
+                            var deelw = await _context.Continents.FindAsync (command.deel.Id);
 
                             if (deelw == null)
                             {
@@ -38,7 +44,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                             }
 
                             deelw.Countries.Add (command.country);
-                            await command.context.SaveChangesAsync ();
+                            await _context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
                             return Result<CountryDAL>.Success(command.country);
                         }

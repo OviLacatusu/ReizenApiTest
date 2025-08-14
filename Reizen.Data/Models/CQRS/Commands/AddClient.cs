@@ -10,23 +10,29 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class AddClient
     {
-        public record AddClientCommand(ClientDAL klant, ReizenContext context) : ICommand<Result<ClientDAL>>;
+        public record AddClientCommand(ClientDAL klant) : ICommand<Result<ClientDAL>>;
 
         public class AddClientCommandHandler : ICommandHandler<AddClientCommand, Result<ClientDAL>>
         {
+            private ReizenContext _context;
+
+            public AddClientCommandHandler (ReizenContext context)
+            {
+                _context = context;
+            }
             public async Task<Result<ClientDAL>> Handle (AddClientCommand command)
             { 
                 try
                 {
-                    if (command.klant is null)
-                        return Result<ClientDAL>.Failure ("Invalid client data");
+                    //if (command.klant is null)
+                    //    return Result<ClientDAL>.Failure ("Invalid client data");
 
-                    using (var transaction = await command.context.Database.BeginTransactionAsync())
+                    using (var transaction = await _context.Database.BeginTransactionAsync())
                     {
                         try
                         {
-                            var result = await command.context.Clients.AddAsync (command.klant);
-                            await command.context.SaveChangesAsync ();
+                            var result = await _context.Clients.AddAsync (command.klant);
+                            await _context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
 
                             return Result<ClientDAL>.Success(result.Entity);

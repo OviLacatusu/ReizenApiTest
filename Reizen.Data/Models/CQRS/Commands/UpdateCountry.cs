@@ -12,27 +12,33 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class UpdateCountry
     {
-        public record UpdateCountryCommand (int id, CountryDAL countryData, ReizenContext context ) : ICommand<Result<CountryDAL>>;
+        public record UpdateCountryCommand (int id, CountryDAL countryData) : ICommand<Result<CountryDAL>>;
 
         public class UpdateClassCommandHandler : ICommandHandler<UpdateCountryCommand, Result<CountryDAL>>
         {
-            public async Task<Result<CountryDAL>> Handle (UpdateCountryCommand command)
+            private ReizenContext _context;
+
+            public UpdateClassCommandHandler(ReizenContext context)
+            {
+                _context = context;
+            }
+        public async Task<Result<CountryDAL>> Handle (UpdateCountryCommand command)
             {
                 try
                 {
-                    if (command.id < 0)
-                    {
-                        return Result<CountryDAL>.Failure ("Invalid id");
-                    }
-                    if (command.countryData is null)
-                    {
-                        return Result<CountryDAL>.Failure ("Iinvalid country data");
-                    }
-                    using (var transaction = await command.context.Database.BeginTransactionAsync ())
+                    //if (command.id < 0)
+                    //{
+                    //    return Result<CountryDAL>.Failure ("Invalid id");
+                    //}
+                    //if (command.countryData is null)
+                    //{
+                    //    return Result<CountryDAL>.Failure ("Iinvalid country data");
+                    //}
+                    using (var transaction = await _context.Database.BeginTransactionAsync ())
                     {
                         try
                         {
-                            var Country = await command.context.Countries.FindAsync (command.id);
+                            var Country = await _context.Countries.FindAsync (command.id);
                             if (Country == null)
                             {
                                 return Result<CountryDAL>.Failure ($"Cannot find Country with ID");
@@ -41,7 +47,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                             Country.Name = command.countryData.Name;
                             Country.Destinations = Country.Destinations;
 
-                            await command.context.SaveChangesAsync ();
+                            await _context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
 
                             return Result<CountryDAL>.Success (Country);

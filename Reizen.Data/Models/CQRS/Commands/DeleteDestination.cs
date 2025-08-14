@@ -10,22 +10,28 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class DeleteDestination
     {
-        public record DeleteDestinationCommand(string code, ReizenContext context) : ICommand<Result<DestinationDAL>>;
+        public record DeleteDestinationCommand(string code) : ICommand<Result<DestinationDAL>>;
 
         public class DeleteDestinationCommandHandler : ICommandHandler<DeleteDestinationCommand, Result<DestinationDAL>>
         {
-            public async Task<Result<DestinationDAL>> Handle (DeleteDestinationCommand command)
+            private ReizenContext _context;
+
+            public DeleteDestinationCommandHandler(ReizenContext context)
+            {
+                _context = context;
+            }
+        public async Task<Result<DestinationDAL>> Handle (DeleteDestinationCommand command)
             {
                 try
                 {
-                    if (String.IsNullOrEmpty (command.code))
-                    {
-                        return Result<DestinationDAL>.Failure ("Invalid code");
-                    }
-                    using var transaction = await command.context.Database.BeginTransactionAsync ();
+                    //if (String.IsNullOrEmpty (command.code))
+                    //{
+                    //    return Result<DestinationDAL>.Failure ("Invalid code");
+                    //}
+                    using var transaction = await _context.Database.BeginTransactionAsync ();
                     try
                     {
-                        var destinationWithCode = await command.context.Destinations.FindAsync (command.code);
+                        var destinationWithCode = await _context.Destinations.FindAsync (command.code);
                         if (destinationWithCode == null)
                             return Result<DestinationDAL>.Failure ($"Destination with code not found");
                         if (destinationWithCode.Trips.Where (r => r.DateOfDeparture > DateOnly.FromDateTime (DateTime.Today)).Any ())
@@ -33,9 +39,9 @@ namespace Reizen.Data.Models.CQRS.Commands
 
                         var toDelete = new DestinationDAL { Code = command.code };
 
-                        command.context.Attach (toDelete);
-                        command.context.Destinations.Remove (toDelete);
-                        await command.context.SaveChangesAsync ();
+                        _context.Attach (toDelete);
+                        _context.Destinations.Remove (toDelete);
+                        await _context.SaveChangesAsync ();
                         await transaction.CommitAsync ();
 
                         return Result<DestinationDAL>.Success (toDelete);

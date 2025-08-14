@@ -10,23 +10,29 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class DeleteClient
     {
-        public record DeleteClientCommand (int klantId, ReizenContext context) : ICommand<Result<ClientDAL>>;
+        public record DeleteClientCommand (int klantId) : ICommand<Result<ClientDAL>>;
 
         public class DeleteClientCommandHandler : ICommandHandler<DeleteClientCommand, Result<ClientDAL>>
         {
-            public async Task<Result<ClientDAL>> Handle (DeleteClientCommand command)
+            private ReizenContext _context;
+
+            public DeleteClientCommandHandler(ReizenContext context)
+            {
+                _context = context;
+            }
+        public async Task<Result<ClientDAL>> Handle (DeleteClientCommand command)
             {
                 try
                 {
-                    if (command.klantId < 0)
-                    {
-                        return Result<ClientDAL>.Failure ("Invalid id");
-                    }
-                    using var transaction = await command.context.Database.BeginTransactionAsync ();
+                    //if (command.klantId < 0)
+                    //{
+                    //    return Result<ClientDAL>.Failure ("Invalid id");
+                    //}
+                    using var transaction = await _context.Database.BeginTransactionAsync ();
                     {
                         try
                         {
-                            var existingClient = await command.context.Clients.FindAsync (command.klantId);
+                            var existingClient = await _context.Clients.FindAsync (command.klantId);
                             if (existingClient == null)
                             {
                                 return Result<ClientDAL>.Failure ($"Customer with ID not found");
@@ -38,9 +44,9 @@ namespace Reizen.Data.Models.CQRS.Commands
                             
                             ClientDAL klant = new ClientDAL { Id = command.klantId };
 
-                            command.context.Attach (klant);
-                            command.context.Clients.Remove (klant);
-                            await command.context.SaveChangesAsync ();
+                            _context.Attach (klant);
+                            _context.Clients.Remove (klant);
+                            await _context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
 
                             return Result<ClientDAL>.Success(klant);

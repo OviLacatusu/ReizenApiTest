@@ -10,23 +10,29 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class DeleteTrip
     {
-        public record DeleteTripCommand(int id, ReizenContext context):ICommand<Result<TripDAL>>;
+        public record DeleteTripCommand(int id):ICommand<Result<TripDAL>>;
 
         public class DeleteTripCommandHandler : ICommandHandler<DeleteTripCommand, Result<TripDAL>>
         {
-            public async Task<Result<TripDAL>> Handle (DeleteTripCommand command)
+            private ReizenContext _context;
+
+            public DeleteTripCommandHandler(ReizenContext context)
+            {
+                _context = context;
+            }
+        public async Task<Result<TripDAL>> Handle (DeleteTripCommand command)
             {
                 try
                 {
-                    if (command.id<0)
-                    {
-                        return Result<TripDAL>.Failure ("Invalid id");
-                    }
-                    using (var transaction = await command.context.Database.BeginTransactionAsync ())
+                    //if (command.id<0)
+                    //{
+                    //    return Result<TripDAL>.Failure ("Invalid id");
+                    //}
+                    using (var transaction = await _context.Database.BeginTransactionAsync ())
                     {
                         try
                         {
-                            var existingTrip = await command.context.Trips.FindAsync (command.id);
+                            var existingTrip = await _context.Trips.FindAsync (command.id);
                             if (existingTrip == null)
                             {
                                 return Result<TripDAL>.Failure ($"Trip with ID not found");
@@ -37,9 +43,9 @@ namespace Reizen.Data.Models.CQRS.Commands
                             }
                             TripDAL? trip = new TripDAL { Id = command.id };
 
-                            command.context.Attach (trip);
-                            command.context.Trips.Remove (trip);
-                            await command.context.SaveChangesAsync ();
+                            _context.Attach (trip);
+                            _context.Trips.Remove (trip);
+                            await _context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
                             return Result<TripDAL>.Success (trip);
                         }

@@ -11,28 +11,34 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class UpdateClient
     {
-        public record UpdateClientCommand (ClientDAL klantData, int klantId, ReizenContext context) : ICommand<Result<ClientDAL>>;
+        public record UpdateClientCommand (ClientDAL klantData, int klantId) : ICommand<Result<ClientDAL>>;
 
         public class UpdateClientCommandHandler : ICommandHandler<UpdateClientCommand, Result<ClientDAL>>
         {
-            public async Task<Result<ClientDAL>> Handle (UpdateClientCommand command)
+            private ReizenContext _context;
+
+            public UpdateClientCommandHandler(ReizenContext context)
+            {
+                _context = context;
+            }
+        public async Task<Result<ClientDAL>> Handle (UpdateClientCommand command)
             {
                 try
                 {
-                    if (command.klantData is null)
-                    {
-                        return Result<ClientDAL>.Failure ("Invalid client data");
-                    }
-                    if (command.klantId < 0)
-                    {
-                        return Result<ClientDAL>.Failure ("Invalid id");
-                    }
-                    using (var transaction = await command.context.Database.BeginTransactionAsync ())
+                //    if (command.klantData is null)
+                //    {
+                //        return Result<ClientDAL>.Failure ("Invalid client data");
+                //    }
+                //    if (command.klantId < 0)
+                //    {
+                //        return Result<ClientDAL>.Failure ("Invalid id");
+                //    }
+                    using (var transaction = await _context.Database.BeginTransactionAsync ())
                     {
                         try
                         {
 
-                            var klant = await command.context.Clients.FindAsync (command.klantId);
+                            var klant = await _context.Clients.FindAsync (command.klantId);
                             if (klant == null)
                                 return Result<ClientDAL>.Failure ($"Cannot find customer with ID");
 
@@ -40,7 +46,7 @@ namespace Reizen.Data.Models.CQRS.Commands
                             klant.FamilyName = command.klantData.FamilyName;
                             klant.Address = command.klantData.Address;
 
-                            await command.context.SaveChangesAsync ();
+                            await _context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
 
                             return Result<ClientDAL>.Success(klant);

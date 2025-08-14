@@ -10,23 +10,29 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class DeleteBooking
     {
-        public record DeleteBookingCommand(int id, ReizenContext context) : ICommand<Result<BookingDAL>>;
+        public record DeleteBookingCommand(int id) : ICommand<Result<BookingDAL>>;
 
         public class DeleteBookingCommandHandler : ICommandHandler<DeleteBookingCommand, Result<BookingDAL>>
         {
-            public async Task<Result<BookingDAL>> Handle (DeleteBookingCommand command)
+            private ReizenContext _context;
+
+            public DeleteBookingCommandHandler(ReizenContext context)
+            {
+                _context = context;
+            }
+        public async Task<Result<BookingDAL>> Handle (DeleteBookingCommand command)
             {
                 try
                 {
-                    if (command.id < 0)
-                    {
-                        return Result<BookingDAL>.Failure ($"Id of booking cannot be negative");
-                    }
-                    using (var transaction = await command.context.Database.BeginTransactionAsync ())
+                    //if (command.id < 0)
+                    //{
+                    //    return Result<BookingDAL>.Failure ($"Id of booking cannot be negative");
+                    //}
+                    using (var transaction = await _context.Database.BeginTransactionAsync ())
                     {
                         try
                         {
-                            var existingBooking = command.context.Bookings.FirstOrDefault (el => el.Id == command.id);
+                            var existingBooking = _context.Bookings.FirstOrDefault (el => el.Id == command.id);
                             if (existingBooking == null)
                             {
                                 return Result<BookingDAL>.Failure ($"Booking does not exist");
@@ -34,9 +40,9 @@ namespace Reizen.Data.Models.CQRS.Commands
                             
                             var boeking = new BookingDAL { Id = command.id };
 
-                            command.context.Attach (boeking);
-                            command.context.Bookings.Remove (boeking);
-                            await command.context.SaveChangesAsync ();
+                            _context.Attach (boeking);
+                            _context.Bookings.Remove (boeking);
+                            await _context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
 
                             return Result<BookingDAL>.Success(boeking);

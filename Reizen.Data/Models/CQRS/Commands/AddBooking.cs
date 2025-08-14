@@ -11,30 +11,34 @@ namespace Reizen.Data.Models.CQRS.Commands
 {
     public sealed class AddBooking
     {
-        public record AddBookingCommand(BookingDAL boeking, ReizenContext context) : ICommand<Result<BookingDAL>>;
+        public record AddBookingCommand(BookingDAL boeking) : ICommand<Result<BookingDAL>>;
 
         public class AddBookingCommandHandler : ICommandHandler<AddBookingCommand, Result<BookingDAL>>
         {
+            private ReizenContext _context;
+
+            public AddBookingCommandHandler(ReizenContext context)
+            {   
+                _context = context;
+            }
+
             public async Task<Result<BookingDAL>> Handle (AddBookingCommand command)
             {
                 try
                 {
-                    if (command.boeking is null)
-                        return Result<BookingDAL>.Failure ("Invalid booking data");
-
-                    using (var transaction = await command.context.Database.BeginTransactionAsync ())
+                    using (var transaction = await _context.Database.BeginTransactionAsync ())
                     {
                         try
                         {
-                            var existingBooking = await command.context.Bookings.Where (b => b.ClientId == command.boeking.ClientId && b.TripId == command.boeking.TripId).ToListAsync ();
+                            var existingBooking = await _context.Bookings.Where (b => b.ClientId == command.boeking.ClientId && b.TripId == command.boeking.TripId).ToListAsync ();
 
                             if (existingBooking.Any ())
                             {
                                 await transaction.RollbackAsync ();
                                 return Result<BookingDAL>.Failure ("Booking already exists for this client");
                             }
-                            var result = await command.context.Bookings.AddAsync (command.boeking);
-                            await command.context.SaveChangesAsync ();
+                            var result = await _context.Bookings.AddAsync (command.boeking);
+                            await _context.SaveChangesAsync ();
                             await transaction.CommitAsync ();
                             
                             return Result<BookingDAL>.Success(command.boeking);
