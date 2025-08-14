@@ -48,7 +48,7 @@ namespace Reizen.Data.Services
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<AddClientCommand, Result<ClientDAL>> (new AddClientCommand (klant, context));
+                return await mediator.ExecuteCommand<AddClientCommand, Result<ClientDAL>> (new AddClientCommand (klant));
             }
         }
 
@@ -56,7 +56,7 @@ namespace Reizen.Data.Services
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<UpdateClientCommand, Result<ClientDAL>> (new UpdateClientCommand (klantDetails, id, context));
+                return await mediator.ExecuteCommand<UpdateClientCommand, Result<ClientDAL>> (new UpdateClientCommand (klantDetails, id));
             }
         }
 
@@ -64,7 +64,7 @@ namespace Reizen.Data.Services
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<DeleteClientCommand, Result<ClientDAL>> (new DeleteClientCommand (id, context));
+                return await mediator.ExecuteCommand<DeleteClientCommand, Result<ClientDAL>> (new DeleteClientCommand (id));
             }
         }
     }

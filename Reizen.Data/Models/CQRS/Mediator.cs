@@ -55,6 +55,7 @@ namespace Reizen.Data.Models.CQRS
         public async Task<TResult?> ExecuteCommand<TCommand, TResult> (TCommand command) where TCommand : ICommand<TResult>
                                                                                          where TResult : class 
         {
+            _logger.LogInformation ($"Executing command: {command.GetType().Name}");
             using var context = _dbContextFactory.CreateDbContext ();
             var message = new CQRSMessage
             {
@@ -62,7 +63,7 @@ namespace Reizen.Data.Models.CQRS
                 Id = new Guid (),
                 Status = CQRSMessage.MessageStatus.Pending,
                 Value = SerializeCommand<TCommand, TResult> (command),
-                Type = typeof (TCommand).ToString ()
+                Type = typeof (TCommand).Name
             };
             context.OutboxCQRSMessages.Add (message);
             var result = await context.SaveChangesAsync ();
@@ -130,7 +131,9 @@ namespace Reizen.Data.Models.CQRS
         {
             if (_mediator is null)
             {
+                
                 _mediator = new Mediator (logger, contextFactory);
+                logger.LogInformation ($"Creating a mediator instance: {_mediator.GetHashCode()}");
 
                 _mediator.Register<GetDestinationsOfCountryQuery, Result<IList<DestinationDAL>>> (new GetDestinationsOfCountryQueryHandler ());
                 _mediator.Register<GetClientsQuery, Result<IList<ClientDAL>>> (new GetClientsQueryHandler ());
@@ -149,7 +152,7 @@ namespace Reizen.Data.Models.CQRS
                 _mediator.Register<GetCountriesQuery, Result<IList<CountryDAL>>> (new GetCountriesQueryHandler ());
                 _mediator.Register<GetTripsToDestinationQuery, Result<IList<TripDAL>>> (new GetTripsToDestinationQueryHandler ());
             }
-
+            logger.LogInformation ($"Returning mediator instance from factory method");
             return _mediator;
         }
     }

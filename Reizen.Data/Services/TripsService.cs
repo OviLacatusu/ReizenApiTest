@@ -31,7 +31,7 @@ namespace Reizen.Data.Services
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<AddTripToDestinationCommand, Result<TripDAL>> (new AddTripToDestinationCommand (trip, Destination, context));
+                return await mediator.ExecuteCommand<AddTripToDestinationCommand, Result<TripDAL>> (new AddTripToDestinationCommand (trip, Destination));
             }
         }
 
@@ -47,7 +47,7 @@ namespace Reizen.Data.Services
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<DeleteTripCommand, Result<TripDAL>> (new DeleteTripCommand (id, context));
+                return await mediator.ExecuteCommand<DeleteTripCommand, Result<TripDAL>> (new DeleteTripCommand (id));
             }
         }
 

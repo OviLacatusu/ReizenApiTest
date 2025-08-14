@@ -67,7 +67,7 @@ namespace Reizen.Data.Services
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<AddCountryToContinentCommand, Result<CountryDAL>> (new AddCountryToContinentCommand(Country, deel, context));
+                return await mediator.ExecuteCommand<AddCountryToContinentCommand, Result<CountryDAL>> (new AddCountryToContinentCommand(Country, deel));
             }
         }
 
@@ -75,7 +75,7 @@ namespace Reizen.Data.Services
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<AddDestinationCommand, Result<DestinationDAL>> (new AddDestinationCommand(context, Destination));
+                return await mediator.ExecuteCommand<AddDestinationCommand, Result<DestinationDAL>> (new AddDestinationCommand(Destination));
             }
         }
 
@@ -91,7 +91,7 @@ namespace Reizen.Data.Services
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<AddCountryCommand, Result<CountryDAL>> (new AddCountryCommand (Country, context));
+                return await mediator.ExecuteCommand<AddCountryCommand, Result<CountryDAL>> (new AddCountryCommand (Country));
             }
         }
 
@@ -99,14 +99,14 @@ namespace Reizen.Data.Services
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<UpdateCountryCommand, Result<CountryDAL>> (new UpdateCountryCommand (id, Country, context));
+                return await mediator.ExecuteCommand<UpdateCountryCommand, Result<CountryDAL>> (new UpdateCountryCommand (id, Country));
             }
         }
         public async Task<Result<CountryDAL>> DeleteCountryWithIdAsync (int id)
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand <DeleteCountryCommand, Result<CountryDAL>> (new DeleteCountryCommand (id, context));
+                return await mediator.ExecuteCommand <DeleteCountryCommand, Result<CountryDAL>> (new DeleteCountryCommand (id));
             }
         }
 
@@ -114,7 +114,7 @@ namespace Reizen.Data.Services
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<DeleteDestinationCommand, Result<DestinationDAL>> (new DeleteDestinationCommand (code, context));
+                return await mediator.ExecuteCommand<DeleteDestinationCommand, Result<DestinationDAL>> (new DeleteDestinationCommand (code));
             }
         }
 

@@ -22,7 +22,7 @@ namespace Reizen.Data.Services
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<AddBookingCommand, Result<BookingDAL>> (new AddBookingCommand (boeking, context));
+                return await mediator.ExecuteCommand<AddBookingCommand, Result<BookingDAL>> (new AddBookingCommand (boeking));
             }
         }
 
@@ -30,7 +30,7 @@ namespace Reizen.Data.Services
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<DeleteBookingCommand, Result<BookingDAL>> (new DeleteBookingCommand (id, context));
+                return await mediator.ExecuteCommand<DeleteBookingCommand, Result<BookingDAL>> (new DeleteBookingCommand (id));
             }
         }
 
@@ -54,7 +54,7 @@ namespace Reizen.Data.Services
         {
             using (var context = factory.CreateDbContext ())
             {
-                return await mediator.ExecuteCommand<UpdateBookingCommand, Result<BookingDAL>> (new UpdateBookingCommand (boeking, id, context));
+                return await mediator.ExecuteCommand<UpdateBookingCommand, Result<BookingDAL>> (new UpdateBookingCommand (boeking, id));
             }
         }
     }
