@@ -8,9 +8,14 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContextFactory<ReizenContext> (options => options.UseSqlServer( builder.Configuration.GetConnectionString("ReizenDB")));
-
-builder.Services.AddTransient<IMediator> (_ => Mediator.MediatorFactory ());
+builder.Services.AddDbContextFactory<ReizenContext> (options => options.UseSqlServer( builder.Configuration.GetConnectionString("ReizenDB2")));
+//builder.Services.AddScoped<ILoggerFactory> ();
+builder.Services.AddTransient<IMediator> (_ => 
+                                                {
+                                                    var logger = _.GetService<ILogger<Mediator>>();
+                                                    var dbContext = _.GetService<IDbContextFactory< ReizenContext>>();
+                                                    return Mediator.MediatorFactory (logger, dbContext); 
+                                                });
 
 builder.Services.AddScoped<IClientsRepository,ClientsService> ();
 builder.Services.AddScoped<ICountriesContinentsRepository, CountriesService> ();
