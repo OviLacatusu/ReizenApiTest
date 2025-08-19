@@ -32,7 +32,7 @@ builder.Services.AddDbContext<ApplicationDbContext> (options =>
     options.UseSqlServer (connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter ();
 
-var test = builder.Configuration.GetSection ("Settings");
+var test = builder.Configuration.GetSection ("Settings"); 
 builder.Services.Configure<ConfigOptions> (test);
 
 builder.Services.AddBlazoredSessionStorage ();
@@ -50,6 +50,7 @@ builder.Services.AddHttpClient ("", client =>
 { 
     client.BaseAddress = new Uri (ConfigOptions.httpReizenApiUri); 
 });
+// named httpClient for Google access that will add to each request an access token for authorization
 builder.Services.AddHttpClient ("GoogleAccess", client =>
 {
     client.BaseAddress = new Uri (ConfigOptions.httpReizenApiUri);

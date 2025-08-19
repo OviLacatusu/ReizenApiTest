@@ -9,13 +9,12 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContextFactory<ReizenContext> (options => options.UseSqlServer( builder.Configuration.GetConnectionString("ReizenDB2")));
-//builder.Services.AddScoped<ILoggerFactory> ();
 builder.Services.AddTransient<IMediator> (_ => 
-                                                {
-                                                    var logger = _.GetService<ILogger<Mediator>>();
-                                                    var dbContext = _.GetService<IDbContextFactory< ReizenContext>>();
-                                                    return Mediator.MediatorFactory (logger, dbContext); 
-                                                });
+{ 
+    var logger = _.GetService<ILogger<Mediator>>();
+    var dbContextFactory = _.GetService<IDbContextFactory< ReizenContext>>();
+    return new Mediator (logger, dbContextFactory); 
+});
 
 builder.Services.AddScoped<IClientsRepository,ClientsService> ();
 builder.Services.AddScoped<ICountriesContinentsRepository, CountriesService> ();
